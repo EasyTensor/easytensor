@@ -1,0 +1,7 @@
+version: "3.8"
+services:
+  main:
+    image: tensorflow/tensorflow
+    command: bash -c "echo \"sleeping\" && sleep infinity"
+    volumes:
+      - ~/repos/idk/src/:/src/
