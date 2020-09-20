@@ -3,6 +3,8 @@ services:
   
   main:
     image: tensorflow/tensorflow
+    environment:
+      - IDK_REPO_PATH=$IDK_REPO_PATH
     command: bash -c "echo \"sleeping\" && sleep infinity"
     volumes:
-      - ~/idk/src/:/src/
+      - $IDK_REPO_PATH/src/:/src/
