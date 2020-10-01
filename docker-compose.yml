@@ -8,3 +8,6 @@ services:
     command: bash -c "echo \"sleeping\" && sleep infinity"
     volumes:
       - $IDK_REPO_PATH/src/:/src/
+
+  file_upload:
+    image: easytensor/tusd
