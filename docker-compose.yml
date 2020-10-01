@@ -1,6 +1,5 @@
 version: "3.8"
 services:
-  
   main:
     image: tensorflow/tensorflow
     environment:
@@ -10,4 +9,11 @@ services:
       - $IDK_REPO_PATH/src/:/src/
 
   file_upload:
+    networks:
+      - main-net
     image: easytensor/tusd
+    ports:
+      - "1080:1080"
+networks:
+  main-net:
+    driver: bridge

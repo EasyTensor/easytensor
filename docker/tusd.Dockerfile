@@ -15,4 +15,4 @@ RUN \
 
 RUN mkdir -p /tusd-uploads
 
-CMD [ "/bin/tusd", "-behind-proxy", "-dir", "/tusd-uploads" ]
+CMD [ "/bin/tusd", "-behind-proxy", "-upload-dir", "/tusd-uploads/" ]
