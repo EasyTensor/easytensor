@@ -1,0 +1,25 @@
+apiVersion: skaffold/v2beta8
+kind: Config
+metadata:
+  name: easytensor
+build:
+  artifacts:
+  - image: easytensor/tusd
+    context: docker
+    docker:
+      dockerfile: tusd.Dockerfile
+deploy:
+  kustomize:
+    paths:
+    - k8s/dev
+profiles:
+- name: base
+  deploy:
+    kustomize:
+      paths:
+      - k8s/base
+- name: prod
+  deploy:
+    kustomize:
+      paths:
+      - k8s/prod
