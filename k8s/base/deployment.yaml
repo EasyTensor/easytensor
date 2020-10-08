@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: et-tf-serve
+  labels:
+    app: easytensor
+    service: tf-serve
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: easytensor
+      service: tf-serve
+  template:
+    metadata:
+      labels:
+        app: easytensor
+        service: tf-serve
+    spec:
+      containers:
+      - name: tf-serve
+        image: tensorflow/serving
+        ports:
+        - containerPort: 8500
+        - containerPort: 8501
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: et-upload
+  labels:
+    app: easytensor
+    service: upload
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: easytensor
+  template:
+    metadata:
+      labels:
+        app: easytensor
+        service: upload
+    spec:
+      containers:
+      - name: upload
+        image: easytensor/tusd
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 1080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: upload-service
+spec:
+  selector: 
+    app: easytensor
+    service: upload
+  ports:
+    - protocol: TCP
+      port: 1080

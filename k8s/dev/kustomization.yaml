@@ -6,12 +6,12 @@ bases:
   - ../base
 
 # list of Resource Config to be Applied
-# resources:
-# - deployment.yaml
+resources:
+- deployment.yaml
 
 # namespace to deploy all Resources to
-namespace: prod
+namespace: dev
 
 # labels added to all Resources
 commonLabels:
-  deployment_env: prod
+  deployment_env: local_dev
