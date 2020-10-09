@@ -45,7 +45,6 @@ spec:
       containers:
       - name: upload
         image: easytensor/tusd
-        imagePullPolicy: Never
         ports:
         - containerPort: 1080
 ---
