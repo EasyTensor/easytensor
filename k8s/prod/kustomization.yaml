@@ -8,7 +8,9 @@ bases:
 # list of Resource Config to be Applied
 # resources:
 # - deployment.yaml
-
+images:
+  - name: easytensor/tusd
+    newName: gcr.io/easytensor-291022/tusd
 # namespace to deploy all Resources to
 namespace: prod
 
