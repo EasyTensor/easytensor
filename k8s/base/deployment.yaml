@@ -23,6 +23,7 @@ spec:
         ports:
         - containerPort: 8500
         - containerPort: 8501
+        imagePullPolicy: IfNotPresent
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -47,6 +48,7 @@ spec:
         image: easytensor/tusd
         ports:
         - containerPort: 1080
+        imagePullPolicy: IfNotPresent
 ---
 apiVersion: v1
 kind: Service
@@ -59,3 +61,44 @@ spec:
   ports:
     - protocol: TCP
       port: 1080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: et-frontend
+  labels:
+    app: easytensor
+    service: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: easytensor
+  template:
+    metadata:
+      labels:
+        app: easytensor
+        service: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: frontend
+        ports:
+        - containerPort: 3000
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: frontend-properties
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  selector: 
+    app: easytensor
+    service: frontend
+  ports:
+    - protocol: TCP
+      port: 3000

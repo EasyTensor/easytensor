@@ -17,3 +17,7 @@ namespace: prod
 # labels added to all Resources
 commonLabels:
   deployment_env: prod
+
+configMapGenerator:
+- name: frontend-properties
+  env: frontend.properties
