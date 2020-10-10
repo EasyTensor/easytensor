@@ -5,9 +5,9 @@ metadata:
 build:
   artifacts:
   - image: easytensor/tusd
-    context: docker
+    context: upload
     docker:
-      dockerfile: tusd.Dockerfile
+      dockerfile: Dockerfile
   - image: frontend
     context: frontend
     docker:
