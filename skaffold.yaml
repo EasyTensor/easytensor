@@ -8,6 +8,10 @@ build:
     context: docker
     docker:
       dockerfile: tusd.Dockerfile
+  - image: frontend
+    context: frontend
+    docker:
+      dockerfile: Dockerfile
 deploy:
   kustomize:
     paths:
