@@ -8,5 +8,5 @@ RUN pip3 install -r Pipfile
 COPY . .
 
 EXPOSE 8000
-
+ENV PYTHONPATH=/app
 CMD ./start_app.sh
