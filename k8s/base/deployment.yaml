@@ -82,7 +82,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: frontend
+        image: easytensor/frontend
         ports:
         - containerPort: 3000
         imagePullPolicy: IfNotPresent
@@ -102,3 +102,40 @@ spec:
   ports:
     - protocol: TCP
       port: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: et-backend
+  labels:
+    app: easytensor
+    service: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: easytensor
+  template:
+    metadata:
+      labels:
+        app: easytensor
+        service: backend
+    spec:
+      containers:
+      - name: backend
+        image: easytensor/backend
+        ports:
+        - containerPort: 8000
+        imagePullPolicy: IfNotPresent
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector: 
+    app: easytensor
+    service: backend
+  ports:
+    - protocol: TCP
+      port: 8000

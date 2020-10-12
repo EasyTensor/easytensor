@@ -8,8 +8,14 @@ build:
     context: upload
     docker:
       dockerfile: Dockerfile
-  - image: frontend
+  - image: easytensor/frontend
     context: frontend
+    docker:
+      dockerfile: Dockerfile
+    sync: 
+      infer: ["**/*"]
+  - image: easytensor/backend
+    context: backend
     docker:
       dockerfile: Dockerfile
 deploy:
