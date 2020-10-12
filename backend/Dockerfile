@@ -4,3 +4,9 @@ RUN mkdir /app
 WORKDIR /app
 COPY Pipfile /app/Pipfile
 RUN pip3 install -r Pipfile
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ./start_app.sh
