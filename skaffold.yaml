@@ -18,6 +18,12 @@ build:
     context: backend
     docker:
       dockerfile: Dockerfile
+  - image: easytensor/controller
+    context: controller
+    docker:
+      dockerfile: Dockerfile
+    sync:
+      infer: ["**/*"]
 deploy:
   kustomize:
     paths:

@@ -139,3 +139,27 @@ spec:
   ports:
     - protocol: TCP
       port: 8000
+---
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: et-controller
+  labels:
+    app: easytensor
+    service: controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: easytensor
+  template:
+    metadata:
+      labels:
+        app: easytensor
+        service: controller
+    spec:
+      containers:
+      - name: controller
+        image: easytensor/controller
+        imagePullPolicy: IfNotPresent
