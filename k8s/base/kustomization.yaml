@@ -5,3 +5,7 @@ kind: Kustomization
 # list of Resource Config to be Applied
 resources:
 - deployment.yaml
+
+configMapGenerator:
+- name: backend-properties
+  env: backend.properties

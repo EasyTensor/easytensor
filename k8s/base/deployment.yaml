@@ -127,6 +127,18 @@ spec:
         ports:
         - containerPort: 8000
         imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: gsa
+          mountPath: "/app/gsa"
+          readOnly: true
+        envFrom:
+        - configMapRef:
+            name: backend-properties
+      volumes:
+      - name: gsa
+        secret:
+          secretName: google-service-account
+      
 ---
 apiVersion: v1
 kind: Service

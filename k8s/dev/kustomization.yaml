@@ -20,3 +20,9 @@ commonLabels:
 configMapGenerator:
 - name: frontend-properties
   env: frontend.properties
+
+secretGenerator:
+- name: google-service-account
+  files: 
+    - google-SA-secret.txt
+  type: Opaque
