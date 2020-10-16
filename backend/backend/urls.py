@@ -16,13 +16,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers, serializers, viewsets
-from uploads.views import ModelUploadViewSet
+from uploads.views import ModelUploadViewSet, ModelViewSet
 
 from django.db import models
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
 router.register(r'model-uploads', ModelUploadViewSet)
+router.register(r'models', ModelViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

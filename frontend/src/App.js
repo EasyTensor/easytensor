@@ -1,6 +1,5 @@
 import React from 'react';
 import Uppy from '@uppy/core'
-import Tus from '@uppy/tus'
 import AwsS3 from '@uppy/aws-s3'
 import { Dashboard } from '@uppy/react'
 import '@uppy/core/dist/style.css'
@@ -12,7 +11,7 @@ import './App.css';
 
 const uppy = new Uppy({
   meta: { type: 'avatar' },
-  restrictions: { maxNumberOfFiles: 20 },
+  restrictions: { maxNumberOfFiles: 1, allowedFileTypes: [".7z", ".zip", ".tar.gz"]  },
   autoProceed: false
 })
 
@@ -50,19 +49,30 @@ uppy.use(AwsS3, {
   }
 })
 
+function uuidv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+uppy.on('file-added', (file) => {
+  file.original_name = file.name
+  file.name = uuidv4()
+  console.log('Added file', file)
+})
 uppy.on('upload-success', (file, response) => {
+  console.log(file)
   console.log(response)
-  console.log(file.name, response.uploadURL)
   var file_location = response.uploadURL.split("/").pop()
   console.log("file location:", file_location)
-  console.log(file.meta['key'])
-  // axios.post(
-  //   `http://${process.env.REACT_APP_BACKEND_SERVER_URL}:8000/model-uploads/`,
-  //   {
-  //     "original_name": file.name,
-  //     "upload_location": file_location
-  //   }
-  // )
+  axios.post(
+    `http://${process.env.REACT_APP_BACKEND_SERVER_URL}:8000/models/`,
+    {
+      "model_address": file.name,
+      "model_name": file.original_name
+    }
+  )
 })
 
 
