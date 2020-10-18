@@ -4,40 +4,40 @@ metadata:
   name: easytensor
 build:
   artifacts:
-  - image: easytensor/tusd
-    context: upload
-    docker:
-      dockerfile: Dockerfile
-  - image: easytensor/frontend
-    context: frontend
-    docker:
-      dockerfile: Dockerfile
-    sync: 
-      infer: ["**/*"]
-  - image: easytensor/backend
-    context: backend
-    docker:
-      dockerfile: Dockerfile
-    sync:
-      infer: ["**/*"]
-  - image: easytensor/controller
-    context: controller
-    docker:
-      dockerfile: Dockerfile
-    sync:
-      infer: ["**/*"]
+    - image: easytensor/upload
+      context: upload
+      docker:
+        dockerfile: Dockerfile
+    - image: easytensor/frontend
+      context: frontend
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        infer: ["**/*"]
+    - image: easytensor/backend
+      context: backend
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        infer: ["**/*"]
+    - image: easytensor/controller
+      context: controller
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        infer: ["**/*"]
 deploy:
   kustomize:
     paths:
-    - k8s/dev
+      - k8s/dev
 profiles:
-- name: base
-  deploy:
-    kustomize:
-      paths:
-      - k8s/base
-- name: prod
-  deploy:
-    kustomize:
-      paths:
-      - k8s/prod
+  - name: base
+    deploy:
+      kustomize:
+        paths:
+          - k8s/base
+  - name: prod
+    deploy:
+      kustomize:
+        paths:
+          - k8s/prod

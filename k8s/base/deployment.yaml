@@ -6,7 +6,7 @@ metadata:
     app: easytensor
     service: tf-serve
 spec:
-  replicas: 3
+  replicas: 0
   selector:
     matchLabels:
       app: easytensor
@@ -18,12 +18,12 @@ spec:
         service: tf-serve
     spec:
       containers:
-      - name: tf-serve
-        image: tensorflow/serving
-        ports:
-        - containerPort: 8500
-        - containerPort: 8501
-        imagePullPolicy: IfNotPresent
+        - name: tf-serve
+          image: tensorflow/serving
+          ports:
+            - containerPort: 8500
+            - containerPort: 8501
+          imagePullPolicy: IfNotPresent
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -44,18 +44,18 @@ spec:
         service: upload
     spec:
       containers:
-      - name: upload
-        image: easytensor/tusd
-        ports:
-        - containerPort: 1080
-        imagePullPolicy: IfNotPresent
+        - name: upload
+          image: easytensor/upload
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 1080
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: upload-service
 spec:
-  selector: 
+  selector:
     app: easytensor
     service: upload
   ports:
@@ -81,14 +81,14 @@ spec:
         service: frontend
     spec:
       containers:
-      - name: frontend
-        image: easytensor/frontend
-        ports:
-        - containerPort: 3000
-        imagePullPolicy: IfNotPresent
-        envFrom:
-        - configMapRef:
-            name: frontend-properties
+        - name: frontend
+          image: easytensor/frontend
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: frontend-properties
 
 ---
 apiVersion: v1
@@ -96,7 +96,7 @@ kind: Service
 metadata:
   name: frontend-service
 spec:
-  selector: 
+  selector:
     app: easytensor
     service: frontend
   ports:
@@ -107,14 +107,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: et-backend
-  labels:
-    app: easytensor
-    service: backend
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: easytensor
+      service: backend
   template:
     metadata:
       labels:
@@ -122,36 +120,35 @@ spec:
         service: backend
     spec:
       containers:
-      - name: backend
-        image: easytensor/backend
-        ports:
-        - containerPort: 8000
-        imagePullPolicy: IfNotPresent
-        volumeMounts:
-        - name: gsa
-          mountPath: "/app/gsa"
-          readOnly: true
-        envFrom:
-        - configMapRef:
-            name: backend-properties
+        - name: backend
+          image: easytensor/backend
+          ports:
+            - containerPort: 8000
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: gsa
+              mountPath: "/app/gsa"
+              readOnly: true
+          envFrom:
+            - configMapRef:
+                name: backend-properties
       volumes:
-      - name: gsa
-        secret:
-          secretName: google-service-account
-      
+        - name: gsa
+          secret:
+            secretName: google-service-account
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: backend-service
 spec:
-  selector: 
+  selector:
     app: easytensor
     service: backend
   ports:
     - protocol: TCP
       port: 8000
----
+      name: http
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -171,7 +168,40 @@ spec:
         app: easytensor
         service: controller
     spec:
+      serviceAccountName: deployment-control-sa
       containers:
-      - name: controller
-        image: easytensor/controller
-        imagePullPolicy: IfNotPresent
+        - name: controller
+          image: easytensor/controller
+          imagePullPolicy: IfNotPresent
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: deployment-control-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: dev
+  name: deployment-controller
+rules:
+  - apiGroups: ["apps"] # "apps" indicates pods api group
+    resources: ["deployments"]
+    verbs: ["get", "watch", "list", "create", "update", "delete", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+# This role binding allows "jane" to read pods in the "default" namespace.
+# You need to already have a Role named "pod-reader" in that namespace.
+kind: RoleBinding
+metadata:
+  name: control-deployments
+  namespace: dev
+subjects:
+  - kind: ServiceAccount
+    name: deployment-control-sa
+    namespace: dev
+roleRef:
+  # "roleRef" specifies the binding to a Role / ClusterRole
+  kind: Role #this must be Role or ClusterRole
+  name: deployment-controller # this must match the name of the Role or ClusterRole you wish to bind to
+  apiGroup: rbac.authorization.k8s.io
