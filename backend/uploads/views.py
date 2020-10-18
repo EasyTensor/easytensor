@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django import views
+from django.http.response import JsonResponse
 from uploads.models import ModelUpload, Model
 from rest_framework import viewsets, serializers
 from rest_framework.response import Response
@@ -53,3 +54,7 @@ class ModelViewSet(viewsets.ModelViewSet):
         else:
             return ErrorResponse(msg="Can not create Model", errors=serializer.errors)
         return Response(serializer.data)
+
+
+def health_check(request):
+    return JsonResponse({"status": "ok"})

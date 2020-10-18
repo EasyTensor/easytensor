@@ -15,14 +15,20 @@
 """
 Creates, updates, and deletes a deployment using AppsV1Api.
 """
+import logging
+import time
 from pprint import pprint
 from kubernetes import client, config
 import aiohttp
 import asyncio
+from aiohttp.client_exceptions import ClientConnectorError
 
 DEPLOYMENT_NAME = "nginx-deployment"
 BACKEND_SERVICE_URL = "http://backend-service"
 MODELS_URL = f"{BACKEND_SERVICE_URL}:8000/models/"
+
+logging.basicConfig(level=logging.INFO)
+LOGGER = logging.getLogger(__name__)
 
 
 class Model:
@@ -117,11 +123,10 @@ async def get_model_list():
 
 async def get_idea_model_state():
     model_list = await get_model_list()
-    pprint(model_list)
-    return list(
+    return [
         Model(address=model["address"], size=model["size"], scale=model["scale"])
         for model in model_list
-    )
+    ]
 
 
 def get_deployed_model_list(apps_v1):
@@ -142,18 +147,25 @@ def get_deployed_model_list(apps_v1):
 
 
 async def control():
+    global LOGGER
+    failures = 0
     config.load_incluster_config()
     apps_v1 = client.AppsV1Api()
     while True:
-        ideal_models = await get_idea_model_state()
+        try:
+            ideal_models = await get_idea_model_state()
+        except ClientConnectorError:
+            LOGGER.exception("failed to contact backend service")
+            if failures > 5:
+                raise Exception("5 consecurtive failures. Quitting")
+            await asyncio.sleep(3)  # 3 seconds
+            continue # skip this iteration
         print("ideal models:")
         pprint(ideal_models)
         current = get_deployed_model_list(apps_v1)
-        print("current models:")
         pprint(current)
-        import time
+        await asyncio.sleep(3)  # 3 seconds
 
-        time.sleep(3)  # 10 seconds
 
 
 async def main():

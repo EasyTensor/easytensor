@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers, serializers, viewsets
-from uploads.views import ModelUploadViewSet, ModelViewSet
+from uploads.views import ModelUploadViewSet, ModelViewSet, health_check
 
 from django.db import models
 
@@ -27,6 +27,7 @@ router.register(r'models', ModelViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path("health_check/", health_check),
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

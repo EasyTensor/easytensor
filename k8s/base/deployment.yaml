@@ -123,7 +123,15 @@ spec:
         - name: backend
           image: easytensor/backend
           ports:
-            - containerPort: 8000
+            - name: http
+              containerPort: 8000
+          livenessProbe:
+            httpGet:
+              path: /health_check/
+              port: http
+            failureThreshold: 1
+            periodSeconds: 10
+            initialDelaySeconds: 5
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: gsa

@@ -9,4 +9,6 @@ RUN pip3 install kubernetes aiohttp
 
 COPY . .
 
+RUN touch /app/healthy
+
 CMD python -m run
