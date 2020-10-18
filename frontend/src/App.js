@@ -11,16 +11,19 @@ import './App.css';
 
 const uppy = new Uppy({
   meta: { type: 'avatar' },
-  restrictions: { maxNumberOfFiles: 1, allowedFileTypes: [".7z", ".zip", ".tar.gz"]  },
+  restrictions: { maxNumberOfFiles: 1, allowedFileTypes: [".7z", ".zip", ".tar.gz"] },
   autoProceed: false
 })
+const BACKEND_HTTP_ADDRESS = `${process.env.REACT_APP_BACKEND_SERVER_ADDRESS}`
+const BACKEND_HTTP_PORT = `${process.env.REACT_APP_BACKEND_SERVER_PORT}`
+const BACKEND_HTTP_URL = `http://${BACKEND_HTTP_ADDRESS}:${BACKEND_HTTP_PORT}`
 
 console.log("here;s my env:", process.env)
 console.log("going to ", process.env.UPLOAD_SERVER_URL)
 uppy.use(AwsS3, {
   getUploadParameters(file) {
     // Send a request to our PHP signing endpoint.
-    return fetch(`http://${process.env.REACT_APP_BACKEND_SERVER_URL}:8000/model-uploads/`, {
+    return fetch(`${BACKEND_HTTP_URL}/model-uploads/`, {
       method: 'post',
       // Send and receive JSON.
       headers: {
@@ -67,10 +70,11 @@ uppy.on('upload-success', (file, response) => {
   var file_location = response.uploadURL.split("/").pop()
   console.log("file location:", file_location)
   axios.post(
-    `http://${process.env.REACT_APP_BACKEND_SERVER_URL}:8000/models/`,
+    `${BACKEND_HTTP_URL}/models/`,
     {
-      "model_address": file.name,
-      "model_name": file.original_name
+      "address": file.name,
+      "name": file.original_name,
+      "size": file.size
     }
   )
 })

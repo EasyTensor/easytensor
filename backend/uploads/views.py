@@ -13,7 +13,7 @@ BUCKET_NAME = "easytensor-model-uploads"
 class ModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Model
-        fields = ["model_name", "model_address"]
+        fields = ["name", "address", "size", "scale"]
 
 
 class CommentSerializer(serializers.Serializer):
@@ -39,6 +39,7 @@ class ModelUploadViewSet(viewsets.ModelViewSet):
 
 class ModelViewSet(viewsets.ModelViewSet):
     queryset = Model.objects.all()
+    serializer_class = ModelSerializer
     authentication_classes = []
     permission_classes = []
 
