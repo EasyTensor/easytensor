@@ -16,26 +16,28 @@
 Creates, updates, and deletes a deployment using AppsV1Api.
 """
 import logging
-import time
-from pprint import pprint
+from pprint import pprint, pformat
+from typing import Collection
 from kubernetes import client, config
 import aiohttp
 import asyncio
 from aiohttp.client_exceptions import ClientConnectorError
 
-DEPLOYMENT_NAME = "nginx-deployment"
 BACKEND_SERVICE_URL = "http://backend-service"
 MODELS_URL = f"{BACKEND_SERVICE_URL}:8000/models/"
+NAMESPACE = "dev"
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.DEBUG)
 
 
 class Model:
-    def __init__(self, *, address: str, size: int, scale: int):
+    def __init__(self, *, address: str, size: int, scale: int, deployment_config=None):
         self.size = size
         self.address = address
         self.scale = scale
+        self.deployment_config = deployment_config
 
     def __eq__(self, other):
         if self.address is None or other.address is None:
@@ -48,8 +50,26 @@ class Model:
     def __repr__(self):
         return self.__str__()
 
+
+class DeploymentNameParseException(Exception):
+    """"""
+
+
+def get_deployment_name_from_model(model: Model):
+    return f"model.serve.tf.{model.address}"
+
+
+def get_model_name_from_deployment(deployemnt_name: str):
+    strs = deployemnt_name.rsplit(".", 4)
+    if len(strs) != 4:
+        raise DeploymentNameParseException(
+            f"could not read deployment {deployemnt_name}"
+        )
+    return strs[-1]
+
+
 def create_deployment_object(model: Model):
-    deployment_name = f"model-serve-tf-{model.address}"
+    deployment_name = get_deployment_name_from_model(model)
     # Configureate Pod template container
     tf_serve_contaienr = client.V1Container(
         name="tf-serve",
@@ -63,6 +83,7 @@ def create_deployment_object(model: Model):
             limits={"cpu": "100m", "memory": f"{model.size}m"},
         ),
     )
+
     # Create and configurate a spec section
     template = client.V1PodTemplateSpec(
         metadata=client.V1ObjectMeta(
@@ -72,7 +93,7 @@ def create_deployment_object(model: Model):
     )
     # Create the specification of deployment
     spec = client.V1DeploymentSpec(
-        replicas=3,
+        replicas=model.scale,
         template=template,
         selector={
             "matchLabels": {
@@ -95,24 +116,24 @@ def create_deployment_object(model: Model):
     return deployment
 
 
-def create_deployment(api_instance, deployment):
+def create_deployment(deployment, api_instance):
     # Create deployement
     api_response = api_instance.create_namespaced_deployment(
-        body=deployment, namespace="dev"
+        body=deployment, namespace=NAMESPACE
     )
-    print("Deployment created. status='%s'" % str(api_response.status))
+    LOGGER.debug("Deployment created. status='%s'" % str(api_response.status))
 
 
-def delete_deployment(api_instance):
+def delete_deployment(deployment_name, apps_v1):
     # Delete deployment
-    api_response = api_instance.delete_namespaced_deployment(
-        name=DEPLOYMENT_NAME,
-        namespace="dev",
+    api_response = apps_v1.delete_namespaced_deployment(
+        name=deployment_name,
+        namespace=NAMESPACE,
         body=client.V1DeleteOptions(
             propagation_policy="Foreground", grace_period_seconds=5
         ),
     )
-    print("Deployment deleted. status='%s'" % str(api_response.status))
+    LOGGER.debug("Deployment deleted. status='%s'" % str(api_response.status))
 
 
 async def get_model_list():
@@ -130,7 +151,7 @@ async def get_idea_model_state():
 
 
 def get_deployed_model_list(apps_v1):
-    namespace = "dev"
+    namespace = NAMESPACE
     deployments = apps_v1.list_namespaced_deployment(
         namespace=namespace, label_selector="model-server=tensorflow"
     )
@@ -141,31 +162,80 @@ def get_deployed_model_list(apps_v1):
                 address=dep.metadata.labels.get("model-address"),
                 size=0,
                 scale=dep.spec.replicas,
+                deployment_config=dep,
             )
         )
     return models
 
 
+def delete_models(models: Collection[Model], apps_v1):
+    # Delete deployment
+    for model in models:
+        LOGGER.debug("deleting deployment %s", model.address)
+        deployment_name = get_deployment_name_from_model(model)
+        delete_deployment(deployment_name, apps_v1)
+
+
+def create_models(models: Collection[Model], apps_v1):
+    # Delete deployment
+    for model in models:
+        LOGGER.debug("creating deployment %s", model.address)
+        deployment = create_deployment_object(model)
+        create_deployment(deployment, apps_v1)
+
+
+def scale_patcher(ideal_model, current_model, apps_v1):
+    if ideal_model.scale != current_model.scale:
+        apps_v1.patch_namespaced_deployment(
+            name=current_model.deployment_config.metadata.name,
+            namespace=NAMESPACE,
+            body={"spec": {"replicas": int(ideal_model.scale)}},
+        )
+
+
+def edit_models(to_edit: Collection[Model], ideal_models: Collection[Model], apps_v1):
+    editors = [scale_patcher]
+    for current_model in to_edit:
+        ideal_model = ideal_models[ideal_models.index(current_model)]
+        for editor in editors:
+            editor(ideal_model, current_model, apps_v1)
+
+
+async def correct_state(
+    ideal_models: list[Model], current_models: list[Model], apps_v1
+):
+    # TODO: optimize these lookups to save time.
+    to_delete = [m for m in current_models if m not in ideal_models]
+    to_create = [m for m in ideal_models if m not in current_models]
+    to_edit = [m for m in current_models if m not in to_delete and m not in to_create]
+    delete_models(to_delete, apps_v1)
+    create_models(to_create, apps_v1)
+    edit_models(to_edit, ideal_models, apps_v1)
+
+
 async def control():
-    global LOGGER
+    # global LOGGER
     failures = 0
     config.load_incluster_config()
     apps_v1 = client.AppsV1Api()
     while True:
+        LOGGER.warning("im here with logging")
+        print("im here")
         try:
             ideal_models = await get_idea_model_state()
+            LOGGER.debug("ideal models: %s", pformat(ideal_models))
+            print(ideal_models)
         except ClientConnectorError:
-            LOGGER.exception("failed to contact backend service")
+            LOGGER.warning("failed to contact backend service")
             if failures > 5:
                 raise Exception("5 consecurtive failures. Quitting")
             await asyncio.sleep(3)  # 3 seconds
-            continue # skip this iteration
-        print("ideal models:")
-        pprint(ideal_models)
-        current = get_deployed_model_list(apps_v1)
-        pprint(current)
-        await asyncio.sleep(3)  # 3 seconds
-
+        else:
+            print("ideal models:")
+            current_models = get_deployed_model_list(apps_v1)
+            LOGGER.debug("current models: %s", pformat(current_models))
+            await correct_state(ideal_models, current_models, apps_v1)
+            await asyncio.sleep(3)  # 3 seconds
 
 
 async def main():
