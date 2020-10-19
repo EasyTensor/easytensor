@@ -1,5 +1,6 @@
 from django import views
 from django.http.response import JsonResponse
+from rest_framework.decorators import action
 from uploads.models import ModelUpload, Model
 from rest_framework import viewsets, serializers
 from rest_framework.response import Response
@@ -54,6 +55,11 @@ class ModelViewSet(viewsets.ModelViewSet):
         else:
             return ErrorResponse(msg="Can not create Model", errors=serializer.errors)
         return Response(serializer.data)
+
+    @action(methods=["delete"], detail=False)
+    def delete(self, request, *args, **kwargs):
+        Model.objects.all().delete()
+        return Response({})
 
 
 def health_check(request):

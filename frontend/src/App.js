@@ -79,6 +79,18 @@ uppy.on('upload-success', (file, response) => {
   )
 })
 
+function Delete_all() {
+  var delete_models = () => {
+    axios.get(`${BACKEND_HTTP_URL}/models/`).then(
+      (response) => { console.log("get response: ", response) }
+    )
+    axios.delete(`${BACKEND_HTTP_URL}/models/`)
+  }
+
+  return (
+    <button onClick={delete_models}><p>delete all </p></button>
+  )
+}
 
 function App() {
   return (
@@ -93,6 +105,7 @@ function App() {
         >
           Learn React! yay!
         </a>
+        <Delete_all />
         <Dashboard
           uppy={uppy}
         // plugins={['Webcam']}
