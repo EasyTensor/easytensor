@@ -21,3 +21,6 @@ commonLabels:
 configMapGenerator:
 - name: frontend-properties
   env: frontend.properties
+
+generatorOptions:
+  disableNameSuffixHash: true

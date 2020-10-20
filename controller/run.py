@@ -22,6 +22,8 @@ from kubernetes import client, config
 import aiohttp
 import asyncio
 from aiohttp.client_exceptions import ClientConnectorError
+from kubernetes.client.models.v1_env_from_source import V1EnvFromSource
+from kubernetes.client.models.v1_projected_volume_source import V1ProjectedVolumeSource
 
 BACKEND_SERVICE_URL = "http://backend-service"
 MODELS_URL = f"{BACKEND_SERVICE_URL}:8000/models/"
@@ -79,17 +81,47 @@ def create_deployment_object(model: Model):
             client.V1ContainerPort(container_port=8501),
         ],
         resources=client.V1ResourceRequirements(
-            requests={"cpu": "100m", "memory": f"{model.size}m"},
-            limits={"cpu": "100m", "memory": f"{model.size}m"},
+            requests={"cpu": "100m", "memory": f"{model.size}Mi"},
+            limits={"cpu": "100m", "memory": f"{model.size}Mi"},
         ),
     )
+    babysitter_container = client.V1Container(
+        name="babysitter",
+        image="easytensor/babysitter",
+        ports=[],
+        command=["sleep", "infinity"],
+        resources=client.V1ResourceRequirements(
+            requests={"cpu": "100m", "memory": f"100Mi"},
+            limits={"cpu": "100m", "memory": f"100Mi"},
+        ),
+        volume_mounts=[
+            client.V1VolumeMount(name="gsa", mount_path="/app/gsa", read_only=True)
+        ],
+        env_from=[
+            client.V1EnvFromSource(
+                config_map_ref=client.V1ConfigMapEnvSource(name="backend-properties")
+            )
+        ],
+    )
 
+    volume = client.V1Volume(
+        name="gsa",
+        projected=client.V1ProjectedVolumeSource(
+            sources=[
+                client.V1VolumeProjection(
+                    secret=client.V1SecretProjection(name="google-service-account")
+                )
+            ]
+        ),
+    )
     # Create and configurate a spec section
     template = client.V1PodTemplateSpec(
         metadata=client.V1ObjectMeta(
             labels={"model-server": "tensorflow", "model-address": model.address}
         ),
-        spec=client.V1PodSpec(containers=[tf_serve_contaienr]),
+        spec=client.V1PodSpec(
+            containers=[tf_serve_contaienr, babysitter_container], volumes=[volume]
+        ),
     )
     # Create the specification of deployment
     spec = client.V1DeploymentSpec(

@@ -9,3 +9,6 @@ resources:
 configMapGenerator:
 - name: backend-properties
   env: backend.properties
+
+generatorOptions: 
+  disableNameSuffixHash: true

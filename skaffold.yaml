@@ -24,8 +24,10 @@ build:
       context: controller
       docker:
         dockerfile: Dockerfile
-      sync:
-        infer: ["**/*"]
+    - image: easytensor/babysitter
+      context: babysitter
+      docker:
+        dockerfile: Dockerfile
 deploy:
   kustomize:
     paths:

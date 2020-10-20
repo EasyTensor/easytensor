@@ -26,3 +26,6 @@ secretGenerator:
   files: 
     - google-SA-secret.txt
   type: Opaque
+
+generatorOptions:
+  disableNameSuffixHash: true
