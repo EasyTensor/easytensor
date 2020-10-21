@@ -5,9 +5,10 @@ from uploads.models import ModelUpload, Model
 from rest_framework import viewsets, serializers
 from rest_framework.response import Response
 from uploads.errors import ErrorResponse
-from google.cloud.storage.client import Client
-from google.cloud.storage.bucket import Bucket
-from uploads.google_signing_helpers import generate_upload_signed_url_v4
+from uploads.google_signing_helpers import (
+    generate_upload_signed_url_v4,
+    generate_download_signed_url_v4,
+)
 
 BUCKET_NAME = "easytensor-model-uploads"
 
@@ -15,7 +16,7 @@ BUCKET_NAME = "easytensor-model-uploads"
 class ModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Model
-        fields = ["name", "address", "size", "scale"]
+        fields = ["name", "address", "size", "scale", "id"]
 
 
 class CommentSerializer(serializers.Serializer):
@@ -37,6 +38,14 @@ class ModelUploadViewSet(viewsets.ModelViewSet):
             return ErrorResponse("contentType must be provided")
         url = generate_upload_signed_url_v4(BUCKET_NAME, request.data["filename"])
         return Response({"url": url, "method": "PUT", "fields": []})
+
+    def retrieve(self, request, pk=None, *args, **kwargs):
+        print("pk:", pk)
+        if pk is None:
+            return ErrorResponse("You must indicate what file you want to downlaod")
+        # todo: check access before allowing the filename to be downloaded
+        url = generate_download_signed_url_v4(BUCKET_NAME, pk)
+        return Response({"url": url, "filename": pk})
 
 
 class ModelViewSet(viewsets.ModelViewSet):

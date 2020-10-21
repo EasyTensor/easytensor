@@ -92,6 +92,41 @@ function Delete_all() {
   )
 }
 
+class ModelList extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { models: [] };
+  }
+  componentDidMount() {
+    axios.get(`${BACKEND_HTTP_URL}/models/`).then((response) => {
+      console.log("response:", response)
+
+      this.setState(
+        { models: response.data }
+      )
+      console.log(this.state.models)
+    })
+  }
+
+  delete(id) {
+    console.log("Deleting", id)
+    axios.delete(`${BACKEND_HTTP_URL}/models/${id}/`)
+  }
+
+  render() {
+    const modelItems = this.state.models.map((model) =>
+      <li>"{model.name} | {model.address} | {model.size} | {model.scale} <button onClick={this.delete.bind(this, model.id)}>Delete</button></li>
+    )
+    return (
+      <ol>
+        {modelItems}
+      </ol>
+    )
+  }
+}
+
+
+
 function App() {
   return (
     <div className="App">
@@ -105,6 +140,7 @@ function App() {
         >
           Learn React! yay!
         </a>
+        <ModelList />
         <Delete_all />
         <Dashboard
           uppy={uppy}
