@@ -3,6 +3,8 @@ kind: Config
 metadata:
   name: easytensor
 build:
+  tagPolicy:
+    sha256: {}
   artifacts:
     - image: easytensor/upload
       context: upload

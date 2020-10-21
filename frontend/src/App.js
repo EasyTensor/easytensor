@@ -115,12 +115,19 @@ class ModelList extends React.Component {
 
   render() {
     const modelItems = this.state.models.map((model) =>
-      <li>"{model.name} | {model.address} | {model.size} | {model.scale} <button onClick={this.delete.bind(this, model.id)}>Delete</button></li>
+      <div style={{border: "solid", borderColor: "grey"}}>
+        <p>name: {model.name}</p>
+        <p>id: {model.id}</p>
+        <p>address: {model.address}</p>
+        <p>size: {model.size}</p>
+        <p>scale: {model.scale}</p>
+        <button onClick={this.delete.bind(this, model.id)}>Delete</button>
+      </div>
     )
     return (
-      <ol>
+      <div>
         {modelItems}
-      </ol>
+      </div>
     )
   }
 }

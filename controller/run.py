@@ -72,6 +72,9 @@ def get_model_name_from_deployment(deployemnt_name: str):
 
 def create_deployment_object(model: Model):
     deployment_name = get_deployment_name_from_model(model)
+    shared_volume = client.V1Volume(
+        name="model-dir", empty_dir=client.V1EmptyDirVolumeSource()
+    )
     # Configureate Pod template container
     tf_serve_contaienr = client.V1Container(
         name="tf-serve",
@@ -84,43 +87,35 @@ def create_deployment_object(model: Model):
             requests={"cpu": "100m", "memory": f"{model.size}Mi"},
             limits={"cpu": "100m", "memory": f"{model.size}Mi"},
         ),
+        volume_mounts=[
+            client.V1VolumeMount(name="model-dir", mount_path="/models/model/", read_only=True)
+        ],
     )
     babysitter_container = client.V1Container(
         name="babysitter",
         image="easytensor/babysitter",
         ports=[],
-        command=["sleep", "infinity"],
         resources=client.V1ResourceRequirements(
             requests={"cpu": "100m", "memory": f"100Mi"},
             limits={"cpu": "100m", "memory": f"100Mi"},
         ),
         volume_mounts=[
-            client.V1VolumeMount(name="gsa", mount_path="/app/gsa", read_only=True)
-        ],
-        env_from=[
-            client.V1EnvFromSource(
-                config_map_ref=client.V1ConfigMapEnvSource(name="backend-properties")
+            client.V1VolumeMount(
+                name="model-dir", mount_path="/models/model/", read_only=False
             )
         ],
+        env=[client.V1EnvVar(name="MODEL_ADDRESS", value=model.address)],
+        image_pull_policy="IfNotPresent",
     )
 
-    volume = client.V1Volume(
-        name="gsa",
-        projected=client.V1ProjectedVolumeSource(
-            sources=[
-                client.V1VolumeProjection(
-                    secret=client.V1SecretProjection(name="google-service-account")
-                )
-            ]
-        ),
-    )
     # Create and configurate a spec section
     template = client.V1PodTemplateSpec(
         metadata=client.V1ObjectMeta(
             labels={"model-server": "tensorflow", "model-address": model.address}
         ),
         spec=client.V1PodSpec(
-            containers=[tf_serve_contaienr, babysitter_container], volumes=[volume]
+            containers=[tf_serve_contaienr, babysitter_container],
+            volumes=[shared_volume],
         ),
     )
     # Create the specification of deployment

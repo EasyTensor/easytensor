@@ -11,3 +11,4 @@ build-all:
 	docker build frontend -t easytensor/frontend
 	docker build upload -t easytensor/upload
 	docker build controller -t easytensor/controller
+	docker build babysitter -t easytensor/babysitter
