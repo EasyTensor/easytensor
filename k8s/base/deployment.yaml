@@ -193,8 +193,8 @@ metadata:
   namespace: dev
   name: deployment-controller
 rules:
-  - apiGroups: ["apps"] # "apps" indicates pods api group
-    resources: ["deployments"]
+  - apiGroups: ["apps", ""] # "apps" indicates pods api group
+    resources: ["deployments", "services"]
     verbs: ["get", "watch", "list", "create", "update", "delete", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
