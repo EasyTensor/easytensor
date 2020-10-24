@@ -182,6 +182,44 @@ spec:
           image: easytensor/controller
           imagePullPolicy: IfNotPresent
 ---
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: et-query
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: easytensor
+      service: query
+  template:
+    metadata:
+      labels:
+        app: easytensor
+        service: query
+    spec:
+      containers:
+        - name: query
+          image: easytensor/query
+          ports:
+            - name: http
+              containerPort: 8080
+          imagePullPolicy: IfNotPresent
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: query-service
+spec:
+  selector:
+    app: easytensor
+    service: query
+  ports:
+    - protocol: TCP
+      port: 8080
+      name: http
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:

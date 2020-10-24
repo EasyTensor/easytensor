@@ -30,6 +30,12 @@ build:
       context: babysitter
       docker:
         dockerfile: Dockerfile
+    - image: easytensor/query
+      context: query
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        infer: ["**/*"]
 deploy:
   kustomize:
     paths:
