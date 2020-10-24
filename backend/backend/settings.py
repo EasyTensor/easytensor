@@ -20,18 +20,33 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'ndn4)vs!2+%!u8@cso93mne9%u22^u^8+$&fb%^$3kn)vrv+3^'
+SECRET_KEY_FILE = "/app/secrets/django/django-secret"
+with open(SECRET_KEY_FILE) as fin:
+    SECRET_KEY = fin.read()
 
+JWT_SECRET_FILE = "/app/secrets/jwt/jwt-secret"
+with open(JWT_SECRET_FILE) as fin:
+    JWT_SECRET = fin.read()
+
+
+SIMPLE_JWT = {
+    'SIGNING_KEY': JWT_SECRET,
+}
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+# authentication settings
+REST_USE_JWT = True
+JWT_AUTH_COOKIE = 'jwt-auth'
+SITE_ID = 1
 
 # Application definition
 
 INSTALLED_APPS = [
     'rest_framework',
+    'rest_framework.authtoken',
     'uploads.apps.UploadsConfig',
     'corsheaders',
     'django.contrib.admin',
@@ -40,6 +55,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "dj_rest_auth",
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'dj_rest_auth.registration',
 ]
 
 MIDDLEWARE = [
@@ -128,7 +149,7 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+        'dj_rest_auth.jwt_auth.JWTCookieAuthentication'
     ]
 }
 
