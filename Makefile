@@ -12,3 +12,6 @@ build-all:
 	docker build upload -t easytensor/upload
 	docker build controller -t easytensor/controller
 	docker build babysitter -t easytensor/babysitter
+
+gen-secrets:
+	./config/generate_secrets.sh

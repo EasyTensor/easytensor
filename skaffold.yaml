@@ -20,8 +20,8 @@ build:
       context: backend
       docker:
         dockerfile: Dockerfile
-      sync:
-        infer: ["**/*"]
+      # sync:
+      #   infer: ["**/*"]
     - image: easytensor/controller
       context: controller
       docker:

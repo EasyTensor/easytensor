@@ -137,6 +137,12 @@ spec:
             - name: gsa
               mountPath: "/app/gsa"
               readOnly: true
+            - name: django-secret
+              mountPath: "/app/secrets/django"
+              readOnly: true
+            - name: jwt-secret
+              mountPath: "/app/secrets/jwt"
+              readOnly: true
           envFrom:
             - configMapRef:
                 name: backend-properties
@@ -144,6 +150,12 @@ spec:
         - name: gsa
           secret:
             secretName: google-service-account
+        - name: jwt-secret
+          secret:
+            secretName: jwt-secret
+        - name: django-secret
+          secret:
+            secretName: django-secret
 ---
 apiVersion: v1
 kind: Service
