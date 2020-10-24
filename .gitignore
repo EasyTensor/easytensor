@@ -5,3 +5,5 @@ db.sqlite3
 __pycache__
 .vscode
 *secret.txt
+*secret
+*.pub
