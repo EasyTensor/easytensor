@@ -1,0 +1,3 @@
+export const BACKEND_HTTP_ADDRESS = `${process.env.REACT_APP_BACKEND_SERVER_ADDRESS}`;
+export const BACKEND_HTTP_PORT = `${process.env.REACT_APP_BACKEND_SERVER_PORT}`;
+export const BACKEND_HTTP_URL = `http://${BACKEND_HTTP_ADDRESS}:${BACKEND_HTTP_PORT}`;
