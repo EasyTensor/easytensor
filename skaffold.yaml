@@ -6,10 +6,6 @@ build:
   tagPolicy:
     sha256: {}
   artifacts:
-    - image: easytensor/upload
-      context: upload
-      docker:
-        dockerfile: Dockerfile
     - image: easytensor/frontend
       context: frontend
       docker:
