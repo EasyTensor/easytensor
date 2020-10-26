@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { CookiesProvider, Cookies, useCookies } from "react-cookie";
+import { useHistory, useLocation } from "react-router-dom";
 
 function is_authenticated(cookies) {
   return Boolean(
@@ -12,6 +13,8 @@ function is_authenticated(cookies) {
 function AuthRow() {
   // const [isLoggedIn, setLoggedIn] = useState(false)
 
+  let history = useHistory();
+  let location = useLocation();
   const [cookies, setCookie, removeCookie] = useCookies(["jwt-auth"]);
   console.log("JWT: ", cookies);
 
@@ -20,9 +23,6 @@ function AuthRow() {
   const [resp, changeResponse] = useState(null);
   const [username, changeUsername] = useState("");
   const [password, changePassword] = useState("");
-  // if (isLoggedIn) {
-  //   return <div><p>Logout</p></div>
-  // }
 
   function onSubmit(e) {
     e.preventDefault();
@@ -71,18 +71,17 @@ function AuthRow() {
           }
           setCookie("jwt-auth", data.access_token);
           setIsLoggedIn(is_authenticated(cookies));
-          changeResponse(data);
+
+          let { from } = location.state || { from: { pathname: "/" } };
+          history.replace(from);
         })
         .catch((error) => console.log("error ->", error));
     }
   }
+
   function logout() {
     removeCookie("jwt-auth");
     setIsLoggedIn(false);
-  }
-
-  if (isLoggedIn) {
-    return <p onClick={(e) => logout()}>Logout</p>;
   }
 
   return (
@@ -137,4 +136,4 @@ function AuthRow() {
   );
 }
 
-export {AuthRow, is_authenticated}
+export { AuthRow, is_authenticated };
