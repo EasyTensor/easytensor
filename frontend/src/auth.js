@@ -16,7 +16,6 @@ function AuthRow() {
   let history = useHistory();
   let location = useLocation();
   const [cookies, setCookie, removeCookie] = useCookies(["jwt-auth"]);
-  console.log("JWT: ", cookies);
 
   const [isLoggedIn, setIsLoggedIn] = useState(is_authenticated(cookies));
   const [isRegistering, setIsRegistration] = useState(false);

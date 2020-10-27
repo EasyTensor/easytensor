@@ -20,7 +20,8 @@ import { withTheme } from "@material-ui/styles";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    flexGrow: 1,
+    display: "flex",
+    justifyContent: "flex-start",
   },
   menuButton: {
     marginRight: theme.spacing(2),
@@ -29,7 +30,26 @@ const useStyles = makeStyles((theme) => ({
     zIndex: theme.zIndex.drawer + 1,
   },
   title: {
+    // flexGrow: 1,
+    [theme.breakpoints.up("sm")]: {
+      display: "block",
+    },
+  },
+  headerItems: {
+    display: "flex",
+    flexGrow: 3,
+    justifyContent: "flex-start",
+  },
+  headerItem: {
+    padding: "1em",
+  },
+  rightMenu: {
+    alignSelf: "flex-end",
+  },
+  endItems: {
     flexGrow: 1,
+    display: "flex",
+    justifyContent: "flex-end",
   },
 }));
 
@@ -45,6 +65,7 @@ function NavBar() {
   const open = Boolean(anchorEl);
 
   const handleMenu = (event) => {
+    console.log("opening menu for event", event);
     setAnchorEl(event.currentTarget);
   };
 
@@ -54,15 +75,37 @@ function NavBar() {
 
   return (
     <div className={classes.root}>
-      <AppBar position="fixed" className={classes.appBar}>
+      <AppBar position="sticky" className={classes.appBar}>
         <Toolbar>
-          <Typography variant="h6" noWrap className={classes.title}>
+          <Typography variant="h4" noWrap className={classes.title}>
             <Link to="/" style={{ color: "white", textDecoration: "none" }}>
               EasyTensor
             </Link>
           </Typography>
-          {is_authenticated(cookies) ? (
-            <div>
+          {is_authenticated(cookies) && (
+            <div className={classes.headerItems}>
+              <Typography variant="h6" className={classes.headerItem}>
+                <Link to="/" style={{ color: "white", textDecoration: "none" }}>
+                  Home
+                </Link>
+              </Typography>
+              <Typography variant="h6" className={classes.headerItem}>
+                <Link
+                  to="/models"
+                  style={{ color: "white", textDecoration: "none" }}
+                >
+                  Models
+                </Link>
+              </Typography>
+            </div>
+          )}
+          <div className={classes.endItems}>
+            {/* {is_authenticated(cookies) ? ( */}
+            <div
+              style={{
+                display: is_authenticated(cookies) ? "block" : "none",
+              }}
+            >
               <IconButton
                 aria-label="account of current user"
                 aria-controls="menu-appbar"
@@ -92,11 +135,18 @@ function NavBar() {
                 <MenuItem onClick={(e) => logout()}>Logout</MenuItem>
               </Menu>
             </div>
-          ) : (
-            <Button variant="contained" color="secondary">
-              Login
-            </Button>
-          )}
+            {/* ) : ( */}
+            <div
+              style={{
+                display: is_authenticated(cookies) ? "none" : "block",
+              }}
+            >
+              <Button variant="contained" color="secondary">
+                Login
+              </Button>
+            </div>
+            {/* )} */}
+          </div>
         </Toolbar>
       </AppBar>
     </div>
