@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { CookiesProvider, Cookies, useCookies } from "react-cookie";
 import { is_authenticated } from "./auth";
 import { Link } from "react-router-dom";
+import ToolTip from "@material-ui/core/Tooltip";
 
 import { makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
@@ -11,6 +12,7 @@ import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import AccountCircle from "@material-ui/icons/AccountCircle";
+import { ExitToApp } from "@material-ui/icons";
 import Switch from "@material-ui/core/Switch";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormGroup from "@material-ui/core/FormGroup";
@@ -28,6 +30,8 @@ const useStyles = makeStyles((theme) => ({
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
+    backgroundColor: "#ffffff00",
+    boxShadow: "none",
   },
   title: {
     // flexGrow: 1,
@@ -106,34 +110,17 @@ function NavBar() {
                 display: is_authenticated(cookies) ? "block" : "none",
               }}
             >
-              <IconButton
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleMenu}
-                color="inherit"
-              >
-                <AccountCircle />
-              </IconButton>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                open={open}
-                onClose={handleClose}
-              >
-                {/* <div onClick={(e) => logout()}></div> */}
-                {/* <MenuItem onClick={handleClose}>Profile</MenuItem> */}
-                <MenuItem onClick={(e) => logout()}>Logout</MenuItem>
-              </Menu>
+              <ToolTip title="Logout">
+                <IconButton
+                  aria-label="Logout"
+                  aria-controls="menu-appbar"
+                  aria-haspopup="true"
+                  onClick={(e) => logout()}
+                  color="inherit"
+                >
+                  <ExitToApp />
+                </IconButton>
+              </ToolTip>
             </div>
             {/* ) : ( */}
             <div

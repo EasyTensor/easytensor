@@ -76,11 +76,19 @@ uppy.on("upload-success", (file, response) => {
 
 function UploadDashboard() {
   return (
-    <Dashboard
-      uppy={uppy}
-      // plugins={['Webcam']}
-      // {...props}
-    />
+    <div style={{ display: "flex", justifyContent: "center" }}>
+      <Dashboard
+        uppy={uppy}
+        // plugins={['Webcam']}
+        // {...props}
+        width={500}
+        height={500}
+        style={{ display: "flex" }}
+        proudlyDisplayPoweredByUppy={false}
+        showProgressDetails={true}
+        theme="auto"
+      />
+    </div>
   );
 }
 export { UploadDashboard };

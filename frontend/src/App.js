@@ -7,6 +7,7 @@ import { Route, Switch } from "react-router-dom";
 import { NavBar } from "./nav_row";
 import { PrivateRoute } from "./routes";
 import CssBaseline from "@material-ui/core/CssBaseline";
+import { FirstStep } from "./first_step";
 
 import Box from "@material-ui/core/Box";
 
@@ -16,44 +17,62 @@ console.log("going to ", process.env.UPLOAD_SERVER_URL);
 
 function LandingPage() {
   return (
-    <header>
-      {/* <img src={logo} className="App-logo" alt="logo" /> */}
-      <a
-        className="App-link"
-        href="https://reactjs.org"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Learn React! yay!
-      </a>
+    <div style={{ textAlign: "center" }}>
+      <FirstStep />
       <UploadDashboard />
-    </header>
+    </div>
   );
 }
 
 function App() {
   return (
     <CookiesProvider>
-      <Box>
+      <Box
+        style={{
+          position: "fixed",
+          overflow: "auto",
+          width: "100%",
+          height: "100%",
+          minHeight: "100hv",
+          // minHeight: "100%",
+          // width: "100vh",
+          backgroundImage: " linear-gradient(54deg, #FF750D 60%, #F5F6F7 100%)",
+        }}
+      >
         <CssBaseline />
         <NavBar />
         {/* <main style={{ flexGrow: "1" }}> */}
-        <div style={{ margin: "auto", width: "80%" }}>
-          <Switch>
-            <Route path="/login">
-              <AuthRow />
-            </Route>
-            <PrivateRoute path="/models">
-              <ModelList />
-              <Delete_all />
-            </PrivateRoute>
-            {/* <PrivateRoute path="/account">
+        <div
+          style={{ width: "100%", display: "flex", justifyContent: "center" }}
+        >
+          <div
+            style={{
+              display: "flex",
+              width: "80%",
+              justifyContent: "center",
+              backgroundColor: "#ffffff90",
+              borderRadius: "1em",
+              boxShadow: "-.3em .3em 15px 4px #ffffff60",
+              margin: " 0 0 0 0",
+              padding: "4em",
+            }}
+          >
+            <Switch>
+              <Route path="/login">
+                <AuthRow />
+              </Route>
+              <PrivateRoute path="/models">
+                <ModelList />
+                <Delete_all />
+              </PrivateRoute>
+              {/* <PrivateRoute path="/account">
             <div>User Accounts</div>
           </PrivateRoute> */}
-            <PrivateRoute path="/">
-              <LandingPage />
-            </PrivateRoute>
-          </Switch>
+              <PrivateRoute path="/">
+                <LandingPage />
+              </PrivateRoute>
+            </Switch>
+          </div>
         </div>
         {/* </main> */}
       </Box>
