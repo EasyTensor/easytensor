@@ -81,7 +81,7 @@ function NavBar() {
     <div className={classes.root}>
       <AppBar position="sticky" className={classes.appBar}>
         <Toolbar>
-          <Typography variant="h4" noWrap className={classes.title}>
+          <Typography variant="h4" className={classes.title}>
             <Link to="/" style={{ color: "white", textDecoration: "none" }}>
               EasyTensor
             </Link>

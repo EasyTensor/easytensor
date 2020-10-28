@@ -43,11 +43,16 @@ function App() {
         <NavBar />
         {/* <main style={{ flexGrow: "1" }}> */}
         <div
-          style={{ width: "100%", display: "flex", justifyContent: "center" }}
+          style={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            minHeight: "80%",
+          }}
         >
           <div
             style={{
-              display: "flex",
+              // display: "flex",
               width: "80%",
               justifyContent: "center",
               backgroundColor: "#ffffff90",
@@ -55,6 +60,7 @@ function App() {
               boxShadow: "-.3em .3em 15px 4px #ffffff60",
               margin: " 0 0 0 0",
               padding: "4em",
+              // overflow: "auto",
             }}
           >
             <Switch>
@@ -62,6 +68,8 @@ function App() {
                 <AuthRow />
               </Route>
               <PrivateRoute path="/models">
+                <div> hi</div>
+                <div> Bye</div>
                 <ModelList />
                 <Delete_all />
               </PrivateRoute>
@@ -73,6 +81,16 @@ function App() {
               </PrivateRoute>
             </Switch>
           </div>
+        </div>
+        <div
+          style={{
+            minHeight: "5em",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <p>© 2020 EasyTensor</p>
         </div>
         {/* </main> */}
       </Box>
