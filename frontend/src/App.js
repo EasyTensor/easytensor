@@ -33,11 +33,6 @@ const theme = createMuiTheme({
   shadows: WhiteShadows,
 });
 
-theme.shadows.forEach((element) => {
-  console.log(element);
-  console.log(element[4]);
-});
-
 function App() {
   const [cookies, setCookie, removeCookie] = useCookies(["jwt-auth"]);
 

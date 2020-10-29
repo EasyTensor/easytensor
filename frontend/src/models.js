@@ -13,6 +13,7 @@ import Card from "@material-ui/core/Card";
 import Paper from "@material-ui/core/Paper";
 import { CleanLink } from "./link";
 import Tooltip from "@material-ui/core/Tooltip";
+import { GetModels } from "./api";
 
 function DeleteAll() {
   function delete_models() {
@@ -55,7 +56,7 @@ function ModelList() {
   const [models, setModels] = useState([]);
 
   useEffect(() => {
-    axios.get(`${BACKEND_HTTP_URL}/models/`).then((response) => {
+    GetModels().then((response) => {
       console.log("response:", response);
       setModels(response.data);
     });
