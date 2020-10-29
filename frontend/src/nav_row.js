@@ -19,6 +19,7 @@ import FormGroup from "@material-ui/core/FormGroup";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
 import { withTheme } from "@material-ui/styles";
+import { CleanLink } from "./link";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -82,24 +83,20 @@ function NavBar() {
       <AppBar position="sticky" className={classes.appBar}>
         <Toolbar>
           <Typography variant="h4" className={classes.title}>
-            <Link to="/" style={{ color: "white", textDecoration: "none" }}>
-              EasyTensor
-            </Link>
+            <CleanLink to="/">EasyTensor</CleanLink>
           </Typography>
           {is_authenticated(cookies) && (
             <div className={classes.headerItems}>
               <Typography variant="h6" className={classes.headerItem}>
-                <Link to="/" style={{ color: "white", textDecoration: "none" }}>
-                  Home
-                </Link>
+                <CleanLink to="/">Home</CleanLink>
               </Typography>
               <Typography variant="h6" className={classes.headerItem}>
-                <Link
+                <CleanLink
                   to="/models"
-                  style={{ color: "white", textDecoration: "none" }}
+                  // style={{ color: "white", textDecoration: "none" }}
                 >
                   Models
-                </Link>
+                </CleanLink>
               </Typography>
             </div>
           )}
@@ -116,7 +113,7 @@ function NavBar() {
                   aria-controls="menu-appbar"
                   aria-haspopup="true"
                   onClick={(e) => logout()}
-                  color="inherit"
+                  color="primary"
                 >
                   <ExitToApp />
                 </IconButton>
@@ -128,7 +125,7 @@ function NavBar() {
                 display: is_authenticated(cookies) ? "none" : "block",
               }}
             >
-              <Button variant="contained" color="secondary">
+              <Button variant="contained" color="primary">
                 Login
               </Button>
             </div>

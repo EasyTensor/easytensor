@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-// import "./snippet.txt";
+import { UploadDashboard } from "./upload_page";
 
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { Bubble } from "./bubble";
 const saveModelString = `import
 export_path = "~/my_model"
 print("export_path = {}".format(export_path))
@@ -22,7 +23,11 @@ const comperssModelString = `tar -czf ~/my_model`;
 
 const SaveModelComponent = () => {
   return (
-    <SyntaxHighlighter language="python" style={tomorrow}>
+    <SyntaxHighlighter
+      customStyle={{ borderRadius: ".8em" }}
+      language="python"
+      style={tomorrow}
+    >
       {saveModelString}
     </SyntaxHighlighter>
   );
@@ -30,7 +35,11 @@ const SaveModelComponent = () => {
 
 const CompressModelComponent = () => {
   return (
-    <SyntaxHighlighter language="shell" style={tomorrow}>
+    <SyntaxHighlighter
+      customStyle={{ borderRadius: ".8em" }}
+      language="shell"
+      style={tomorrow}
+    >
       {comperssModelString}
     </SyntaxHighlighter>
   );
@@ -38,15 +47,21 @@ const CompressModelComponent = () => {
 
 function FirstStep() {
   return (
-    <div>
-      <p>
-        Step 1: Save your model
-        <SaveModelComponent />
-      </p>
-      <p>Step 2: Compress your model</p>
-      <CompressModelComponent />
-
-      <p>Step 3: Upload your model 👇</p>
+    <div style={{ textAlign: "center", width: "80%" }}>
+      <Bubble>
+        <p>
+          Step 1: Save your model
+          <SaveModelComponent />
+        </p>
+      </Bubble>
+      <Bubble>
+        <p>Step 2: Compress your model</p>
+        <CompressModelComponent />
+      </Bubble>
+      <Bubble>
+        <p>Step 3: Upload your model 👇</p>
+        <UploadDashboard />
+      </Bubble>
     </div>
   );
 }
