@@ -11,6 +11,7 @@ import { FirstStep } from "./first_step";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import WhiteShadows from "./light_shadows";
+import { AccountPage } from "./account_page";
 
 import Box from "@material-ui/core/Box";
 
@@ -72,9 +73,11 @@ function App() {
               <PrivateRoute path="/models">
                 <ModelPage />
               </PrivateRoute>
-              {/* <PrivateRoute path="/account">
-            <div>User Accounts</div>
-          </PrivateRoute> */}
+
+              <PrivateRoute path="/account">
+                <AccountPage />
+              </PrivateRoute>
+              {/* This must be the last path in the switch */}
               <PrivateRoute path="/">
                 <FirstStep />
               </PrivateRoute>

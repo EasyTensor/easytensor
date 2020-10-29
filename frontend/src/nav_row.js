@@ -7,12 +7,9 @@ import ToolTip from "@material-ui/core/Tooltip";
 import { makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
-import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/Menu";
-import AccountCircle from "@material-ui/icons/AccountCircle";
-import { ExitToApp } from "@material-ui/icons";
+import { ExitToApp, AccountCircle } from "@material-ui/icons";
 import Switch from "@material-ui/core/Switch";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormGroup from "@material-ui/core/FormGroup";
@@ -101,35 +98,38 @@ function NavBar() {
             </div>
           )}
           <div className={classes.endItems}>
-            {/* {is_authenticated(cookies) ? ( */}
-            <div
-              style={{
-                display: is_authenticated(cookies) ? "block" : "none",
-              }}
-            >
-              <ToolTip title="Logout">
-                <IconButton
-                  aria-label="Logout"
-                  aria-controls="menu-appbar"
-                  aria-haspopup="true"
-                  onClick={(e) => logout()}
-                  color="primary"
-                >
-                  <ExitToApp />
-                </IconButton>
-              </ToolTip>
-            </div>
-            {/* ) : ( */}
-            <div
-              style={{
-                display: is_authenticated(cookies) ? "none" : "block",
-              }}
-            >
-              <Button variant="contained" color="primary">
-                Login
-              </Button>
-            </div>
-            {/* )} */}
+            {is_authenticated(cookies) && (
+              <div
+                style={{
+                  display: is_authenticated(cookies) ? "block" : "none",
+                }}
+              >
+                <ToolTip title="Account">
+                  <CleanLink to="/account">
+                    <IconButton
+                      aria-label="Account"
+                      aria-controls="menu-appbar"
+                      aria-haspopup="true"
+                      color="primary"
+                    >
+                      <AccountCircle />
+                    </IconButton>
+                  </CleanLink>
+                </ToolTip>
+
+                <ToolTip title="Logout">
+                  <IconButton
+                    aria-label="Logout"
+                    aria-controls="menu-appbar"
+                    aria-haspopup="true"
+                    onClick={(e) => logout()}
+                    color="primary"
+                  >
+                    <ExitToApp />
+                  </IconButton>
+                </ToolTip>
+              </div>
+            )}
           </div>
         </Toolbar>
       </AppBar>
