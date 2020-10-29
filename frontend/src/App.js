@@ -39,6 +39,10 @@ theme.shadows.forEach((element) => {
 });
 
 function App() {
+  const [cookies, setCookie, removeCookie] = useCookies(["jwt-auth"]);
+
+  console.log(cookies);
+
   return (
     <CookiesProvider>
       <ThemeProvider theme={theme}>

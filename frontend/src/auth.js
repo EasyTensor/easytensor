@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { CookiesProvider, Cookies, useCookies } from "react-cookie";
+import { useCookies } from "react-cookie";
 import { useHistory, useLocation } from "react-router-dom";
-
+import { BACKEND_HTTP_URL } from "./constants";
 import Typography from "@material-ui/core/Typography";
 import { Delete, Add, CloudDownload } from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
@@ -38,7 +38,7 @@ function AuthRow() {
   function onSubmit(e) {
     e.preventDefault();
     if (isRegistering) {
-      return fetch("http://localhost:8000/dj-rest-auth/registration/", {
+      return fetch(`${BACKEND_HTTP_URL}/dj-rest-auth/registration/`, {
         method: "POST",
         credentials: "omit",
         headers: {
@@ -60,7 +60,7 @@ function AuthRow() {
         })
         .catch((error) => console.log("error ->", error));
     } else {
-      return fetch("http://localhost:8000/dj-rest-auth/login/", {
+      return fetch(`${BACKEND_HTTP_URL}/dj-rest-auth/login/`, {
         method: "POST",
         credentials: "omit",
         headers: {

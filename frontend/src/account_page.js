@@ -2,12 +2,50 @@ import React, { useState } from "react";
 import Paper from "@material-ui/core/Paper";
 import { AccountCircle } from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
+import { BACKEND_HTTP_URL } from "./constants";
+import { useCookies } from "react-cookie";
+import { useHistory } from "react-router-dom";
 
 function AccountPage() {
   const [currentPassword, changeCurrentPassword] = useState("");
   const [newPassword, changeNewPassword] = useState("");
   const [newPassword2, changeNewPassword2] = useState("");
+  const [cookies, setCookie, removeCookie] = useCookies(["jwt-auth"]);
+  let history = useHistory();
 
+  function onChangePassword(e) {
+    e.preventDefault();
+    return fetch(`${BACKEND_HTTP_URL}/dj-rest-auth/password/change/`, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${cookies["jwt-auth"]}`,
+      },
+      body: JSON.stringify({
+        new_password1: newPassword,
+        new_password2: newPassword2,
+        old_password: currentPassword,
+      }),
+    })
+      .then((resp) => {
+        if (!resp.ok) {
+          alert("Invalid credentials!");
+          throw resp.text();
+        } else {
+          return resp.json();
+        }
+      })
+      .then((data) => {
+        console.log("password change return:", data);
+        alert("New password saved. Login with your new credentials");
+        removeCookie("jwt-auth");
+        let { from } = { from: { pathname: "/" } };
+        history.replace(from);
+      })
+      .catch((error) => console.log("error ->", error));
+  }
   return (
     <div>
       <Paper
@@ -36,14 +74,14 @@ function AccountPage() {
       >
         <h4>Reset Password</h4>
         <div>
-          <form>
+          <form onSubmit={onChangePassword}>
             <div>
               <label>
                 Current Password
                 <input
                   onChange={(e) => changeCurrentPassword(e.target.value)}
                   value={currentPassword}
-                  type={"input"}
+                  type={"password"}
                   name={"currentPassword"}
                 />
               </label>
@@ -54,7 +92,7 @@ function AccountPage() {
                 <input
                   onChange={(e) => changeNewPassword(e.target.value)}
                   value={newPassword}
-                  type={"input"}
+                  type={"password"}
                   name={"newPassword"}
                 />
               </label>
@@ -65,7 +103,7 @@ function AccountPage() {
                 <input
                   onChange={(e) => changeNewPassword2(e.target.value)}
                   value={newPassword2}
-                  type={"input"}
+                  type={"password"}
                   name={"newPassword2"}
                 />
               </label>
