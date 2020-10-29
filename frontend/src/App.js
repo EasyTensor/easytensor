@@ -9,18 +9,32 @@ import { PrivateRoute } from "./routes";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { FirstStep } from "./first_step";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
+import Typography from "@material-ui/core/Typography";
+import WhiteShadows from "./light_shadows";
 
 import Box from "@material-ui/core/Box";
 
 const theme = createMuiTheme({
   palette: {
     primary: {
-      main: "#E64A19",
+      main: "#FF750D",
+      dark: "#E64A19",
+      contrastText: "#FFFFFF",
     },
     secondary: {
       main: "#FFFFFF",
     },
+    text: {
+      primary: "#424242",
+      secondary: "#FFFFFF",
+    },
   },
+  shadows: WhiteShadows,
+});
+
+theme.shadows.forEach((element) => {
+  console.log(element);
+  console.log(element[4]);
 });
 
 function App() {
@@ -74,7 +88,7 @@ function App() {
               alignItems: "center",
             }}
           >
-            <p>© 2020 EasyTensor</p>
+            <Typography color="secondary">© 2020 EasyTensor</Typography>
           </div>
           {/* </main> */}
         </Box>

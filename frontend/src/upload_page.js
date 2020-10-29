@@ -80,11 +80,8 @@ function UploadDashboard() {
       <Dashboard
         uppy={uppy}
         // plugins={['Webcam']}
-        // {...props}
         width={500}
         height={500}
-        // style={{ display: "flex" }}
-        // proudlyDisplayPoweredByUppy={false}
         showProgressDetails={true}
         theme="auto"
       />
