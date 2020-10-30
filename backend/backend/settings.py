@@ -21,11 +21,11 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY_FILE = str(Path.home()) + "/repos/easytensor/k8s/dev/django-secret"
+SECRET_KEY_FILE = os.getenv("DJANGO_SECRET_FILE_PATH")
 with open(SECRET_KEY_FILE) as fin:
     SECRET_KEY = fin.read()
 
-JWT_SECRET_FILE = str(Path.home()) + "/repos/easytensor/k8s/dev/jwt-secret"
+JWT_SECRET_FILE =  os.getenv("JWT_SECRET_FILE_PATH")
 with open(JWT_SECRET_FILE) as fin:
     JWT_SECRET = fin.read()
 

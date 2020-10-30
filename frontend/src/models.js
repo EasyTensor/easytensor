@@ -115,7 +115,7 @@ function ModelList() {
             </div>
             <p>id: {model.id}</p>
             <p>address: {model.address}</p>
-            <p>size: {Math.round(model.size / 1024)}MB</p>
+            <p>size: {Math.round(model.size / 1024/1024) < 1? Math.round(model.size / 1024)+"KB":  Math.round(model.size / 1024/1024) +"MB"}</p>
             <p>scale: {model.scale}</p>
             {/* <button onClick={() => delete_model(model.id)}>Delete</button> */}
           </Card>
