@@ -5,7 +5,8 @@
       "name": "model 1",
       "address": "1111-1111-111-111",
       "size": 1234,
-      "scale": 1
+      "scale": 1,
+      "deployed": false
     }
   },
   {
@@ -14,7 +15,8 @@
       "name": "model 2",
       "address": "2222-2222-222-222",
       "size": 231,
-      "scale": 1
+      "scale": 1,
+      "deployed": false
     }
   },
   {
@@ -23,7 +25,8 @@
       "name": "model 3",
       "address": "3333-333-33-333-3",
       "size": 1234,
-      "scale": 1
+      "scale": 1,
+      "deployed": false
     }
   },
   {
@@ -32,7 +35,18 @@
       "name": "model 4",
       "address": "324-2432-424-2",
       "size": 324234,
-      "scale": 3
+      "scale": 3,
+      "deployed": false
+    }
+  },
+  {
+    "model": "uploads.Model",
+    "fields": {
+      "name": "Resnet",
+      "address": "19b84aaa-ca82-42b8-bd81-e9d50e29ffff",
+      "size": 95029470,
+      "scale": 1,
+      "deployed": false
     }
   }
 ]

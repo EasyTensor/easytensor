@@ -7,6 +7,7 @@ class Model(models.Model):
     address = models.CharField(max_length=128, blank=False, null=False)
     size = models.IntegerField(blank=True, null=False)
     scale = models.IntegerField(default=1, blank=False, null=False)
+    deployed = models.BooleanField(default=True, blank=False, null=False)
 
 class ModelUpload(models.Model):
     original_name = models.CharField(max_length=64, blank=False, null=False)

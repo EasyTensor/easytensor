@@ -13,7 +13,10 @@ import Card from "@material-ui/core/Card";
 import Paper from "@material-ui/core/Paper";
 import { CleanLink } from "./link";
 import Tooltip from "@material-ui/core/Tooltip";
-import { GetModels } from "./api";
+import { GetModels, PatchModel } from "./api";
+import FormGroup from "@material-ui/core/FormGroup";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Switch from "@material-ui/core/Switch";
 
 function DeleteAll() {
   function delete_models() {
@@ -51,6 +54,87 @@ function EmptyModelList() {
   );
 }
 
+function Model({ model, onDelete }) {
+  const name = model.name;
+  const address = model.address;
+  const id = model.id;
+  const size = model.size;
+  const scale = model.scale;
+  const [isDeployed, setDeployed] = useState(model.deployed);
+
+  function delete_model(model_id) {
+    console.log("Deleting", model_id);
+    axios.delete(`${BACKEND_HTTP_URL}/models/${model_id}/`).then((response) => {
+      onDelete(model_id);
+    });
+  }
+
+  function download_model(model_id) {
+    alert("functionality not implemented");
+    //TODO: implement this
+  }
+
+  function switchDeploy() {
+    // patch to whatever the opposite of this is
+    PatchModel(id, { deployed: !isDeployed }).then((resp) => {
+      if (resp.status != 200) {
+        console.log(resp);
+        alert("could not update models");
+        throw "could not update models";
+      }
+      setDeployed(!isDeployed);
+    });
+  }
+
+  return (
+    <Grid item>
+      <Card foo="bar" style={{ padding: ".5em", borderRadius: "1em" }}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              flexGrow: 1,
+              textAlign: "left",
+            }}
+          >
+            <Typography variant="h5">{name}</Typography>
+          </div>
+          <div>
+            <ToolTip title="Download Model">
+              <IconButton onClick={() => download_model(id)} color="primary">
+                <CloudDownload />
+              </IconButton>
+            </ToolTip>
+            <ToolTip title="Delete Model">
+              <IconButton onClick={() => delete_model(id)} color="primary">
+                <Delete />
+              </IconButton>
+            </ToolTip>
+          </div>
+        </div>
+        <p>id: {id}</p>
+        <p>address: {address}</p>
+        <p>
+          size:{" "}
+          {Math.round(size / 1024 / 1024) < 1
+            ? Math.round(model.size / 1024) + "KB"
+            : Math.round(size / 1024 / 1024) + "MB"}
+        </p>
+        <p>scale: {scale}</p>
+         Not Deployed <Switch
+          checked={isDeployed}
+          onChange={switchDeploy}
+          name="isDeployed"
+          color="primary"
+          inputProps={{ "aria-label": "secondary checkbox" }}
+        /> Deployed
+        {/* <button onClick={() => delete_model(model.id)}>Delete</button> */}
+      </Card>
+    </Grid>
+  );
+}
+
 function ModelList() {
   console.log("model list rendering");
   const [models, setModels] = useState([]);
@@ -62,17 +146,9 @@ function ModelList() {
     });
   }, []);
 
-  const delete_model = (model_id) => {
-    console.log("Deleting", model_id);
-    axios.delete(`${BACKEND_HTTP_URL}/models/${model_id}/`).then((response) => {
-      setModels((models) => models.filter((model) => model.id != model_id));
-    });
-  };
-
-  const download_model = (model_id) => {
-    alert("functionality not implemented");
-    //TODO: implement this
-  };
+  function onModelDelete(model_id) {
+    setModels((models) => models.filter((model) => model.id != model_id));
+  }
 
   if (models.length <= 0) {
     return <EmptyModelList />;
@@ -81,45 +157,7 @@ function ModelList() {
   return (
     <Grid container spacing={2}>
       {models.map((model) => (
-        <Grid item>
-          <Card foo="bar" style={{ padding: ".5em" }}>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  flexGrow: 1,
-                  textAlign: "left",
-                }}
-              >
-                <Typography variant="h5">{model.name}</Typography>
-              </div>
-              <div>
-                <ToolTip title="Download Model">
-                  <IconButton
-                    onClick={() => download_model(model.id)}
-                    color="primary"
-                  >
-                    <CloudDownload />
-                  </IconButton>
-                </ToolTip>
-                <ToolTip title="Delete Model">
-                  <IconButton
-                    onClick={() => delete_model(model.id)}
-                    color="primary"
-                  >
-                    <Delete />
-                  </IconButton>
-                </ToolTip>
-              </div>
-            </div>
-            <p>id: {model.id}</p>
-            <p>address: {model.address}</p>
-            <p>size: {Math.round(model.size / 1024/1024) < 1? Math.round(model.size / 1024)+"KB":  Math.round(model.size / 1024/1024) +"MB"}</p>
-            <p>scale: {model.scale}</p>
-            {/* <button onClick={() => delete_model(model.id)}>Delete</button> */}
-          </Card>
-        </Grid>
+        <Model model={model} onDelete={onModelDelete} />
       ))}
     </Grid>
   );

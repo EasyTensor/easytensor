@@ -16,7 +16,7 @@ BUCKET_NAME = "easytensor-model-uploads"
 class ModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Model
-        fields = ["name", "address", "size", "scale", "id"]
+        fields = ["name", "address", "size", "scale", "id", "deployed"]
 
 
 class CommentSerializer(serializers.Serializer):

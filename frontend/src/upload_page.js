@@ -11,7 +11,7 @@ const uppy = new Uppy({
   meta: { type: "avatar" },
   restrictions: {
     maxNumberOfFiles: 1,
-    allowedFileTypes: [".7z", ".zip", ".tar.gz"],
+    allowedFileTypes: [".7z", ".zip", ".gz"],
   },
   autoProceed: false,
 });

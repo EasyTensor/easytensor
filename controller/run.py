@@ -146,6 +146,23 @@ def create_service_object(model: Model):
         ),
     )
 
+def get_memory_request(model):
+    """
+    Returns the memory request in Mi (megabyte).
+    Calculates as the model size + ~10 MB needed
+    for operation
+    """
+    return str(round(model.size/(1024**2)) + 10) + "Mi"
+
+
+def get_memory_limit(model):
+    """
+    Returns the memory request in Mi (megabyte).
+    Calculates as the model size + ~100 MB needed
+    for operation
+    """
+    return str(round(model.size/(1024**2)) + 100) + "Mi"
+    
 
 def create_service(service):
     # Create deployement
@@ -167,8 +184,8 @@ def create_deployment_object(model: Model):
             client.V1ContainerPort(container_port=8501),
         ],
         resources=client.V1ResourceRequirements(
-            requests={"cpu": "100m", "memory": f"{model.size}Mi"},
-            limits={"cpu": "100m", "memory": f"{model.size}Mi"},
+            requests={"cpu": "100m", "memory": f"{get_memory_request(model)}"},
+            limits={"cpu": "100m", "memory": f"{get_memory_limit(model)}"},
         ),
         volume_mounts=[
             client.V1VolumeMount(
@@ -274,6 +291,7 @@ async def get_idea_model_state():
             scale=model["scale"],
         )
         for model in model_list
+        if model["deployed"]
     ]
 
 

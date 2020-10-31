@@ -7,9 +7,16 @@ const cookies = new Cookies();
 function getAuthorization() {
   return `Bearer ${cookies.get("jwt-auth")}`;
 }
+function getConfig () {
+  return {
+    headers: { Authorization: getAuthorization() },
+  }
+}
 
 export function GetModels() {
-  return axios.get(`${BACKEND_HTTP_URL}/models/`, {
-    headers: { Authorization: getAuthorization() },
-  });
+  return axios.get(`${BACKEND_HTTP_URL}/models/`, getConfig());
+}
+
+export function PatchModel(model_id, patch_body) {
+  return axios.patch(`${BACKEND_HTTP_URL}/models/${model_id}/`, patch_body, getConfig())
 }
