@@ -51,7 +51,14 @@ function AuthRow() {
           password2: password2,
         }),
       })
-        .then((resp) => resp.json())
+        .then((resp) => {
+          if (resp.ok) {
+            return resp.json();
+          } else {
+            alert("Invalid Registration");
+            throw resp.json()
+          }
+        })
         .then((data) => {
           console.log("login return:", data);
           setCookie("jwt-auth", data.access_token);

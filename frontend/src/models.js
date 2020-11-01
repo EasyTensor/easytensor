@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { BACKEND_HTTP_URL } from "./constants";
-import axios from "axios";
 import Typography from "@material-ui/core/Typography";
 import { Delete, Add, CloudDownload } from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
@@ -13,7 +11,7 @@ import Card from "@material-ui/core/Card";
 import Paper from "@material-ui/core/Paper";
 import { CleanLink } from "./link";
 import Tooltip from "@material-ui/core/Tooltip";
-import { GetModels, PatchModel } from "./api";
+import { GetModels, PatchModel, DeleteModel, DeleteAllModels } from "./api";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
@@ -21,7 +19,7 @@ import Switch from "@material-ui/core/Switch";
 function DeleteAll() {
   function delete_models() {
     console.log("deleting all models");
-    axios.delete(`${BACKEND_HTTP_URL}/models/`);
+    DeleteAllModels();
   }
 
   return <button onClick={delete_models}>delete all</button>;
@@ -64,7 +62,7 @@ function Model({ model, onDelete }) {
 
   function delete_model(model_id) {
     console.log("Deleting", model_id);
-    axios.delete(`${BACKEND_HTTP_URL}/models/${model_id}/`).then((response) => {
+    DeleteModel(model_id).then(() => {
       onDelete(model_id);
     });
   }
