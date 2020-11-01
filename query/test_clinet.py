@@ -38,7 +38,7 @@ import requests
 # model with the name "resnet" and using the predict interface.
 model_service="model-serve-tf-ad262e86-313b-478d-914b-4f781c1b967a"
 # model_service="model-serve-tf-e110c7fc-bf0f-4865-b875-f595fa1b9c10"
-SERVER_URL = f'http://{model_service}:8501/v1/models/model:predict'
+SERVER_URL = 'http://{}:8501/v1/models/model:predict'.format(model_service)
 
 # The image URL is the location of the image we should send to the server
 IMAGE_URL = 'https://tensorflow.org/images/blogs/serving/cat.jpg'
@@ -54,24 +54,24 @@ def main():
   predict_request = '{"instances" : [{"b64": "%s"}]}' % jpeg_bytes
 
   # Send few requests to warm-up the model.
-  for _ in range(3):
-    response = requests.post(SERVER_URL, data=predict_request)
-    if not response.ok:
-      print(response.text)
-    response.raise_for_status()
-    print(response.json())
+  # for _ in range(3):
+  response = requests.post("http://localhost:8080/query/", data=predict_request)
+  if not response.ok:
+    print(response.text)
+  response.raise_for_status()
+  print(response.json())
 
   # Send few actual requests and report average latency.
-  total_time = 0
-  num_requests = 10
-  for _ in range(num_requests):
-    response = requests.post(SERVER_URL, data=predict_request)
-    response.raise_for_status()
-    total_time += response.elapsed.total_seconds()
-    prediction = response.json()['predictions'][0]
+  # total_time = 0
+  # num_requests = 10
+  # for _ in range(num_requests):
+  #   response = requests.post(SERVER_URL, data=predict_request)
+  #   response.raise_for_status()
+  #   total_time += response.elapsed.total_seconds()
+  #   prediction = response.json()['predictions'][0]
 
-  print('Prediction class: {}, avg latency: {} ms'.format(
-      prediction['classes'], (total_time*1000)/num_requests))
+  # print('Prediction class: {}, avg latency: {} ms'.format(
+  #     prediction['classes'], (total_time*1000)/num_requests))
 
 
 if __name__ == '__main__':

@@ -18,7 +18,6 @@ cat download_url.txt | xargs wget -q -O model
 
 echo "Uncompressing the model"
 
-# sleep infinity 
 echo "Trying to unzip"
 unzip model -d /models/tmp/
 UNZIP=$?

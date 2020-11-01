@@ -30,8 +30,8 @@ build:
       context: query
       docker:
         dockerfile: Dockerfile
-      # sync:
-      #   infer: ["**/*"]
+      sync:
+        infer: ["**/*"]
 deploy:
   kustomize:
     paths:

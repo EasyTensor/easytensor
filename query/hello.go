@@ -24,13 +24,13 @@ type Output struct {
 	Predictions []float64
 }
 
-func query(body []byte, headers http.Header, model_id string) interface{} {
-	_, ok := models[model_id]
+func query(body []byte, headers http.Header, modelID string) interface{} {
+	_, ok := models[modelID]
 	if !ok {
-		fmt.Printf("this model doesn't exist %s\n", model_id)
+		fmt.Printf("this model doesn't exist %s\n", modelID)
 		return nil
 	}
-	url := fmt.Sprintf("http://model-serve-tf-%s:8501/v1/models/model:predict", model_id)
+	url := fmt.Sprintf("http://model-serve-tf-%s:8501/v1/models/model:predict", modelID)
 	// body := map[string][]float64{
 	// 	"instances": []float64{1.0, 2.0, 5.0},
 	// }
@@ -40,7 +40,7 @@ func query(body []byte, headers http.Header, model_id string) interface{} {
 	// 	return nil
 	// }
 	final := bytes.NewBuffer(body)
-	fmt.Printf("data stream: %+v\n", string(body))
+	// fmt.Printf("data stream: %+v\n", string(body))
 	client := &http.Client{}
 
 	req, err := http.NewRequest("POST", url, final)
@@ -68,12 +68,12 @@ func query(body []byte, headers http.Header, model_id string) interface{} {
 		}
 		// fmt.Printf("%s: (%s, %s)\n", model.name, model.id, model.address)
 		// models = append(models, model)
-		fmt.Printf(" what do we have in hereeeeer? %#v\n", output)
+		// fmt.Printf(" what do we have in hereeeeer? %#v\n", output)
 	}
-	fmt.Printf(" what do we have in hereeeeer2? %+v\n", output)
-	for k, v := range output {
-		fmt.Printf("%s: %s\n", k, v)
-	}
+	// fmt.Printf(" what do we have in hereeeeer2? %+v\n", output)
+	// for k, v := range output {
+	// 	fmt.Printf("%s: %s\n", k, v)
+	// }
 	return &output
 }
 
@@ -89,13 +89,18 @@ func main() {
 	})
 	r.POST("/query/", func(c *gin.Context) {
 		fmt.Println("hi im here")
-		// model_id := c.PostForm("model_id")
+		// modelID := c.PostForm("modelID")
 		model_query, _ := c.GetRawData()
-		fmt.Printf("ok really what is in this? %+v \n", string(model_query))
+		// fmt.Printf("ok really what is in this? %+v \n", string(model_query))
 		fmt.Printf("header %+v \n", c.Request.Header)
-		output := query(model_query, c.Request.Header, "eec34391-9637-4016-a74c-8001d4f23c6b")
+		output := query(model_query, c.Request.Header, "f72045f9-8583-478a-b3f3-d57f71516859")
 
 		c.JSON(200, output)
+	})
+	r.GET("/refresh_models/", func(c *gin.Context) {
+		fmt.Println("hi im here")
+		initModelList()
+		c.JSON(200, models)
 	})
 	r.Run()
 }
