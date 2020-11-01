@@ -16,6 +16,7 @@
 Creates, updates, and deletes a deployment using AppsV1Api.
 """
 from typing import List
+import json
 import logging
 from pprint import pprint, pformat
 from typing import Collection
@@ -28,6 +29,7 @@ from kubernetes.client.models.v1_projected_volume_source import V1ProjectedVolum
 
 BACKEND_SERVICE_URL = "http://backend-service"
 MODELS_URL = f"{BACKEND_SERVICE_URL}:8000/models/"
+AUTH_URL = f"{BACKEND_SERVICE_URL}:8000/dj-rest-auth/login/"
 NAMESPACE = "dev"
 
 logging.basicConfig()
@@ -38,6 +40,26 @@ LOGGER.setLevel(logging.DEBUG)
 config.load_incluster_config()
 APPS_V1 = client.AppsV1Api()
 CORE_V1 = client.CoreV1Api()
+
+ACCESS_TOKEN = ""
+REFRESH_TOKEN = ""
+
+
+def get_request_header():
+    return {
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "Content-Type": "application/json",
+    }
+
+
+def set_authentication_credentials(access_token, refresh_token):
+    global ACCESS_TOKEN, REFRESH_TOKEN
+    ACCESS_TOKEN = access_token
+    REFRESH_TOKEN = refresh_token
+
+
+class ExpiredTokenError(Exception):
+    """"""
 
 
 class Model:
@@ -146,13 +168,14 @@ def create_service_object(model: Model):
         ),
     )
 
+
 def get_memory_request(model):
     """
     Returns the memory request in Mi (megabyte).
     Calculates as the model size + ~10 MB needed
     for operation
     """
-    return str(round(model.size/(1024**2)) + 10) + "Mi"
+    return str(round(model.size / (1024 ** 2)) + 10) + "Mi"
 
 
 def get_memory_limit(model):
@@ -161,8 +184,8 @@ def get_memory_limit(model):
     Calculates as the model size + ~100 MB needed
     for operation
     """
-    return str(round(model.size/(1024**2)) + 1024) + "Mi"
-    
+    return str(round(model.size / (1024 ** 2)) + 1024) + "Mi"
+
 
 def create_service(service):
     # Create deployement
@@ -276,8 +299,13 @@ def delete_service(service_name):
 
 
 async def get_model_list():
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(headers=get_request_header()) as session:
         response = await session.get(MODELS_URL)
+        if response.status == 401:
+            detail = await response.json()
+            detail = detail["detail"]
+            LOGGER.info("Auth token expired.")
+            raise ExpiredTokenError(f"Unauthorized. {detail}")
         return await response.json()
 
 
@@ -409,20 +437,27 @@ async def correct_state(
 
 
 async def control():
+    LOGGER.debug("initializing first authentication")
+    await authenticate()
     # global LOGGER
     failures = 0
     # APPS_V1 = client.AppsV1Api()
     while True:
+        if failures > 5:
+            raise Exception("5 consecurtive failures. Quitting")
         try:
             ideal_models = await get_idea_model_state()
             LOGGER.debug("ideal models: %s", pformat(ideal_models))
             print(ideal_models)
+        except ExpiredTokenError:
+            await authenticate()
+            failures += 1
         except ClientConnectorError:
             LOGGER.warning("failed to contact backend service")
-            if failures > 5:
-                raise Exception("5 consecurtive failures. Quitting")
+            failures += 1
             await asyncio.sleep(3)  # 3 seconds
         else:
+            failures = 0
             print("ideal models:")
             deployed_models = get_deployed_model_list()
             serviced_models = get_serviced_model_list()
@@ -430,6 +465,30 @@ async def control():
             LOGGER.debug("serviced_models: %s", pformat(serviced_models))
             await correct_state(ideal_models, deployed_models, serviced_models)
             await asyncio.sleep(3)  # 3 seconds
+
+
+async def authenticate():
+    async with aiohttp.ClientSession(
+        headers={"Content-type": "application/json"}
+    ) as session:
+        body = json.dumps(
+            {
+                "username": "controller",
+                "email": "controller@easytensor.com",
+                "password": "7Z&e2t5n#TwN",
+            }
+        )
+        response = await session.post(AUTH_URL, data=body)
+        if response.status == 200:
+            response = await response.json()
+            set_authentication_credentials(
+                response["access_token"], response["refresh_token"]
+            )
+        else:
+            LOGGER.error("Could not login to backend server.")
+            LOGGER.error(await response.json())
+
+            return None
 
 
 async def main():

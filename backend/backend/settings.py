@@ -25,7 +25,7 @@ SECRET_KEY_FILE = os.getenv("DJANGO_SECRET_FILE_PATH")
 with open(SECRET_KEY_FILE) as fin:
     SECRET_KEY = fin.read()
 
-JWT_SECRET_FILE =  os.getenv("JWT_SECRET_FILE_PATH")
+JWT_SECRET_FILE = os.getenv("JWT_SECRET_FILE_PATH")
 with open(JWT_SECRET_FILE) as fin:
     JWT_SECRET = fin.read()
 
@@ -114,9 +114,15 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
 ]
 
 
@@ -146,7 +152,9 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
     ),
-    # "DEFAULT_PERMISSION_CLASSES": ["dj_rest_auth.jwt_auth.JWTCookieAuthentication"],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
 }
 
 CORS_ALLOW_ALL_ORIGINS = True

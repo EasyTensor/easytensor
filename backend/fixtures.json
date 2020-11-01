@@ -1,12 +1,45 @@
 [
   {
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$216000$W8ccKSHVfBmf$lvPmi3qpzRs9/wofON3HiJZMrn2Y4sVPgr7VLDKYlfs=",
+      "is_superuser": false,
+      "username": "kamal",
+      "first_name": "",
+      "last_name": "",
+      "email": "",
+      "is_staff": false,
+      "is_active": true,
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 3,
+    "fields": {
+      "password": "pbkdf2_sha256$216000$xUIh1YQGGruu$Q0ktJ3wTfp6efNa5+6qTH2Jirw6OzWtY89kcBtRgJ9A=",
+      "is_superuser": false,
+      "username": "controller",
+      "first_name": "",
+      "last_name": "",
+      "email": "controller@easytensor.com",
+      "is_staff": true,
+      "is_active": true,
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
     "model": "uploads.Model",
     "fields": {
       "name": "model 1",
       "address": "1111-1111-111-111",
       "size": 1234,
       "scale": 1,
-      "deployed": false
+      "deployed": false,
+      "owner": 2
     }
   },
   {
@@ -16,7 +49,8 @@
       "address": "2222-2222-222-222",
       "size": 231,
       "scale": 1,
-      "deployed": false
+      "deployed": false,
+      "owner": 2
     }
   },
   {
@@ -26,7 +60,8 @@
       "address": "3333-333-33-333-3",
       "size": 1234,
       "scale": 1,
-      "deployed": false
+      "deployed": false,
+      "owner": 2
     }
   },
   {
@@ -36,7 +71,8 @@
       "address": "324-2432-424-2",
       "size": 324234,
       "scale": 3,
-      "deployed": false
+      "deployed": false,
+      "owner": 2
     }
   },
   {
@@ -46,7 +82,8 @@
       "address": "ff01e487-d580-45d9-92c2-418ba8d6a3c2",
       "size": 95029470,
       "scale": 1,
-      "deployed": false
+      "deployed": false,
+      "owner": 2
     }
   }
 ]
