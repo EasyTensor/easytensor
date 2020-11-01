@@ -30,7 +30,7 @@ func query(body []byte, headers http.Header, model_id string) interface{} {
 		fmt.Printf("this model doesn't exist %s\n", model_id)
 		return nil
 	}
-	request_string := fmt.Sprintf("http://model-serve-tf-%s:8501/v1/models/model:predict", model_id)
+	url := fmt.Sprintf("http://model-serve-tf-%s:8501/v1/models/model:predict", model_id)
 	// body := map[string][]float64{
 	// 	"instances": []float64{1.0, 2.0, 5.0},
 	// }
@@ -43,13 +43,13 @@ func query(body []byte, headers http.Header, model_id string) interface{} {
 	fmt.Printf("data stream: %+v\n", string(body))
 	client := &http.Client{}
 
-	req, err := http.NewRequest("POST", request_string, final)
+	req, err := http.NewRequest("POST", url, final)
 	for key, value := range headers {
 		req.Header.Add(key, value[0])
 	}
 	resp, err := client.Do(req)
 	// ...
-	// resp, err := http.Post(request_string, "application/json", final)
+	// resp, err := http.Post(url, "application/json", final)
 	if err != nil {
 		fmt.Println("error with quering the model")
 		log.Fatal(err)

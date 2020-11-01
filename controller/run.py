@@ -161,7 +161,7 @@ def get_memory_limit(model):
     Calculates as the model size + ~100 MB needed
     for operation
     """
-    return str(round(model.size/(1024**2)) + 100) + "Mi"
+    return str(round(model.size/(1024**2)) + 1024) + "Mi"
     
 
 def create_service(service):
@@ -189,7 +189,7 @@ def create_deployment_object(model: Model):
         ),
         volume_mounts=[
             client.V1VolumeMount(
-                name="model-dir", mount_path="/models/model/", read_only=True
+                name="model-dir", mount_path="/models/", read_only=False
             )
         ],
     )
@@ -203,7 +203,7 @@ def create_deployment_object(model: Model):
         ),
         volume_mounts=[
             client.V1VolumeMount(
-                name="model-dir", mount_path="/models/model/", read_only=False
+                name="model-dir", mount_path="/models/", read_only=False
             )
         ],
         env=[client.V1EnvVar(name="MODEL_ADDRESS", value=model.address)],
