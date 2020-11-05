@@ -9,9 +9,20 @@ dev:
 build-all:
 	docker build backend -t easytensor/backend
 	docker build frontend -t easytensor/frontend
-	docker build upload -t easytensor/upload
 	docker build controller -t easytensor/controller
 	docker build babysitter -t easytensor/babysitter
+
+publish-all:
+	docker tag easytensor/backend "gcr.io/${PROJECT_ID}/easytensor/backend:${GITHUB_SHA}"
+	docker tag easytensor/frontend "gcr.io/${PROJECT_ID}/easytensor/frontend:${GITHUB_SHA}"
+	docker tag easytensor/controller "gcr.io/${PROJECT_ID}/easytensor/controller:${GITHUB_SHA}"
+	docker tag easytensor/babysitter "gcr.io/${PROJECT_ID}/easytensor/babysitter:${GITHUB_SHA}"
+
+push-all:
+	docker push "gcr.io/${PROJECT_ID}/easytensor/backend:${GITHUB_SHA}"
+	docker push "gcr.io/${PROJECT_ID}/easytensor/frontend:${GITHUB_SHA}"
+	docker push "gcr.io/${PROJECT_ID}/easytensor/controller:${GITHUB_SHA}"
+	docker push "gcr.io/${PROJECT_ID}/easytensor/babysitter:${GITHUB_SHA}"
 
 gen-secrets:
 	./config/generate_secrets.sh

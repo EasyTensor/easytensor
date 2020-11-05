@@ -10,7 +10,7 @@
 #
 # For more support on how to run the workflow, please visit https://github.com/GoogleCloudPlatform/github-actions/tree/master/example-workflows/gke
 
-name: Build and Deploy to GKE
+name: Build and upload to GKE
 
 on:
   release:
@@ -18,8 +18,6 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_ZONE: us-central1-c   # TODO: update to cluster zone
-  IMAGE: tusd
 
 jobs:
   setup-build-publish-deploy:
@@ -44,13 +42,10 @@ jobs:
     # Build the Docker image
     - name: Build
       run: |-
-        cd docker && docker build . -f tusd.Dockerfile \
-          --tag "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA" \
-          --build-arg GITHUB_SHA="$GITHUB_SHA" \
-          --build-arg GITHUB_REF="$GITHUB_REF"
+        make build-all publish-all
 
     # Push the Docker image to Google Container Registry
     - name: Publish
       run: |-
-        docker push "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
+        make push-all
 
