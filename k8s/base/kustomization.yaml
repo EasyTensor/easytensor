@@ -8,7 +8,8 @@ resources:
 
 configMapGenerator:
 - name: backend-properties
-  env: backend.properties
+  envs:
+  - backend.properties
 
 secretGenerator:
 - name: google-service-account

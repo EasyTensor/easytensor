@@ -2,6 +2,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+# namespace to deploy all Resources to
+namespace: prod
+
 bases:
   - ../base
 
@@ -9,18 +12,18 @@ bases:
 resources:
 - deployment.yaml
 
-patches:
-- path: database-patch.yaml
-  target:
-    kind: Deployment
-    labelSelector: "app=easytensor,service=backend"
-- path: backend-service-patch.yaml
-  target:
-    kind: Service
-    labelSelector: "app=easytensor,service=backend"
+patchesStrategicMerge:
+- database-patch.yaml
 
-# namespace to deploy all Resources to
-namespace: prod
+patchesJson6902:
+- target:
+    group: ""
+    version: v1
+    kind: Service
+    name: backend-service
+    namespace: prod
+  path: backend-service-patch.yaml
+
 
 # labels added to all Resources
 commonLabels:
@@ -28,10 +31,12 @@ commonLabels:
 
 configMapGenerator:
 - name: frontend-properties
-  env: frontend.properties
+  envs:
+  - frontend.properties
 - name: backend-properties
   behavior: merge
-  env: backend.properties.secret
+  envs:
+  - backend.properties.secret
 
 generatorOptions:
   disableNameSuffixHash: true
