@@ -6,11 +6,19 @@ bases:
   - ../base
 
 # list of Resource Config to be Applied
-# resources:
-# - deployment.yaml
-images:
-  - name: easytensor/tusd
-    newName: gcr.io/easytensor-291022/tusd
+resources:
+- deployment.yaml
+
+patches:
+- path: database-patch.yaml
+  target:
+    kind: Deployment
+    labelSelector: "app=easytensor,service=backend"
+- path: backend-service-patch.yaml
+  target:
+    kind: Service
+    labelSelector: "app=easytensor,service=backend"
+
 # namespace to deploy all Resources to
 namespace: prod
 
@@ -21,6 +29,9 @@ commonLabels:
 configMapGenerator:
 - name: frontend-properties
   env: frontend.properties
+- name: backend-properties
+  behavior: merge
+  env: backend.properties.secret
 
 generatorOptions:
   disableNameSuffixHash: true
