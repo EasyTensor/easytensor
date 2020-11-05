@@ -20,6 +20,9 @@ commonLabels:
 configMapGenerator:
 - name: frontend-properties
   env: frontend.properties
+- name: backend-properties
+  behavior: merge
+  env: backend.properties
 
 generatorOptions:
   disableNameSuffixHash: true
