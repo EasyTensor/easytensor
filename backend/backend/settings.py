@@ -16,16 +16,25 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
+def get_env_var(var_name):
+    """
+    Gets an environment variable name or raises an exception
+    if it's not present.
+    """
+    var = os.getenv(var_name)
+    if var is None:
+        raise Exception(f"Variable {var_name} is not defined in the environment")
+    return var
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY_FILE = os.getenv("DJANGO_SECRET_FILE_PATH")
+SECRET_KEY_FILE = get_env_var("DJANGO_SECRET_FILE_PATH")
 with open(SECRET_KEY_FILE) as fin:
     SECRET_KEY = fin.read()
 
-JWT_SECRET_FILE = os.getenv("JWT_SECRET_FILE_PATH")
+JWT_SECRET_FILE = get_env_var("JWT_SECRET_FILE_PATH")
 with open(JWT_SECRET_FILE) as fin:
     JWT_SECRET = fin.read()
 
@@ -56,8 +65,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "dj_rest_auth",
     "django.contrib.sites",
+    "dj_rest_auth",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -100,9 +109,13 @@ WSGI_APPLICATION = "backend.wsgi.application"
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': get_env_var("DATABASE_NAME"),
+        'USER': get_env_var("DATABASE_USER"),
+        'PASSWORD': get_env_var("DATABASE_PASSWORD"),
+        'HOST': get_env_var("DATABASE_HOST"),
+        'PORT': get_env_var("DATABASE_PORT"),
     }
 }
 

@@ -4,3 +4,4 @@ django-cors-headers ~= 3.5
 google-cloud-storage ~= 1.31.2
 djangorestframework-simplejwt ~= 4.3
 dj-rest-auth[with_social] ~= 1.1.2
+psycopg2 ~=2.8
