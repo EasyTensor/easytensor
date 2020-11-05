@@ -10,6 +10,9 @@ configMapGenerator:
 - name: backend-properties
   envs:
   - backend.properties
+- name: service-routing
+  envs:
+  - service-routing.properties
 
 secretGenerator:
 - name: google-service-account

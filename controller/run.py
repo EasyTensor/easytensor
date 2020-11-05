@@ -15,6 +15,7 @@
 """
 Creates, updates, and deletes a deployment using AppsV1Api.
 """
+import os
 from typing import List
 import json
 import logging
@@ -27,9 +28,23 @@ from aiohttp.client_exceptions import ClientConnectorError
 from kubernetes.client.models.v1_env_from_source import V1EnvFromSource
 from kubernetes.client.models.v1_projected_volume_source import V1ProjectedVolumeSource
 
-BACKEND_SERVICE_URL = "http://backend-service"
-MODELS_URL = f"{BACKEND_SERVICE_URL}:8000/models/"
-AUTH_URL = f"{BACKEND_SERVICE_URL}:8000/dj-rest-auth/login/"
+
+def get_env_var(var_name):
+    """
+    Gets an environment variable name or raises an exception
+    if it's not present.
+    """
+    var = os.getenv(var_name)
+    if var is None:
+        raise Exception(f"Variable {var_name} is not defined in the environment")
+    return var
+
+BACKEND_SERVICE_ADDRESS = get_env_var("BACKEND_SERVER_ADDRESS")
+BACKEND_SERVER_PORT = get_env_var("BACKEND_SERVER_PORT")
+
+BACKEND_SERVICE_URL = f"http://{BACKEND_SERVICE_ADDRESS}:{BACKEND_SERVER_PORT}"
+MODELS_URL = f"{BACKEND_SERVICE_URL}/models/"
+AUTH_URL = f"{BACKEND_SERVICE_URL}/dj-rest-auth/login/"
 NAMESPACE = "dev"
 
 logging.basicConfig()

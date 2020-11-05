@@ -94,7 +94,7 @@ spec:
               port: http
             failureThreshold: 1
             periodSeconds: 10
-            initialDelaySeconds: 5
+            initialDelaySeconds: 15
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: gsa
@@ -109,6 +109,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: backend-properties
+            - configMapRef:
+                name: service-routing
       volumes:
         - name: gsa
           secret:
@@ -156,6 +158,9 @@ spec:
         - name: controller
           image: easytensor/controller
           imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: service-routing
 ---
 apiVersion: apps/v1
 kind: Deployment

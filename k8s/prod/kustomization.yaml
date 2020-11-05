@@ -37,6 +37,22 @@ configMapGenerator:
   behavior: merge
   envs:
   - backend.properties.secret
+- name: service-routing
+  behavior: merge
+  envs:
+  - service-routing.properties
+
+secretGenerator:
+- name: jwt-secret
+  behavior: replace
+  files: 
+    - jwt-secret
+  type: Opaque
+- name: django-secret
+  behavior: replace
+  files: 
+    - django-secret
+  type: Opaque
 
 generatorOptions:
   disableNameSuffixHash: true

@@ -1,6 +1,6 @@
 FROM python:3.9.0-alpine
 
-RUN apk add gcc musl-dev libffi-dev libressl-dev postgresql-dev
+RUN apk add bash gcc musl-dev libffi-dev libressl-dev postgresql postgresql-dev
 
 
 RUN mkdir /app

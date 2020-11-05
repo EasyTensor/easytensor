@@ -11,7 +11,7 @@ imdone()
     sleep infinity
 }
 echo "Getting download URL"
-wget -qO- backend-service:8000/model-uploads/${MODEL_ADDRESS}/ | jq -r .url > download_url.txt
+wget -qO- "${BACKEND_SERVER_ADDRESS}":"${BACKEND_SERVER_PORT}"/model-uploads/${MODEL_ADDRESS}/ | jq -r .url > download_url.txt
 
 echo "Downloading model"
 cat download_url.txt | xargs wget -q -O model
