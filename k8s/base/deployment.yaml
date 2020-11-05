@@ -157,7 +157,6 @@ spec:
           image: easytensor/controller
           imagePullPolicy: IfNotPresent
 ---
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
