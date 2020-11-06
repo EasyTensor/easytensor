@@ -89,7 +89,7 @@ spec:
       volumes:
         - name: gsa
           secret:
-            secretName: google-service-account
+            secretName: google-sa-secret
         - name: jwt-secret
           secret:
             secretName: jwt-secret

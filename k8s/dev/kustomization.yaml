@@ -24,7 +24,7 @@ configMapGenerator:
 
 
 secretGenerator:
-- name: google-service-account
+- name: google-sa-secret
   files: 
     - google-SA-secret.txt
   type: Opaque
