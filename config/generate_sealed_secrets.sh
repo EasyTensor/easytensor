@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
-
+set -e 
 # Get unsealed secret. Place all of them in /k8s/prod
-# ./config/generate_prod_secrets.sh
+./config/generate_prod_secrets.sh
 
 # Declare a string array with type
 declare -a StringArray=("django-secret" "jwt-secret")
@@ -24,3 +24,14 @@ kubectl create secret generic database-properties \
   -o yaml --dry-run=client -n prod > database-secret.yaml
 kubeseal -o yaml <database-secret.yaml >k8s/prod/secrets/sealed-database-secret.yaml
 rm database-secret.yaml
+
+# Assumes google-SA-secret.txt has been downloaded to k8s/dev/google-SA-secret.txt
+GOOGLE_SECRET_FILE="k8s/dev/google-SA-secret.txt"
+if [ ! -f "${GOOGLE_SECRET_FILE}" ]; then
+  echo "FAIL: Could not file file $GOOGLE_SECRET_FILE"
+  exit 1
+fi
+
+kubectl create secret generic google-sa-secret --from-file="${GOOGLE_SECRET_FILE}" -o yaml --dry-run=client -n prod > google-SA-secret.yaml
+kubeseal -o yaml <google-SA-secret.yaml >k8s/prod/secrets/sealed-google-SA-secret.yaml
+rm google-SA-secret.yaml
