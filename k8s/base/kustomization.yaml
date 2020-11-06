@@ -14,19 +14,6 @@ configMapGenerator:
   envs:
   - service-routing.properties
 
-secretGenerator:
-- name: google-service-account
-  files: 
-    - google-SA-secret.txt
-  type: Opaque
-- name: jwt-secret
-  files: 
-    - jwt-secret
-  type: Opaque
-- name: django-secret
-  files: 
-    - django-secret
-  type: Opaque
 
 generatorOptions: 
   disableNameSuffixHash: true
