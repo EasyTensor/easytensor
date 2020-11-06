@@ -1,33 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: et-tf-serve
-  labels:
-    app: easytensor
-    service: tf-serve
-spec:
-  replicas: 0
-  selector:
-    matchLabels:
-      app: easytensor
-      service: tf-serve
-  template:
-    metadata:
-      labels:
-        app: easytensor
-        service: tf-serve
-    spec:
-      containers:
-        - name: tf-serve
-          image: tensorflow/serving
-          ports:
-            - containerPort: 8500
-            - containerPort: 8501
-          imagePullPolicy: IfNotPresent
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
   name: et-frontend
   labels:
     app: easytensor
