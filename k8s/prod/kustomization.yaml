@@ -14,7 +14,7 @@ resources:
 - secrets/sealed-jwt-secret.yaml
 - secrets/sealed-django-secret.yaml
 - secrets/sealed-database-secret.yaml
-- secrets/sealed-google-sa-secret.yaml
+- secrets/sealed-google-SA-secret.yaml
 
 patchesStrategicMerge:
 - database-patch.yaml
