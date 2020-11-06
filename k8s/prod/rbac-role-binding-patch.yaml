@@ -1,0 +1,6 @@
+- op: add
+  path: /metadata/namespace
+  value: prod
+- op: add
+  path: /subjects/0/namespace
+  value: prod
