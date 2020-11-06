@@ -21,10 +21,6 @@ configMapGenerator:
 - name: frontend-properties
   envs: 
   - frontend.properties
-- name: backend-properties
-  envs: 
-  - backend.properties
-  behavior: merge
 
 
 secretGenerator:
@@ -40,6 +36,10 @@ secretGenerator:
   files: 
     - django-secret
   type: Opaque
+
+- name: database-properties
+  envs: 
+  - database.properties
 
 generatorOptions:
   disableNameSuffixHash: true

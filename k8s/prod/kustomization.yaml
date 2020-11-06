@@ -11,8 +11,9 @@ bases:
 # list of Resource Config to be Applied
 resources:
 - deployment.yaml
-- sealed-jwt-secret.yaml
-- sealed-django-secret.yaml
+- secrets/sealed-jwt-secret.yaml
+- secrets/sealed-django-secret.yaml
+- secrets/sealed-database-secret.yaml
 
 patchesStrategicMerge:
 - database-patch.yaml
@@ -35,10 +36,6 @@ configMapGenerator:
 - name: frontend-properties
   envs:
   - frontend.properties
-- name: backend-properties
-  behavior: merge
-  envs:
-  - backend.properties.secret
 - name: service-routing
   behavior: merge
   envs:

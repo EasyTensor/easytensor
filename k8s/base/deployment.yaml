@@ -109,6 +109,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: backend-properties
+            - secretRef:
+                name: database-properties
             - configMapRef:
                 name: service-routing
       volumes:

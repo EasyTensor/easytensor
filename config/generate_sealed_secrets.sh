@@ -1,9 +1,26 @@
 #! /usr/bin/env bash
-./config/generate_prod_secrets.sh
-kubectl create secret generic django-secret --from-file=k8s/prod/django-secret -o yaml --dry-run=client -n prod >django-secret.yaml
-kubeseal -o yaml <django-secret.yaml >k8s/prod/sealed-django-secret.yaml
-rm django-secret.yaml
 
-kubectl create secret generic jwt-secret --from-file=k8s/prod/jwt-secret -o yaml --dry-run=client -n prod >jwt-secret.yaml
-kubeseal -o yaml <jwt-secret.yaml >k8s/prod/sealed-jwt-secret.yaml
-rm jwt-secret.yaml
+# Get unsealed secret. Place all of them in /k8s/prod
+# ./config/generate_prod_secrets.sh
+
+# Declare a string array with type
+declare -a StringArray=("django-secret" "jwt-secret")
+ 
+# Seal the secret files
+for val in "${StringArray[@]}"; do
+    kubectl create secret generic "$val" --from-file=k8s/prod/secrets/"$val" -o yaml --dry-run=client -n prod >"$val".yaml
+    kubeseal -o yaml <"$val".yaml >k8s/prod/secrets/sealed-"$val".yaml
+    rm "$val".yaml
+done
+
+#special case: database properties
+
+kubectl create secret generic database-properties \
+  --from-file=DATABASE_NAME=k8s/prod/secrets/database-name-secret \
+  --from-file=DATABASE_USER=k8s/prod/secrets/database-user-secret \
+  --from-file=DATABASE_PASSWORD=k8s/prod/secrets/database-password-secret \
+  --from-literal=DATABASE_HOST=localhost \
+  --from-literal=DATABASE_PORT=5432 \
+  -o yaml --dry-run=client -n prod > database-secret.yaml
+kubeseal -o yaml <database-secret.yaml >k8s/prod/secrets/sealed-database-secret.yaml
+rm database-secret.yaml
