@@ -11,6 +11,8 @@ bases:
 # list of Resource Config to be Applied
 resources:
 - deployment.yaml
+- sealed-jwt-secret.yaml
+- sealed-django-secret.yaml
 
 patchesStrategicMerge:
 - database-patch.yaml
@@ -41,18 +43,6 @@ configMapGenerator:
   behavior: merge
   envs:
   - service-routing.properties
-
-secretGenerator:
-- name: jwt-secret
-  behavior: replace
-  files: 
-    - jwt-secret
-  type: Opaque
-- name: django-secret
-  behavior: replace
-  files: 
-    - django-secret
-  type: Opaque
 
 generatorOptions:
   disableNameSuffixHash: true
