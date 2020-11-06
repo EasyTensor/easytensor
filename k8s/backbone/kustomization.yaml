@@ -7,3 +7,4 @@ resources:
 - ingress-nginx.yaml
 - cert-manager.yaml
 - cert-issuer.yaml
+- secret-sealer.yaml
