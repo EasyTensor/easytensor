@@ -45,7 +45,7 @@ BACKEND_SERVER_PORT = get_env_var("BACKEND_SERVER_PORT")
 BACKEND_SERVICE_URL = f"http://{BACKEND_SERVICE_ADDRESS}:{BACKEND_SERVER_PORT}"
 MODELS_URL = f"{BACKEND_SERVICE_URL}/models/"
 AUTH_URL = f"{BACKEND_SERVICE_URL}/dj-rest-auth/login/"
-NAMESPACE = "dev"
+NAMESPACE = get_env_var("CONTROLLED_NAMESPACE")
 
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)

@@ -67,6 +67,11 @@ configMapGenerator:
   behavior: merge
   envs:
   - service-routing.properties
+- name: controller-properties
+  behavior: merge
+  envs:
+  - controller.properties
+
 
 generatorOptions:
   disableNameSuffixHash: true

@@ -13,6 +13,9 @@ configMapGenerator:
 - name: service-routing
   envs:
   - service-routing.properties
+- name: controller-properties
+  envs:
+  - controller.properties
 
 
 generatorOptions: 

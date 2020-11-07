@@ -21,6 +21,10 @@ configMapGenerator:
 - name: frontend-properties
   envs: 
   - frontend.properties
+- name: controller-properties
+  behavior: merge
+  envs:
+  - controller.properties
 
 
 secretGenerator:

@@ -136,6 +136,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: service-routing
+            - configMapRef:
+                name: controller-properties
 ---
 apiVersion: apps/v1
 kind: Deployment
