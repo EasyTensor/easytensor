@@ -16,6 +16,9 @@ configMapGenerator:
 - name: controller-properties
   envs:
   - controller.properties
+- name: babysitter-properties
+  envs:
+  - babysitter.properties
 
 
 generatorOptions: 

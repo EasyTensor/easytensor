@@ -63,7 +63,7 @@ spec:
               containerPort: 8000
           livenessProbe:
             httpGet:
-              path: /health_check/
+              path: /v1/health_check/
               port: http
             failureThreshold: 1
             periodSeconds: 10

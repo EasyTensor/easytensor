@@ -1,3 +1,4 @@
+from pprint import pprint
 from django import views
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -31,10 +32,8 @@ class CommentSerializer(serializers.Serializer):
 class ModelUploadViewSet(viewsets.ModelViewSet):
     queryset = ModelUpload.objects.all()
     authentication_classes = [JWTCookieAuthentication]
-    # permission_classes = []
 
     def create(self, request):
-        print("hello?")
         if "filename" not in request.data:
             return ErrorResponse("filename must be provided")
         if "contentType" not in request.data:
@@ -43,10 +42,12 @@ class ModelUploadViewSet(viewsets.ModelViewSet):
         return Response({"url": url, "method": "PUT", "fields": []})
 
     def retrieve(self, request, pk=None, *args, **kwargs):
-        print("pk:", pk)
         if pk is None:
             return ErrorResponse("You must indicate what file you want to downlaod")
-        # todo: check access before allowing the filename to be downloaded
+        # check access if not admin.
+        if not request.user.is_staff:
+            _ = get_object_or_404(Model, address=pk, owner=request.user.id)
+
         url = generate_download_signed_url_v4(BUCKET_NAME, pk)
         return Response({"url": url, "filename": pk})
 
@@ -57,10 +58,7 @@ class ModelViewSet(viewsets.ModelViewSet):
     authentication_classes = [JWTCookieAuthentication]
 
     def create(self, request):
-        from pprint import pprint
 
-        pprint(request.data)
-        
         data = request.data
         if "owner" not in data:
             data["owner"] = request.user.id
@@ -79,9 +77,6 @@ class ModelViewSet(viewsets.ModelViewSet):
         return Response()
 
     def list(self, request, *args, **kwargs):
-        print("request user:")
-        print(request.user)
-        print(request.COOKIES)
         if request.user.is_staff:
             models = Model.objects.all()
         else:    
@@ -89,10 +84,12 @@ class ModelViewSet(viewsets.ModelViewSet):
         serializer = ModelSerializer(models, many=True)
         return Response(serializer.data)
 
-    def update(self, request, pk=None):
-        _ = get_object_or_404(Model, pk=pk, owner=request.user.id)
-        serializer = ModelSerializer(request.data)
-        if serializers.is_valid():
+    def update(self, request, pk=None, *args, **kwargs):
+        model = get_object_or_404(Model, pk=pk, owner=request.user.id)
+        
+        pprint(request.data)
+        serializer = ModelSerializer(model, data=request.data, partial=True)
+        if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)

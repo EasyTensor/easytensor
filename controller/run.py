@@ -25,6 +25,7 @@ from kubernetes import client, config
 import aiohttp
 import asyncio
 from aiohttp.client_exceptions import ClientConnectorError
+from kubernetes.client.models.v1_config_map_env_source import V1ConfigMapEnvSource
 from kubernetes.client.models.v1_env_from_source import V1EnvFromSource
 from kubernetes.client.models.v1_projected_volume_source import V1ProjectedVolumeSource
 
@@ -39,13 +40,15 @@ def get_env_var(var_name):
         raise Exception(f"Variable {var_name} is not defined in the environment")
     return var
 
-BACKEND_SERVICE_ADDRESS = get_env_var("BACKEND_SERVER_ADDRESS")
+
+BACKEND_SERVER_ADDRESS = get_env_var("BACKEND_SERVER_ADDRESS")
 BACKEND_SERVER_PORT = get_env_var("BACKEND_SERVER_PORT")
 
-BACKEND_SERVICE_URL = f"http://{BACKEND_SERVICE_ADDRESS}:{BACKEND_SERVER_PORT}"
-MODELS_URL = f"{BACKEND_SERVICE_URL}/models/"
-AUTH_URL = f"{BACKEND_SERVICE_URL}/dj-rest-auth/login/"
+BACKEND_SERVICE_URL = f"http://{BACKEND_SERVER_ADDRESS}:{BACKEND_SERVER_PORT}"
+MODELS_URL = f"{BACKEND_SERVICE_URL}/v1/models/"
+AUTH_URL = f"{BACKEND_SERVICE_URL}/v1/dj-rest-auth/login/"
 NAMESPACE = get_env_var("CONTROLLED_NAMESPACE")
+
 
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
@@ -245,6 +248,14 @@ def create_deployment_object(model: Model):
             )
         ],
         env=[client.V1EnvVar(name="MODEL_ADDRESS", value=model.address)],
+        env_from=[
+            client.V1EnvFromSource(
+                config_map_ref=client.V1ConfigMapEnvSource(name="babysitter-properties")
+            ),
+            client.V1EnvFromSource(
+                config_map_ref=client.V1ConfigMapEnvSource(name="service-routing")
+            ),
+        ],
         image_pull_policy="IfNotPresent",
     )
 
@@ -485,6 +496,7 @@ async def authenticate():
     async with aiohttp.ClientSession(
         headers={"Content-type": "application/json"}
     ) as session:
+        # TODO: change this to application tokens
         body = json.dumps(
             {
                 "username": "controller",

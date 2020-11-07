@@ -20,6 +20,7 @@ class Team(models.Model):
     models = models.ManyToManyField(Model)
     
 
+# TODO: if this is not used soon, delete it
 class ModelUpload(models.Model):
     original_name = models.CharField(max_length=64, blank=False, null=False)
     upload_name = models.CharField(max_length=128, blank=False, null=False)

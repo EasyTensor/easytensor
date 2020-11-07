@@ -26,10 +26,10 @@ router.register(r'model-uploads', ModelUploadViewSet)
 router.register(r'models', ModelViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path("health_check/", health_check),
-    path('dj-rest-auth/', include('dj_rest_auth.urls')),
-    path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
-    path('admin/', admin.site.urls),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path("v1/", include(router.urls)),
+    path("v1/health_check/", health_check),
+    path('v1/dj-rest-auth/', include('dj_rest_auth.urls')),
+    path('v1/dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
+    path('v1/admin/', admin.site.urls),
+    path('v1/api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

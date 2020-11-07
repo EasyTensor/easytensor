@@ -10,8 +10,21 @@ imdone()
     echo "taking a long nap ..."
     sleep infinity
 }
+
+# authentication
+# TODO: change this to an access token
+echo "Authenticating"
+wget -qO- "${BACKEND_SERVER_ADDRESS}":"${BACKEND_SERVER_PORT}"/v1/dj-rest-auth/login/ --post-data="$(cat <<EOF
+{
+    "username": "${CONTROLLER_USERNAME}",
+    "email": "${CONTROLLER_EMAIL}",
+    "password": "${CONTROLLER_PASSWORD}"
+}
+EOF
+)" --header="Content-Type:application/json" | jq -r .access_token > auth_token.txt
+
 echo "Getting download URL"
-wget -qO- "${BACKEND_SERVER_ADDRESS}":"${BACKEND_SERVER_PORT}"/model-uploads/${MODEL_ADDRESS}/ | jq -r .url > download_url.txt
+wget -qO- "${BACKEND_SERVER_ADDRESS}":"${BACKEND_SERVER_PORT}"/v1/model-uploads/${MODEL_ADDRESS}/ --header="Authorization: Bearer $(cat auth_token.txt)" | jq -r .url > download_url.txt
 
 echo "Downloading model"
 cat download_url.txt | xargs wget -q -O model

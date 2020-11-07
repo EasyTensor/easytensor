@@ -14,6 +14,7 @@ import Card from "@material-ui/core/Card";
 import Paper from "@material-ui/core/Paper";
 import { CleanLink } from "./link";
 import Tooltip from "@material-ui/core/Tooltip";
+import { PostLogin, PostRegistration } from "./api";
 
 function is_authenticated(cookies) {
   return Boolean(
@@ -38,25 +39,13 @@ function AuthRow() {
   function onSubmit(e) {
     e.preventDefault();
     if (isRegistering) {
-      return fetch(`${BACKEND_HTTP_URL}/dj-rest-auth/registration/`, {
-        method: "POST",
-        credentials: "omit",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          username: username,
-          password1: password,
-          password2: password2,
-        }),
-      })
+      return PostRegistration(username, password, password2)
         .then((resp) => {
           if (resp.ok) {
             return resp.json();
           } else {
             alert("Invalid Registration");
-            throw resp.json()
+            throw resp.json();
           }
         })
         .then((data) => {
@@ -67,18 +56,7 @@ function AuthRow() {
         })
         .catch((error) => console.log("error ->", error));
     } else {
-      return fetch(`${BACKEND_HTTP_URL}/dj-rest-auth/login/`, {
-        method: "POST",
-        credentials: "omit",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          username: username,
-          password: password,
-        }),
-      })
+      return PostLogin(username, password)
         .then((resp) => resp.json())
         .then((data) => {
           console.log("login return:", data);
