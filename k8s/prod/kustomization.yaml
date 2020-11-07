@@ -15,6 +15,7 @@ resources:
 - secrets/sealed-django-secret.yaml
 - secrets/sealed-database-secret.yaml
 - secrets/sealed-google-SA-secret.yaml
+- ingress.yaml
 
 patchesStrategicMerge:
 - database-patch.yaml
