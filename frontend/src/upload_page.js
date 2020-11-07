@@ -5,7 +5,7 @@ import { Dashboard } from "@uppy/react";
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import axios from "axios";
-import { BACKEND_HTTP_URL } from "./constants";
+import { BACKEND_URL } from "./constants";
 import { CreateModel, PostModelUploadURL } from "./api";
 
 const uppy = new Uppy({

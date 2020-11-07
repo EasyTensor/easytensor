@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useCookies } from "react-cookie";
 import { useHistory, useLocation } from "react-router-dom";
-import { BACKEND_HTTP_URL } from "./constants";
+import { BACKEND_URL } from "./constants";
 import Typography from "@material-ui/core/Typography";
 import { Delete, Add, CloudDownload } from "@material-ui/icons";
 import Button from "@material-ui/core/Button";

@@ -1,5 +1,5 @@
 import Cookies from "universal-cookie";
-import { BACKEND_HTTP_URL } from "./constants";
+import { BACKEND_URL } from "./constants";
 import axios from "axios";
 
 const cookies = new Cookies();
@@ -14,37 +14,37 @@ function getConfig() {
 }
 
 export function CreateModel(body) {
-  return axios.post(`${BACKEND_HTTP_URL}/v1/models/`, body, getConfig());
+  return axios.post(`${BACKEND_URL}/v1/models/`, body, getConfig());
 }
 export function GetModels() {
-  return axios.get(`${BACKEND_HTTP_URL}/v1/models/`, getConfig());
+  return axios.get(`${BACKEND_URL}/v1/models/`, getConfig());
 }
 
 export function PatchModel(model_id, patch_body) {
   return axios.patch(
-    `${BACKEND_HTTP_URL}/v1/models/${model_id}/`,
+    `${BACKEND_URL}/v1/models/${model_id}/`,
     patch_body,
     getConfig()
   );
 }
 
 export function PostModelUploadURL(body) {
-  return axios.post(`${BACKEND_HTTP_URL}/v1/model-uploads/`, body, getConfig());
+  return axios.post(`${BACKEND_URL}/v1/model-uploads/`, body, getConfig());
 }
 
 export function DeleteAllModels(body) {
-  return axios.delete(`${BACKEND_HTTP_URL}/v1/models/`, getConfig());
+  return axios.delete(`${BACKEND_URL}/v1/models/`, getConfig());
 }
 
 export function DeleteModel(model_id) {
   return axios.delete(
-    `${BACKEND_HTTP_URL}/v1/models/${model_id}/`,
+    `${BACKEND_URL}/v1/models/${model_id}/`,
     getConfig()
   );
 }
 
 export function PostRegistration(username, password1, password2) {
-  return fetch(`${BACKEND_HTTP_URL}/v1/dj-rest-auth/registration/`, {
+  return fetch(`${BACKEND_URL}/v1/dj-rest-auth/registration/`, {
     method: "POST",
     credentials: "omit",
     headers: {
@@ -60,7 +60,7 @@ export function PostRegistration(username, password1, password2) {
 }
 
 export function PostLogin(username, password) {
-  return fetch(`${BACKEND_HTTP_URL}/v1/dj-rest-auth/login/`, {
+  return fetch(`${BACKEND_URL}/v1/dj-rest-auth/login/`, {
     method: "POST",
     credentials: "omit",
     headers: {

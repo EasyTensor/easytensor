@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Paper from "@material-ui/core/Paper";
 import { AccountCircle } from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
-import { BACKEND_HTTP_URL } from "./constants";
+import { BACKEND_URL } from "./constants";
 import { useCookies } from "react-cookie";
 import { useHistory } from "react-router-dom";
 
@@ -15,7 +15,7 @@ function AccountPage() {
 
   function onChangePassword(e) {
     e.preventDefault();
-    return fetch(`${BACKEND_HTTP_URL}/dj-rest-auth/password/change/`, {
+    return fetch(`${BACKEND_URL}/dj-rest-auth/password/change/`, {
       method: "POST",
       credentials: "same-origin",
       headers: {
