@@ -13,7 +13,7 @@
 name: Build and upload to GKE
 
 on:
-  create:
+  push:
     tags:
     - "*"
   release:
