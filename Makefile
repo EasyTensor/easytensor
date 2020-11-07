@@ -28,10 +28,10 @@ build-service-%:
 	docker build $* -t easytensor/$*
 
 tag-image-%:
-	docker tag easytensor/$* "gcr.io/${PROJECT_ID}/easytensor/$*:${GITHUB_REF}"
+	docker tag easytensor/$* "gcr.io/${PROJECT_ID}/easytensor/$*:${RELEASE_VERSION}"
 
 push-image-%:
-	docker push "gcr.io/${PROJECT_ID}/easytensor/$*:${GITHUB_REF}"
+	docker push "gcr.io/${PROJECT_ID}/easytensor/$*:${RELEASE_VERSION}"
 
 gen-secrets:
 	./config/generate_secrets.sh

@@ -37,6 +37,8 @@ jobs:
         service_account_key: ${{ secrets.GKE_SA_KEY }}
         project_id: ${{ secrets.GKE_PROJECT }}
 
+    - name: Set env
+      run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
     # Configure Docker to use the gcloud command-line tool as a credential
     # helper for authentication
     - run: |-
