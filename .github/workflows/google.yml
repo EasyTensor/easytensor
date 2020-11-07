@@ -13,6 +13,9 @@
 name: Build and upload to GKE
 
 on:
+  create:
+    tags:
+    - "*"
   release:
     types: [created]
 
