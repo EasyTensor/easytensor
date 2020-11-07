@@ -12,7 +12,7 @@ build-all: build-service-backend \
 		build-service-babysitter \
 		build-service-query
 
-publish-all: tag-image-backend \
+tag-all: tag-image-backend \
 		tag-image-frontend \
 		tag-image-controller \
 		tag-image-babysitter \
