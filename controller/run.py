@@ -454,9 +454,8 @@ async def correct_state(
 async def control():
     LOGGER.debug("initializing first authentication")
     await authenticate()
-    # global LOGGER
+    LOGGER.debug("Controlling namespace %s", NAMESPACE)
     failures = 0
-    # APPS_V1 = client.AppsV1Api()
     while True:
         if failures > 5:
             raise Exception("5 consecurtive failures. Quitting")
