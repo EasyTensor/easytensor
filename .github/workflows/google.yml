@@ -47,7 +47,7 @@ jobs:
     # Build the Docker image
     - name: Build
       run: |-
-        make build-all publish-all
+        make build-all tag-all
 
     # Push the Docker image to Google Container Registry
     - name: Publish
