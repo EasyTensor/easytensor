@@ -48,6 +48,7 @@ BACKEND_SERVICE_URL = f"http://{BACKEND_SERVER_ADDRESS}:{BACKEND_SERVER_PORT}"
 MODELS_URL = f"{BACKEND_SERVICE_URL}/v1/models/"
 AUTH_URL = f"{BACKEND_SERVICE_URL}/v1/dj-rest-auth/login/"
 NAMESPACE = get_env_var("CONTROLLED_NAMESPACE")
+BABYSITTER_IMAGE = get_env_var("BABYSITTER_IMAGE")
 
 
 logging.basicConfig()
@@ -236,7 +237,7 @@ def create_deployment_object(model: Model):
     )
     babysitter_container = client.V1Container(
         name="babysitter",
-        image="easytensor/babysitter",
+        image=BABYSITTER_IMAGE,
         ports=[],
         resources=client.V1ResourceRequirements(
             requests={"cpu": "100m", "memory": f"100Mi"},
