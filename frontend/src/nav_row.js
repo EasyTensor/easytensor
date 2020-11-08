@@ -56,7 +56,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function NavBar() {
-  const [cookies, setCookie, removeCookie] = useCookies(["jwt-auth"]);
+  const [cookies, setCookie, removeCookie] = useCookies();
 
   function logout() {
     console.log("removing the JWT token");

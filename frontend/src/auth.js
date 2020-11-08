@@ -28,7 +28,7 @@ function AuthRow() {
 
   let history = useHistory();
   let location = useLocation();
-  const [cookies, setCookie, removeCookie] = useCookies(["jwt-auth"]);
+  const [cookies, setCookie, removeCookie] = useCookies();
 
   const [isRegistering, setIsRegistration] = useState(false);
   const [username, changeUsername] = useState("");
@@ -42,7 +42,7 @@ function AuthRow() {
         .then((resp) => {
           if (resp.status >= 300) {
             alert("Invalid Registration");
-            alert(JSON.stringify(resp.data))
+            alert(JSON.stringify(resp.data));
             throw resp.data;
           }
           setCookie("jwt-auth", resp.data.access_token);
@@ -50,11 +50,12 @@ function AuthRow() {
           history.replace(from);
         })
         .catch((error) => {
-          console.log("error ->", error)
-          alert(JSON.stringify(error.response.data))
-        }).catch((error) => {
-          alert("something unexpected happened.")
-          console.log(error)
+          console.log("error ->", error);
+          alert(JSON.stringify(error.response.data));
+        })
+        .catch((error) => {
+          alert("something unexpected happened.");
+          console.log(error);
         });
     } else {
       return PostLogin(username, password)
@@ -66,8 +67,8 @@ function AuthRow() {
           }
           setCookie("jwt-auth", resp.data.access_token);
 
-          let { from } = location.state || { from: { pathname: "/" } };
-          history.replace(from);
+          const to_loc = { pathname: "/" };
+          history.replace(to_loc);
         })
         .catch((error) => console.log("error ->", error));
     }

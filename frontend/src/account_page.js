@@ -10,7 +10,7 @@ function AccountPage() {
   const [currentPassword, changeCurrentPassword] = useState("");
   const [newPassword, changeNewPassword] = useState("");
   const [newPassword2, changeNewPassword2] = useState("");
-  const [cookies, setCookie, removeCookie] = useCookies(["jwt-auth"]);
+  const [cookies, setCookie, removeCookie] = useCookies();
   let history = useHistory();
 
   function onChangePassword(e) {

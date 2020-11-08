@@ -34,7 +34,7 @@ const theme = createMuiTheme({
 });
 
 function App() {
-  const [cookies, setCookie, removeCookie] = useCookies(["jwt-auth"]);
+  const [cookies, setCookie, removeCookie] = useCookies();
 
   console.log(cookies);
 

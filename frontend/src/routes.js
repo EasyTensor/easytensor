@@ -7,7 +7,8 @@ import { Route, Redirect } from "react-router-dom";
 // A wrapper for <Route> that redirects to the login
 // screen if you're not yet authenticated.
 function PrivateRoute({ children, ...rest }) {
-  const [cookies] = useCookies(["jwt-auth"]);
+  const [cookies] = useCookies();
+  console.log("private route cookies: ", cookies)
 
   return (
     <Route

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -40,12 +41,11 @@ with open(JWT_SECRET_FILE) as fin:
 
 
 SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=24),
     "SIGNING_KEY": JWT_SECRET,
 }
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = ["*"]
 
 # authentication settings
 REST_USE_JWT = True
@@ -170,5 +170,6 @@ REST_FRAMEWORK = {
     ],
 }
 
+ALLOWED_HOSTS = ["*"]
 CORS_ALLOW_ALL_ORIGINS = True
 APPEND_SLASH = False
