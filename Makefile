@@ -1,7 +1,6 @@
 SHELL := /bin/bash
 
-build-tusd:
-	cd docker && docker build . -f tusd.Dockerfile -t easytensor/tusd
+all: build-all tag-all push-all
 
 dev:
 	skaffold dev --cleanup=false  --port-forward
@@ -28,10 +27,10 @@ build-service-%:
 	docker build $* -t easytensor/$*
 
 tag-image-%:
-	docker tag easytensor/$* "gcr.io/${PROJECT_ID}/easytensor/$*:${RELEASE_VERSION}"
+	docker tag easytensor/$* "gcr.io/easytensor-291022/easytensor/$*:${RELEASE_VERSION}"
 
 push-image-%:
-	docker push "gcr.io/${PROJECT_ID}/easytensor/$*:${RELEASE_VERSION}"
+	docker push "gcr.io/easytensor-291022/easytensor/$*:${RELEASE_VERSION}"
 
 gen-secrets:
 	./config/generate_secrets.sh
