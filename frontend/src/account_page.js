@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import Paper from "@material-ui/core/Paper";
 import { AccountCircle } from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
-import { BACKEND_URL } from "./constants";
 import { useCookies } from "react-cookie";
 import { useHistory } from "react-router-dom";
+import { PostChangePassword } from "./api";
 
 function AccountPage() {
   const [currentPassword, changeCurrentPassword] = useState("");
@@ -15,36 +15,28 @@ function AccountPage() {
 
   function onChangePassword(e) {
     e.preventDefault();
-    return fetch(`${BACKEND_URL}/dj-rest-auth/password/change/`, {
-      method: "POST",
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: `Bearer ${cookies["jwt-auth"]}`,
-      },
-      body: JSON.stringify({
-        new_password1: newPassword,
-        new_password2: newPassword2,
-        old_password: currentPassword,
-      }),
-    })
+    return PostChangePassword(newPassword, newPassword2, currentPassword)
       .then((resp) => {
-        if (!resp.ok) {
-          alert("Invalid credentials!");
-          throw resp.text();
-        } else {
-          return resp.json();
+        if (!resp.status >= 300) {
         }
-      })
-      .then((data) => {
-        console.log("password change return:", data);
+        console.log("password change return:", resp.data);
         alert("New password saved. Login with your new credentials");
         removeCookie("jwt-auth");
         let { from } = { from: { pathname: "/" } };
         history.replace(from);
       })
-      .catch((error) => console.log("error ->", error));
+      .catch((error) => {
+        if (
+          error.hasOwnProperty("response") &&
+          error.response.hasOwnProperty("data")
+        ) {
+          alert("Invalid credentials!");
+          alert(JSON.stringify(error.response.data));
+        } else {
+          alert("unexpected error.");
+          console.log(error);
+        }
+      });
   }
   return (
     <div>

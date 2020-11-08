@@ -9,7 +9,11 @@ function getAuthorization() {
 }
 function getConfig() {
   return {
-    headers: { Authorization: getAuthorization() },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: getAuthorization(),
+      Accept: "application/json",
+    },
   };
 }
 
@@ -37,39 +41,59 @@ export function DeleteAllModels(body) {
 }
 
 export function DeleteModel(model_id) {
-  return axios.delete(
-    `${BACKEND_URL}/v1/models/${model_id}/`,
-    getConfig()
-  );
+  return axios.delete(`${BACKEND_URL}/v1/models/${model_id}/`, getConfig());
 }
 
 export function PostRegistration(username, password1, password2) {
-  return fetch(`${BACKEND_URL}/v1/dj-rest-auth/registration/`, {
-    method: "POST",
-    credentials: "omit",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify({
+  return axios.post(
+    `${BACKEND_URL}/v1/dj-rest-auth/registration/`,
+    {
       username: username,
       password1: password1,
       password2: password2,
-    }),
-  });
+    },
+    {
+      withCredentials: false,
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    }
+  );
 }
 
 export function PostLogin(username, password) {
-  return fetch(`${BACKEND_URL}/v1/dj-rest-auth/login/`, {
-    method: "POST",
-    credentials: "omit",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify({
+  return axios.post(
+    `${BACKEND_URL}/v1/dj-rest-auth/login/`,
+    {
       username: username,
       password: password,
-    }),
-  });
+    },
+    {
+      withCredentials: false,
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    }
+  );
+}
+
+export function PostChangePassword(
+  new_password,
+  new_password2,
+  current_password
+) {
+  return axios.post(
+    `${BACKEND_URL}/v1/dj-rest-auth/password/change/`,
+    {
+      new_password1: new_password,
+      new_password2: new_password2,
+      old_password: current_password,
+    },
+    {
+      withCredentials: false,
+      headers: getConfig()["headers"]
+    }
+  );
 }

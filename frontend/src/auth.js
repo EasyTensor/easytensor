@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useCookies } from "react-cookie";
 import { useHistory, useLocation } from "react-router-dom";
-import { BACKEND_URL } from "./constants";
 import Typography from "@material-ui/core/Typography";
 import { Delete, Add, CloudDownload } from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
@@ -41,31 +40,31 @@ function AuthRow() {
     if (isRegistering) {
       return PostRegistration(username, password, password2)
         .then((resp) => {
-          if (resp.ok) {
-            return resp.json();
-          } else {
+          if (resp.status >= 300) {
             alert("Invalid Registration");
-            throw resp.json();
+            alert(JSON.stringify(resp.data))
+            throw resp.data;
           }
-        })
-        .then((data) => {
-          console.log("login return:", data);
-          setCookie("jwt-auth", data.access_token);
+          setCookie("jwt-auth", resp.data.access_token);
           let { from } = location.state || { from: { pathname: "/" } };
           history.replace(from);
         })
-        .catch((error) => console.log("error ->", error));
+        .catch((error) => {
+          console.log("error ->", error)
+          alert(JSON.stringify(error.response.data))
+        }).catch((error) => {
+          alert("something unexpected happened.")
+          console.log(error)
+        });
     } else {
       return PostLogin(username, password)
-        .then((resp) => resp.json())
-        .then((data) => {
-          console.log("login return:", data);
-          if (!data.access_token) {
+        .then((resp) => {
+          if (!resp.data.access_token) {
             console.log("Invalid Login!");
             alert("invalid login");
             return;
           }
-          setCookie("jwt-auth", data.access_token);
+          setCookie("jwt-auth", resp.data.access_token);
 
           let { from } = location.state || { from: { pathname: "/" } };
           history.replace(from);
