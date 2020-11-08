@@ -3,7 +3,7 @@ from django import views
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
-from uploads.models import ModelUpload, Model
+from uploads.models import ModelUpload, Model, QueryAccessToken
 from rest_framework import viewsets, serializers
 from rest_framework.response import Response
 from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST
@@ -23,11 +23,10 @@ class ModelSerializer(serializers.ModelSerializer):
         fields = ["owner", "name", "address", "size", "scale", "id", "deployed"]
 
 
-class CommentSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    content = serializers.CharField(max_length=200)
-    created = serializers.DateTimeField()
-
+class QueryAccessTokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QueryAccessToken
+        fields = ["model", "id"]
 
 class ModelUploadViewSet(viewsets.ModelViewSet):
     queryset = ModelUpload.objects.all()
@@ -98,6 +97,40 @@ class ModelViewSet(viewsets.ModelViewSet):
         model = get_object_or_404(Model, pk=pk, owner=request.user.id)
         
         serializer = ModelSerializer(model)
+        return Response(serializer.data)
+
+
+class QueryAccessTokenViewSet(viewsets.ModelViewSet):
+    queryset = QueryAccessToken.objects.all()
+    serializer_class = QueryAccessTokenSerializer
+    authentication_classes = [JWTCookieAuthentication]
+
+    def create(self, request):
+        serializer = QueryAccessTokenSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            return ErrorResponse(msg="Can not create token", errors=serializer.errors)
+        return Response(serializer.data)
+
+    def list(self, request, *args, **kwargs):
+        if request.user.is_staff:
+            tokens = QueryAccessToken.objects.all()
+        else:
+            tokens = QueryAccessToken.objects.filter(model__owner=request.user.id)
+        serializer = QueryAccessTokenSerializer(tokens, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk, *args, **kwargs):
+        token = get_object_or_404(QueryAccessToken, pk=pk, model__owner=request.user.id)
+        
+        serializer = QueryAccessTokenSerializer(token)
+        return Response(serializer.data)
+
+    def destroy(self, request, pk=None):
+        token = get_object_or_404(QueryAccessToken, pk=pk, model__owner=request.user.id)
+        token.delete()
+        serializer = QueryAccessTokenSerializer(token)
         return Response(serializer.data)
 
 

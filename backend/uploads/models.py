@@ -24,3 +24,9 @@ class Team(models.Model):
 class ModelUpload(models.Model):
     original_name = models.CharField(max_length=64, blank=False, null=False)
     upload_name = models.CharField(max_length=128, blank=False, null=False)
+
+class QueryAccessToken(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    model = models.ForeignKey(Model, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    udpated_at = models.DateTimeField(auto_now=True)

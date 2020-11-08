@@ -16,20 +16,27 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers, serializers, viewsets
-from uploads.views import ModelUploadViewSet, ModelViewSet, health_check
+from uploads.views import (
+    ModelUploadViewSet,
+    ModelViewSet,
+    health_check,
+    QueryAccessTokenViewSet,
+)
 
 from django.db import models
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
-router.register(r'model-uploads', ModelUploadViewSet)
-router.register(r'models', ModelViewSet)
+router.register(r"model-uploads", ModelUploadViewSet)
+router.register(r"models", ModelViewSet)
+router.register(r"query-access-token", QueryAccessTokenViewSet)
+
 
 urlpatterns = [
     path("v1/", include(router.urls)),
     path("v1/health_check/", health_check),
-    path('v1/dj-rest-auth/', include('dj_rest_auth.urls')),
-    path('v1/dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
-    path('v1/admin/', admin.site.urls),
-    path('v1/api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path("v1/dj-rest-auth/", include("dj_rest_auth.urls")),
+    path("v1/dj-rest-auth/registration/", include("dj_rest_auth.registration.urls")),
+    path("v1/admin/", admin.site.urls),
+    path("v1/api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]

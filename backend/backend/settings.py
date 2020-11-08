@@ -13,19 +13,30 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
+import logging
+
+LOGGER = logging.getLogger(__name__)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
-def get_env_var(var_name):
+
+def get_env_var(var_name, default=None):
     """
     Gets an environment variable name or raises an exception
     if it's not present.
     """
     var = os.getenv(var_name)
     if var is None:
-        raise Exception(f"Variable {var_name} is not defined in the environment")
+        if default is not None:
+            LOGGER.warn(
+                "Environment variable %s not found. Defaulting to %s", var_name, default
+            )
+            var = default
+        else:
+            raise Exception(f"Variable {var_name} is not defined in the environment")
     return var
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -41,7 +52,7 @@ with open(JWT_SECRET_FILE) as fin:
 
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=24),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=24),
     "SIGNING_KEY": JWT_SECRET,
 }
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -111,13 +122,13 @@ WSGI_APPLICATION = "backend.wsgi.application"
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': get_env_var("DATABASE_NAME"),
-        'USER': get_env_var("DATABASE_USER"),
-        'PASSWORD': get_env_var("DATABASE_PASSWORD"),
-        'HOST': get_env_var("DATABASE_HOST"),
-        'PORT': get_env_var("DATABASE_PORT"),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": get_env_var("DATABASE_NAME", "django_default"),
+        "USER": get_env_var("DATABASE_USER", "postgres"),
+        "PASSWORD": get_env_var("DATABASE_PASSWORD", "password"),
+        "HOST": get_env_var("DATABASE_HOST", "localhost"),
+        "PORT": get_env_var("DATABASE_PORT" , "5432"),
     }
 }
 
