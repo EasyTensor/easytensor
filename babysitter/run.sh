@@ -1,9 +1,9 @@
-#! /bin/env sh
+#! /bin/env bash
 # NOTE: we need to unzip the files in a temp directory first before placing
 # it in /models/model because Tensorflow Serving will pick up new files
 # immediately and will complain about files missing if the decompression takes
 # a long time.
--e 
+set -e 
 
 imdone()
 {
