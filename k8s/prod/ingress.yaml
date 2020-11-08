@@ -21,6 +21,10 @@ spec:
         backend:
           serviceName: backend-service
           servicePort: http
+      - path: /query/.*
+        backend:
+          serviceName: query-service
+          servicePort: http
       - path: /
         backend:
           serviceName: frontend-service

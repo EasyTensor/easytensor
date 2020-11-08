@@ -16,9 +16,9 @@ configMapGenerator:
 - name: controller-properties
   envs:
   - controller.properties
-- name: babysitter-properties
+- name: mesh-account-cred
   envs:
-  - babysitter.properties
+  - mesh-account.properties
 
 
 generatorOptions: 

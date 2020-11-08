@@ -139,6 +139,8 @@ spec:
                 name: service-routing
             - configMapRef:
                 name: controller-properties
+            - configMapRef:
+                name: mesh-account-cred
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -163,6 +165,11 @@ spec:
             - name: http
               containerPort: 8080
           imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: service-routing
+            - configMapRef:
+                name: mesh-account-cred
 ---
 apiVersion: v1
 kind: Service

@@ -40,6 +40,9 @@ def get_env_var(var_name):
         raise Exception(f"Variable {var_name} is not defined in the environment")
     return var
 
+CONTROLLER_USERNAME = get_env_var("CONTROLLER_USERNAME")
+CONTROLLER_EMAIL = get_env_var("CONTROLLER_EMAIL")
+CONTROLLER_PASSWORD= get_env_var("CONTROLLER_PASSWORD")
 
 BACKEND_SERVER_ADDRESS = get_env_var("BACKEND_SERVER_ADDRESS")
 BACKEND_SERVER_PORT = get_env_var("BACKEND_SERVER_PORT")
@@ -251,7 +254,7 @@ def create_deployment_object(model: Model):
         env=[client.V1EnvVar(name="MODEL_ADDRESS", value=model.address)],
         env_from=[
             client.V1EnvFromSource(
-                config_map_ref=client.V1ConfigMapEnvSource(name="babysitter-properties")
+                config_map_ref=client.V1ConfigMapEnvSource(name="mesh-account-cred")
             ),
             client.V1EnvFromSource(
                 config_map_ref=client.V1ConfigMapEnvSource(name="service-routing")
@@ -500,9 +503,9 @@ async def authenticate():
         # TODO: change this to application tokens
         body = json.dumps(
             {
-                "username": "controller",
-                "email": "controller@easytensor.com",
-                "password": "7Z&e2t5n#TwN",
+                "username": CONTROLLER_USERNAME,
+                "email": CONTROLLER_EMAIL,
+                "password": CONTROLLER_PASSWORD
             }
         )
         response = await session.post(AUTH_URL, data=body)

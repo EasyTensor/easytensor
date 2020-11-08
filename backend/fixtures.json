@@ -33,54 +33,6 @@
   },
   {
     "model": "uploads.Model",
-    "pk": "146ae3c4-2071-11eb-a21e-00155db61e07",
-    "fields": {
-      "name": "model 1",
-      "address": "1111-1111-111-111",
-      "size": 1234,
-      "scale": 1,
-      "deployed": false,
-      "owner": 2
-    }
-  },
-  {
-    "model": "uploads.Model",
-    "pk": "2d72587a-2071-11eb-b7ad-00155db61e07",
-    "fields": {
-      "name": "model 2",
-      "address": "2222-2222-222-222",
-      "size": 231,
-      "scale": 1,
-      "deployed": false,
-      "owner": 2
-    }
-  },
-  {
-    "model": "uploads.Model",
-    "pk": "33694bb2-2071-11eb-9d55-00155db61e07",
-    "fields": {
-      "name": "model 3",
-      "address": "3333-333-33-333-3",
-      "size": 1234,
-      "scale": 1,
-      "deployed": false,
-      "owner": 2
-    }
-  },
-  {
-    "model": "uploads.Model",
-    "pk": "380d456a-2071-11eb-8c27-00155db61e07",
-    "fields": {
-      "name": "model 4",
-      "address": "324-2432-424-2",
-      "size": 324234,
-      "scale": 3,
-      "deployed": false,
-      "owner": 2
-    }
-  },
-  {
-    "model": "uploads.Model",
     "pk": "3ee97a84-2071-11eb-b080-00155db61e07",
     "fields": {
       "name": "Resnet",
