@@ -50,6 +50,8 @@ DEBUG = True
 # authentication settings
 REST_USE_JWT = True
 JWT_AUTH_COOKIE = "jwt-auth"
+# TODO: maybe switch JWT to be httponly, and figure out CORS
+JWT_AUTH_HTTPONLY = False
 SITE_ID = 1
 
 # Application definition

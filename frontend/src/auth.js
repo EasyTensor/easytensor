@@ -45,7 +45,7 @@ function AuthRow() {
             alert(JSON.stringify(resp.data));
             throw resp.data;
           }
-          setCookie("jwt-auth", resp.data.access_token);
+          setCookie("jwt-auth", resp.data.access_token, {maxAge: 60*60*24});
           let { from } = location.state || { from: { pathname: "/" } };
           history.replace(from);
         })
@@ -65,7 +65,7 @@ function AuthRow() {
             alert("invalid login");
             return;
           }
-          setCookie("jwt-auth", resp.data.access_token);
+          setCookie("jwt-auth", resp.data.access_token, {maxAge: 60*60*24});
 
           const to_loc = { pathname: "/" };
           history.replace(to_loc);
