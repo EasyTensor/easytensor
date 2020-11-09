@@ -15,6 +15,8 @@ import { GetModels, PatchModel, DeleteModel, DeleteAllModels } from "./api";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
+import { QueryModal } from "./query_modal";
+import Dialog from "@material-ui/core/Dialog";
 
 function DeleteAll() {
   function delete_models() {
@@ -54,10 +56,10 @@ function EmptyModelList() {
 
 function Model({ model, onDelete }) {
   const name = model.name;
-  const address = model.address;
+  // const address = model.address;
   const id = model.id;
   const size = model.size;
-  const scale = model.scale;
+  // const scale = model.scale;
   const [isDeployed, setDeployed] = useState(model.deployed);
 
   function delete_model(model_id) {
@@ -67,10 +69,13 @@ function Model({ model, onDelete }) {
     });
   }
 
-  function download_model(model_id) {
-    alert("functionality not implemented");
-    //TODO: implement this
-  }
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   function switchDeploy() {
     // patch to whatever the opposite of this is
@@ -85,7 +90,7 @@ function Model({ model, onDelete }) {
   }
 
   return (
-    <Grid item>
+    <Grid item xs={4}>
       <Card foo="bar" style={{ padding: ".5em", borderRadius: "1em" }}>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div
@@ -99,11 +104,6 @@ function Model({ model, onDelete }) {
             <Typography variant="h5">{name}</Typography>
           </div>
           <div>
-            <ToolTip title="Download Model">
-              <IconButton onClick={() => download_model(id)} color="primary">
-                <CloudDownload />
-              </IconButton>
-            </ToolTip>
             <ToolTip title="Delete Model">
               <IconButton onClick={() => delete_model(id)} color="primary">
                 <Delete />
@@ -112,22 +112,44 @@ function Model({ model, onDelete }) {
           </div>
         </div>
         <p>id: {id}</p>
-        <p>address: {address}</p>
         <p>
           size:{" "}
           {Math.round(size / 1024 / 1024) < 1
             ? Math.round(model.size / 1024) + "KB"
             : Math.round(size / 1024 / 1024) + "MB"}
         </p>
-        <p>scale: {scale}</p>
-         Not Deployed <Switch
-          checked={isDeployed}
-          onChange={switchDeploy}
-          name="isDeployed"
-          color="primary"
-          inputProps={{ "aria-label": "secondary checkbox" }}
-        /> Deployed
-        {/* <button onClick={() => delete_model(model.id)}>Delete</button> */}
+        <div style={{ display: "flex" }}>
+          <div style={{flexGrow: 1}}>
+            Not Deployed
+            <Switch
+              checked={isDeployed}
+              onChange={switchDeploy}
+              name="isDeployed"
+              color="primary"
+              inputProps={{ "aria-label": "secondary checkbox" }}
+            />
+            Deployed
+          </div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Button variant="contained" color="primary" onClick={handleOpen} disabled={!isDeployed}>
+              Query
+            </Button>
+          </div>
+          <Dialog
+            fullWidth={true}
+            maxWidth="lg"
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="max-width-dialog-title"
+          >
+            <QueryModal model={model} />
+          </Dialog>
+        </div>
       </Card>
     </Grid>
   );

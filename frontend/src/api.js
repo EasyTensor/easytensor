@@ -1,5 +1,5 @@
 import Cookies from "universal-cookie";
-import { BACKEND_URL } from "./constants";
+import { BACKEND_URL, QUERY_URL } from "./constants";
 import axios from "axios";
 
 const cookies = new Cookies();
@@ -42,6 +42,25 @@ export function DeleteAllModels(body) {
 
 export function DeleteModel(model_id) {
   return axios.delete(`${BACKEND_URL}/v1/models/${model_id}/`, getConfig());
+}
+
+// Token URLS
+export function GetQueryAccessTokens() {
+  return axios.get(`${BACKEND_URL}/v1/query-access-token/`, getConfig());
+}
+
+export function CreateQueryAccessToken(model_id) {
+  return axios.post(
+    `${BACKEND_URL}/v1/query-access-token/`,
+    { model: model_id },
+    getConfig()
+  );
+}
+
+export function Query(access_token, body) {
+  return axios.post(`${QUERY_URL}/query/`, body, {
+    headers: { accessToken: access_token },
+  });
 }
 
 export function PostRegistration(username, password1, password2) {
@@ -93,7 +112,7 @@ export function PostChangePassword(
     },
     {
       withCredentials: false,
-      headers: getConfig()["headers"]
+      headers: getConfig()["headers"],
     }
   );
 }

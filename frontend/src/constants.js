@@ -2,3 +2,8 @@ export const BACKEND_PROTOCOL = `${process.env.REACT_APP_BACKEND_SERVER_PROTOCOL
 export const BACKEND_ADDRESS = `${process.env.REACT_APP_BACKEND_SERVER_ADDRESS}`;
 export const BACKEND_PORT = `${process.env.REACT_APP_BACKEND_SERVER_PORT}`;
 export const BACKEND_URL = `${BACKEND_PROTOCOL}://${BACKEND_ADDRESS}:${BACKEND_PORT}`;
+
+export const QUERY_PROTOCOL = `${process.env.REACT_APP_QUERY_SERVER_PROTOCOL}`;
+export const QUERY_ADDRESS = `${process.env.REACT_APP_QUERY_SERVER_ADDRESS}`;
+export const QUERY_PORT = `${process.env.REACT_APP_QUERY_SERVER_PORT}`;
+export const QUERY_URL = `${QUERY_PROTOCOL}://${QUERY_ADDRESS}:${QUERY_PORT}`;
