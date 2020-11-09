@@ -19,6 +19,7 @@ resources:
 
 patchesStrategicMerge:
 - database-patch.yaml
+- scale-patch.yaml
 
 patchesJson6902:
 - target:
