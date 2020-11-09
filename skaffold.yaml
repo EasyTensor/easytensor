@@ -9,7 +9,7 @@ build:
     - image: easytensor/frontend
       context: frontend
       docker:
-        dockerfile: Dockerfile
+        dockerfile: Dockerfile.dev
       sync:
         infer: ["**/*"]
     - image: easytensor/backend

@@ -8,7 +8,6 @@ import { Route, Redirect } from "react-router-dom";
 // screen if you're not yet authenticated.
 function PrivateRoute({ children, ...rest }) {
   const [cookies] = useCookies();
-  console.log("private route cookies: ", cookies)
 
   return (
     <Route

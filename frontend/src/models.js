@@ -81,7 +81,7 @@ function Model({ model, onDelete }) {
     // patch to whatever the opposite of this is
     PatchModel(id, { deployed: !isDeployed }).then((resp) => {
       if (resp.status != 200) {
-        console.log(resp);
+        console.log(resp.data);
         alert("could not update models");
         throw "could not update models";
       }

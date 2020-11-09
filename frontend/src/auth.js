@@ -61,8 +61,8 @@ function AuthRow() {
       return PostLogin(username, password)
         .then((resp) => {
           if (!resp.data.access_token) {
-            console.log("Invalid Login!");
             alert("invalid login");
+            console.log(resp.data)
             return;
           }
           setCookie("jwt-auth", resp.data.access_token, {maxAge: 60*60*24});

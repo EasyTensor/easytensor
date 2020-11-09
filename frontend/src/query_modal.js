@@ -36,17 +36,14 @@ function QueryModal({ model }) {
 
   useEffect(() => {
     GetQueryAccessTokens().then((response) => {
-      console.log("response:", response);
       var tokens = response.data
         .filter((token) => token.model == model.id)
         .map((token) => token.id);
-      console.log("tokens:", tokens);
       setQueryTokens(tokens);
     });
   }, []);
 
   function onCreateToken() {
-    console.log("calling on create token");
     CreateQueryAccessToken(model.id)
       .then((response) => {
         setQueryTokens([response.data.id]);
@@ -60,7 +57,6 @@ function QueryModal({ model }) {
   function sendQuery() {
     Query(queryTokens[0], reqBody)
       .then((response) => {
-        console.log("response:", response.data);
         setResponseBody(response.data)
       })
       .catch((error) => {

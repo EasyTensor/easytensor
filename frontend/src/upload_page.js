@@ -13,6 +13,7 @@ const uppy = new Uppy({
   restrictions: {
     maxNumberOfFiles: 1,
     allowedFileTypes: [".7z", ".zip", ".gz"],
+    maxFileSize: 1024*1024*250 //250 MB
   },
   autoProceed: false,
 });
@@ -49,13 +50,9 @@ function uuidv4() {
 uppy.on("file-added", (file) => {
   file.original_name = file.name;
   file.name = uuidv4();
-  console.log("Added file", file);
 });
 uppy.on("upload-success", (file, response) => {
-  console.log(file);
-  console.log(response);
   var file_location = response.uploadURL.split("/").pop();
-  console.log("file location:", file_location);
   CreateModel({
     address: file.name,
     name: file.original_name,
@@ -70,7 +67,7 @@ function UploadDashboard() {
         uppy={uppy}
         // plugins={['Webcam']}
         width={500}
-        height={500}
+        height={300}
         showProgressDetails={true}
         theme="auto"
       />

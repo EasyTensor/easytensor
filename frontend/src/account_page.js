@@ -19,7 +19,6 @@ function AccountPage() {
       .then((resp) => {
         if (!resp.status >= 300) {
         }
-        console.log("password change return:", resp.data);
         alert("New password saved. Login with your new credentials");
         removeCookie("jwt-auth");
         let { from } = { from: { pathname: "/" } };
