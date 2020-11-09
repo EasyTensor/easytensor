@@ -56,7 +56,8 @@ SIMPLE_JWT = {
     "SIGNING_KEY": JWT_SECRET,
 }
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEPLOYMENT_ENV = get_env_var("DEPLOYMENT_ENV", default="PROD")
+DEBUG = True if DEPLOYMENT_ENV is "DEV" else False
 
 # authentication settings
 REST_USE_JWT = True
