@@ -18,9 +18,10 @@ commonLabels:
 
 
 configMapGenerator:
-- name: frontend-properties
+- name: backend-properties
+  behavior: merge
   envs: 
-  - frontend.properties
+  - backend.properties
 - name: controller-properties
   behavior: merge
   envs:

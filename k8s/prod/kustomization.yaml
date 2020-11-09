@@ -61,9 +61,6 @@ commonLabels:
   deployment_env: prod
 
 configMapGenerator:
-- name: frontend-properties
-  envs:
-  - frontend.properties
 - name: service-routing
   behavior: merge
   envs:

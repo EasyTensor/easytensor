@@ -137,6 +137,7 @@ function QueryModal({ model }) {
             width="100%"
             onChange={onBodyChange}
           />
+          <div style={{width:".2em", height: "100%"}}/>
           <JSONInput
             id="a_unique_id2"
             placeholder={responseBody}
