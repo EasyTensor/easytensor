@@ -17,8 +17,7 @@ tf.keras.models.save_model(
     save_format=None,
     signatures=None,
     options=None
-)
-`;
+)`;
 const comperssModelString = `tar -czf my_model.tar.gz ~/my_model`;
 
 const SaveModelComponent = () => {

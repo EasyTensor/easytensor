@@ -156,12 +156,10 @@ function Model({ model, onDelete }) {
 }
 
 function ModelList() {
-  console.log("model list rendering");
   const [models, setModels] = useState([]);
 
   useEffect(() => {
     GetModels().then((response) => {
-      console.log("response:", response);
       setModels(response.data);
     });
   }, []);
