@@ -79,9 +79,8 @@ func query(body []byte, headers http.Header, modelID string) interface{} {
 
 func checkAccessTokens() {
 	for {
-		fmt.Println("Getting Access Tokens")
 		initAccessTokenList()
-		time.Sleep(1000 * time.Millisecond)
+		time.Sleep(3000 * time.Millisecond)
 	}
 }
 
@@ -114,8 +113,11 @@ func main() {
 		c.JSON(200, output)
 	})
 	r.GET("/refresh_models/", func(c *gin.Context) {
-		fmt.Println("hi im here")
 		initAccessTokenList()
+		c.JSON(200, tokensMap)
+	})
+	// TODO: make sure this is only available for admins/in cluster
+	r.GET("/get_tokens/", func(c *gin.Context) {
 		c.JSON(200, tokensMap)
 	})
 	r.Run()
@@ -142,14 +144,12 @@ func initAccessTokenList() {
 			fmt.Println("Could not decode token list")
 			log.Fatal(err)
 		}
-		fmt.Printf("%#v\n", fetchedTokens)
 	}
 
 	var newTokensMap = map[string]string{}
 	for _, token := range fetchedTokens {
 		newTokensMap[token.ID] = token.Model
 	}
-	fmt.Printf("models are now: %#v\n", newTokensMap)
 	tokensMap = newTokensMap
 }
 

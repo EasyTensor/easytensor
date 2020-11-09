@@ -4,4 +4,4 @@ RUN mkdir /app
 WORKDIR /app
 COPY . .
 
-CMD sleep infinity
+CMD go run run.go
