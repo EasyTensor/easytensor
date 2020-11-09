@@ -10,6 +10,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -92,6 +93,10 @@ func main() {
 	go checkAccessTokens()
 
 	r := gin.Default()
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AddAllowHeaders("accessToken")
+	r.Use(cors.New(config))
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
