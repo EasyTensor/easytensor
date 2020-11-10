@@ -147,11 +147,13 @@ func main() {
 			c.JSON(200, gin.H{})
 		}
 	})
-	r.GET("/health_check/startup/", func(c *gin.Context) {
-		if isInitialized {
-			c.JSON(200, gin.H{})
+	r.GET("/health_check/readiness/", func(c *gin.Context) {
+		if !isInitialized {
+			c.JSON(503, gin.H{"cause": "Appication not yet initialized"})
+		} else if consecutiveFailure > 5 {
+			c.JSON(503, gin.H{"cause": fmt.Sprintf("%d consecutive fetch failures", consecutiveFailure)})
 		} else {
-			c.JSON(503, gin.H{"cause": "Not ready"})
+			c.JSON(200, gin.H{})
 		}
 	})
 	r.Run()
@@ -200,7 +202,14 @@ func authenticate() {
 	var body, _ = json.Marshal(AuthBody2)
 	// keep trying until we successfully authenticate
 	for {
-		response, _ := http.Post(loginURL, "application/json", bytes.NewBuffer(body))
+		response, err := http.Post(loginURL, "application/json", bytes.NewBuffer(body))
+		if err != nil {
+			consecutiveFailure++
+			fmt.Println(err)
+			fmt.Println("Could not authenticate. Trying in 1 second ...")
+			time.Sleep(1000 * time.Millisecond)
+			continue
+		}
 
 		var authResult AuthReturn
 		defer response.Body.Close()

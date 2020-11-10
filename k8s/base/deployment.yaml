@@ -165,15 +165,14 @@ spec:
             httpGet:
               path: /health_check/liveness/
               port: http
-            failureThreshold: 1
-            periodSeconds: 10
-            initialDelaySeconds: 10
-          startupProbe:
-            httpGet:
-              path: /health_check/startup/
-              port: http
             failureThreshold: 10
             periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health_check/readiness/
+              port: http
+            failureThreshold: 1
+            periodSeconds: 3
           envFrom:
             - configMapRef:
                 name: service-routing
