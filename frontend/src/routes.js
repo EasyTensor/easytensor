@@ -1,6 +1,6 @@
 import React from "react";
 
-import { is_authenticated } from "./auth";
+import { is_authenticated } from "./auth/checker";
 import { useCookies } from "react-cookie";
 import { Route, Redirect } from "react-router-dom";
 
@@ -13,7 +13,7 @@ function PrivateRoute({ children, ...rest }) {
     <Route
       {...rest}
       render={({ location }) =>
-        is_authenticated(cookies) ? (
+        is_authenticated() ? (
           children
         ) : (
           <Redirect

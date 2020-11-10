@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { CookiesProvider, Cookies, useCookies } from "react-cookie";
-import { is_authenticated } from "./auth";
+import { is_authenticated } from "./auth/checker";
 import { Link } from "react-router-dom";
 import ToolTip from "@material-ui/core/Tooltip";
 
@@ -73,7 +73,7 @@ function NavBar() {
           <Typography variant="h4" className={classes.title}>
             <CleanLink to="/">EasyTensor</CleanLink>
           </Typography>
-          {is_authenticated(cookies) && (
+          {is_authenticated() && (
             <div className={classes.headerItems}>
               <Typography variant="h6" className={classes.headerItem}>
                 <CleanLink to="/">Home</CleanLink>
@@ -89,10 +89,10 @@ function NavBar() {
             </div>
           )}
           <div className={classes.endItems}>
-            {is_authenticated(cookies) && (
+            {is_authenticated() && (
               <div
                 style={{
-                  display: is_authenticated(cookies) ? "block" : "none",
+                  display: is_authenticated() ? "block" : "none",
                 }}
               >
                 <ToolTip title="Account">

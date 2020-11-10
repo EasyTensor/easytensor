@@ -118,7 +118,7 @@ function AuthRow() {
           {isRegistering && (
             <div>
               <label>
-                Confirm Password
+                Name
                 <input
                   onChange={(e) => changePassword2(e.target.value)}
                   value={password2}

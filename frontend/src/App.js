@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { CookiesProvider, Cookies, useCookies } from "react-cookie";
 import { UploadDashboard } from "./upload_page";
-import { AuthRow } from "./auth";
+import { AuthCard } from "./auth/auth_card";
 import { ModelPage } from "./models";
 import { Route, Switch } from "react-router-dom";
 import { NavBar } from "./nav_row";
@@ -27,7 +27,7 @@ const theme = createMuiTheme({
     },
     text: {
       primary: "#424242",
-      secondary: "#FFFFFF",
+      secondary: "#FF750D",
     },
   },
   shadows: WhiteShadows,
@@ -67,7 +67,7 @@ function App() {
           >
             <Switch>
               <Route path="/login">
-                <AuthRow />
+                <AuthCard />
               </Route>
               <PrivateRoute path="/models">
                 <ModelPage />
