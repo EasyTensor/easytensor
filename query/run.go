@@ -36,6 +36,8 @@ type AuthReturn struct {
 }
 
 var tokensMap = map[string]string{}
+var consecutiveFailure int64 = 0
+var isInitialized bool = false
 
 type Output struct {
 	Predictions []float64
@@ -67,7 +69,6 @@ func query(body []byte, headers http.Header, modelID string) interface{} {
 	for {
 		// var model Model
 		if err := dec.Decode(&output); err == io.EOF {
-			fmt.Println("end of file")
 			break
 		} else if err != nil {
 			fmt.Println("fatal error")
@@ -80,17 +81,34 @@ func query(body []byte, headers http.Header, modelID string) interface{} {
 
 func checkAccessTokens() {
 	for {
-		initAccessTokenList()
+		refreshModelTokens()
+		if consecutiveFailure > 5 {
+			fmt.Println("5 consecutive failures contacting the backend service. Service is unhealthy.")
+		}
 		time.Sleep(3000 * time.Millisecond)
+	}
+}
+
+func keepAuthAlive() {
+	for {
+		authenticate()
+		if consecutiveFailure > 5 {
+			fmt.Println("5 consecutive failures contacting the backend service. Service is unhealthy.")
+		}
+		time.Sleep(1 * time.Hour)
 	}
 }
 
 func main() {
 	fmt.Println("Hello, World!")
 
-	// Intitial setup
+	// Intitial setup, block before strating
 	authenticate()
+	refreshModelTokens()
+	isInitialized = true
+
 	go checkAccessTokens()
+	go keepAuthAlive()
 
 	r := gin.Default()
 	config := cors.DefaultConfig()
@@ -103,32 +121,43 @@ func main() {
 		})
 	})
 	r.POST("/query/", func(c *gin.Context) {
-		fmt.Println("hi im here")
 		accessToken := c.GetHeader("accessToken")
-		fmt.Printf("access token: %s", accessToken)
 		modelID, ok := tokensMap[accessToken]
 		if !ok {
 			c.JSON(404, gin.H{"error": "model not found"})
 		}
 		queryBody, _ := c.GetRawData()
-		// fmt.Printf("ok really what is in this? %+v \n", string(queryBody))
-		fmt.Printf("header %+v \n", c.Request.Header)
+		// fmt.Printf("header %+v \n", c.Request.Header)
 		output := query(queryBody, c.Request.Header, modelID)
 
 		c.JSON(200, output)
 	})
 	r.GET("/refresh_models/", func(c *gin.Context) {
-		initAccessTokenList()
+		refreshModelTokens()
 		c.JSON(200, tokensMap)
 	})
 	// TODO: make sure this is only available for admins/in cluster
 	r.GET("/get_tokens/", func(c *gin.Context) {
 		c.JSON(200, tokensMap)
 	})
+	r.GET("/health_check/liveness/", func(c *gin.Context) {
+		if consecutiveFailure > 5 {
+			c.JSON(503, gin.H{"cause": fmt.Sprintf("%d consecutive fetch failures", consecutiveFailure)})
+		} else {
+			c.JSON(200, gin.H{})
+		}
+	})
+	r.GET("/health_check/startup/", func(c *gin.Context) {
+		if isInitialized {
+			c.JSON(200, gin.H{})
+		} else {
+			c.JSON(503, gin.H{"cause": "Not ready"})
+		}
+	})
 	r.Run()
 }
 
-func initAccessTokenList() {
+func refreshModelTokens() {
 	var accessTokensURL = fmt.Sprintf("%s/v1/query-access-token/", getBackendURL())
 	client := &http.Client{}
 
@@ -146,8 +175,9 @@ func initAccessTokenList() {
 		if err := dec.Decode(&fetchedTokens); err == io.EOF {
 			break
 		} else if err != nil {
-			fmt.Println("Could not decode token list")
-			log.Fatal(err)
+			fmt.Println("Could not decode token list, skipping update of token map.", err)
+			consecutiveFailure++
+			return
 		}
 	}
 
@@ -156,6 +186,7 @@ func initAccessTokenList() {
 		newTokensMap[token.ID] = token.Model
 	}
 	tokensMap = newTokensMap
+	consecutiveFailure = 0
 }
 
 func authenticate() {
@@ -167,21 +198,29 @@ func authenticate() {
 		"email":    os.Getenv("CONTROLLER_EMAIL"),
 	}
 	var body, _ = json.Marshal(AuthBody2)
-	response, _ := http.Post(loginURL, "application/json", bytes.NewBuffer(body))
-
-	var authResult AuthReturn
-	defer response.Body.Close()
-	dec := json.NewDecoder(response.Body)
-
+	// keep trying until we successfully authenticate
 	for {
-		if err := dec.Decode(&authResult); err == io.EOF {
-			break
-		} else if err != nil {
-			log.Fatal(err)
+		response, _ := http.Post(loginURL, "application/json", bytes.NewBuffer(body))
+
+		var authResult AuthReturn
+		defer response.Body.Close()
+		dec := json.NewDecoder(response.Body)
+
+		for {
+			if err := dec.Decode(&authResult); err == io.EOF {
+				break
+			} else if err != nil {
+				consecutiveFailure++
+				fmt.Println(err)
+				fmt.Println("Could not authenticate. Trying in 1 second ...")
+				time.Sleep(1000 * time.Millisecond)
+				continue
+			}
 		}
-		fmt.Printf("auth return: %#v\n", authResult)
+		setAuthenticationCredentials(authResult.AccessToken, authResult.RefreshToken)
+		consecutiveFailure = 0
+		break
 	}
-	setAuthenticationCredentials(authResult.AccessToken, authResult.RefreshToken)
 }
 
 func setAuthenticationCredentials(newAccessToken, newRefreshToken string) {
