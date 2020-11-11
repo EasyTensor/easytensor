@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { CookiesProvider, Cookies, useCookies } from "react-cookie";
-import { is_authenticated } from "./auth/checker";
-import { Link } from "react-router-dom";
+import { is_authenticated, remove_jwt_cookie } from "./auth/helper";
 import ToolTip from "@material-ui/core/Tooltip";
+import { useCookies } from "react-cookie";
 
 import { makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
@@ -10,12 +9,6 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import { ExitToApp, AccountCircle } from "@material-ui/icons";
-import Switch from "@material-ui/core/Switch";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import FormGroup from "@material-ui/core/FormGroup";
-import MenuItem from "@material-ui/core/MenuItem";
-import Menu from "@material-ui/core/Menu";
-import { withTheme } from "@material-ui/styles";
 import { CleanLink } from "./link";
 
 const useStyles = makeStyles((theme) => ({
@@ -56,15 +49,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function NavBar() {
-  const [cookies, setCookie, removeCookie] = useCookies();
+
+  const [cookies, setCookie, removeCookie] = useCookies()
 
   function logout() {
-    console.log("removing the JWT token");
-    removeCookie("jwt-auth");
+    removeCookie("jwt-auth", {path: "/"})
   }
   const classes = useStyles();
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
 
   return (
     <div className={classes.root}>
@@ -73,7 +64,7 @@ function NavBar() {
           <Typography variant="h4" className={classes.title}>
             <CleanLink to="/">EasyTensor</CleanLink>
           </Typography>
-          {is_authenticated() && (
+          {is_authenticated(cookies) && (
             <div className={classes.headerItems}>
               <Typography variant="h6" className={classes.headerItem}>
                 <CleanLink to="/">Home</CleanLink>
@@ -89,10 +80,10 @@ function NavBar() {
             </div>
           )}
           <div className={classes.endItems}>
-            {is_authenticated() && (
+            {is_authenticated(cookies) && (
               <div
                 style={{
-                  display: is_authenticated() ? "block" : "none",
+                  display: is_authenticated(cookies) ? "block" : "none",
                 }}
               >
                 <ToolTip title="Account">

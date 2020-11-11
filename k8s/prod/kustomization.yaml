@@ -66,6 +66,10 @@ configMapGenerator:
   behavior: merge
   envs:
   - service-routing.properties
+- name: backend-properties
+  behavior: merge
+  envs:
+  - backend.properties
 - name: controller-properties
   behavior: merge
   envs:

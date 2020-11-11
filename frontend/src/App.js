@@ -1,10 +1,13 @@
 import React, { useState } from "react";
-import { CookiesProvider, Cookies, useCookies } from "react-cookie";
-import { UploadDashboard } from "./upload_page";
+import { CookiesProvider } from "react-cookie";
 import { AuthCard } from "./auth/auth_card";
+import {
+  RegistrationFailure,
+  RegistrationSuccess,
+} from "./auth/registration_status";
 import { ModelPage } from "./models";
 import { Route, Switch } from "react-router-dom";
-import { NavBar } from "./nav_row";
+import { NavBar } from "./nav_bar";
 import { PrivateRoute } from "./routes";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { FirstStep } from "./first_step";
@@ -34,10 +37,6 @@ const theme = createMuiTheme({
 });
 
 function App() {
-  const [cookies, setCookie, removeCookie] = useCookies();
-
-  console.log(cookies);
-
   return (
     <CookiesProvider>
       <ThemeProvider theme={theme}>
@@ -68,6 +67,12 @@ function App() {
             <Switch>
               <Route path="/login">
                 <AuthCard />
+              </Route>
+              <Route path="/registration/success/">
+                <RegistrationSuccess />
+              </Route>
+              <Route path="/registration/failure/">
+                <RegistrationFailure />
               </Route>
               <PrivateRoute path="/models">
                 <ModelPage />

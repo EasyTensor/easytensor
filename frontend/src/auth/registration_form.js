@@ -1,33 +1,27 @@
 import React, { useState } from "react";
-import { useCookies } from "react-cookie";
 import { useHistory, useLocation } from "react-router-dom";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 
-import { PostLogin, PostRegistration } from "../api";
+import { PostRegistration } from "../api";
 
 function Registration() {
   let history = useHistory();
-  let location = useLocation();
-  const [cookies, setCookie, removeCookie] = useCookies();
 
-  const [isRegistering, setIsRegistration] = useState(false);
-  const [username, changeUsername] = useState("");
   const [email, changeEmail] = useState("");
   const [password, changePassword] = useState("");
   const [password2, changePassword2] = useState("");
 
   function onSubmit(e) {
     e.preventDefault();
-    return PostRegistration(username, email, password, password2)
+    return PostRegistration(email, email, password, password2)
       .then((resp) => {
         if (resp.status >= 300) {
           alert("Invalid Registration");
           alert(JSON.stringify(resp.data));
           throw resp.data;
         }
-        setCookie("jwt-auth", resp.data.access_token, { maxAge: 60 * 60 * 24 });
-        history.replace({ pathname: "/" });
+        alert("A confirmation link was to your email.\nPlease confirm your email before logging in.")
       })
       .catch((error) => {
         console.log("error ->", error);
@@ -44,15 +38,10 @@ function Registration() {
       <div style={{ display: "grid", padding: "1em", margin: "1em" }}>
         <TextField
           id="standard-basic"
-          label="Username"
-          onChange={(e) => changeUsername(e.target.value)}
-          value={username}
-        />
-        <TextField
-          id="standard-basic"
           label="Email"
           onChange={(e) => changeEmail(e.target.value)}
           value={email}
+          type="email"
         />
         <TextField
           id="standard-basic"

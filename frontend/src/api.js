@@ -1,11 +1,9 @@
-import Cookies from "universal-cookie";
 import { BACKEND_URL, QUERY_URL } from "./constants";
 import axios from "axios";
-
-const cookies = new Cookies();
+import {get_jwt_cookie} from "./auth/helper"
 
 function getAuthorization() {
-  return `Bearer ${cookies.get("jwt-auth")}`;
+  return `Bearer ${get_jwt_cookie()}`;
 }
 function getConfig() {
   return {
@@ -63,11 +61,12 @@ export function Query(access_token, body) {
   });
 }
 
-export function PostRegistration(username, password1, password2) {
+export function PostRegistration(username, email, password1, password2) {
   return axios.post(
     `${BACKEND_URL}/v1/dj-rest-auth/registration/`,
     {
       username: username,
+      email: email,
       password1: password1,
       password2: password2,
     },

@@ -57,7 +57,12 @@ SIMPLE_JWT = {
 }
 # SECURITY WARNING: don't run with debug turned on in production!
 DEPLOYMENT_ENV = get_env_var("DEPLOYMENT_ENV", default="PROD")
-DEBUG = True if DEPLOYMENT_ENV is "DEV" else False
+DEBUG = True if DEPLOYMENT_ENV == "DEV" else False
+EMAIL_BACKEND = (
+    "django.core.mail.backends.console.EmailBackend"
+    if DEPLOYMENT_ENV == "DEV"
+    else "django.core.mail.backends.smtp.EmailBackend"
+)
 
 # authentication settings
 REST_USE_JWT = True
@@ -65,6 +70,17 @@ JWT_AUTH_COOKIE = "jwt-auth"
 # TODO: maybe switch JWT to be httponly, and figure out CORS
 JWT_AUTH_HTTPONLY = False
 SITE_ID = 1
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_REQUIRED = True
+FRONTEND_REDIRECT_URL = get_env_var("FRONTEND_REDIRECT_URL")
+
+
+#  Email setup
+EMAIL_HOST = get_env_var("EMAIL_SERVER")
+EMAIL_PORT = get_env_var("EMAIL_PORT")
+EMAIL_HOST_USER = get_env_var("EMAI_USER")
+EMAIL_HOST_PASSWORD = get_env_var("EMAIL_PASSWORD")
+EMAIL_USE_TLS = True
 
 # Application definition
 
@@ -129,7 +145,7 @@ DATABASES = {
         "USER": get_env_var("DATABASE_USER", "postgres"),
         "PASSWORD": get_env_var("DATABASE_PASSWORD", "password"),
         "HOST": get_env_var("DATABASE_HOST", "localhost"),
-        "PORT": get_env_var("DATABASE_PORT" , "5432"),
+        "PORT": get_env_var("DATABASE_PORT", "5432"),
     }
 }
 

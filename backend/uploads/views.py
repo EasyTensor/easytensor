@@ -17,6 +17,10 @@ from uploads.google_signing_helpers import (
 BUCKET_NAME = "easytensor-model-uploads"
 
 
+def EmptyView():
+    return Response(status=200)
+
+
 class ModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Model

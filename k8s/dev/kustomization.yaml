@@ -41,10 +41,12 @@ secretGenerator:
   files: 
     - django-secret
   type: Opaque
-
 - name: database-properties
   envs: 
   - database.properties
+- name: email-properties
+  envs: 
+  - email.properties
 
 generatorOptions:
   disableNameSuffixHash: true

@@ -2,15 +2,14 @@ import React, { useState } from "react";
 import Paper from "@material-ui/core/Paper";
 import { AccountCircle } from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
-import { useCookies } from "react-cookie";
 import { useHistory } from "react-router-dom";
 import { PostChangePassword } from "./api";
+import { remove_jwt_cookie } from "./auth/helper";
 
 function AccountPage() {
   const [currentPassword, changeCurrentPassword] = useState("");
   const [newPassword, changeNewPassword] = useState("");
   const [newPassword2, changeNewPassword2] = useState("");
-  const [cookies, setCookie, removeCookie] = useCookies();
   let history = useHistory();
 
   function onChangePassword(e) {
@@ -20,7 +19,7 @@ function AccountPage() {
         if (!resp.status >= 300) {
         }
         alert("New password saved. Login with your new credentials");
-        removeCookie("jwt-auth");
+        remove_jwt_cookie()
         let { from } = { from: { pathname: "/" } };
         history.replace(from);
       })

@@ -1,19 +1,18 @@
 import React from "react";
 
-import { is_authenticated } from "./auth/checker";
-import { useCookies } from "react-cookie";
+import { is_authenticated } from "./auth/helper";
 import { Route, Redirect } from "react-router-dom";
+import { useCookies } from "react-cookie";
 
 // A wrapper for <Route> that redirects to the login
 // screen if you're not yet authenticated.
 function PrivateRoute({ children, ...rest }) {
-  const [cookies] = useCookies();
-
+  const [cookies, setCookies, removeCookies] = useCookies();
   return (
     <Route
       {...rest}
       render={({ location }) =>
-        is_authenticated() ? (
+        is_authenticated(cookies) ? (
           children
         ) : (
           <Redirect
