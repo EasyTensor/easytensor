@@ -13,8 +13,7 @@ for val in "${StringArray[@]}"; do
     rm "$val".yaml
 done
 
-#special case: database properties
-
+# databaseproperties
 kubectl create secret generic database-properties \
   --from-file=DATABASE_NAME=k8s/prod/secrets/database-name-secret \
   --from-file=DATABASE_USER=k8s/prod/secrets/database-user-secret \
@@ -24,6 +23,17 @@ kubectl create secret generic database-properties \
   -o yaml --dry-run=client -n prod > database-secret.yaml
 kubeseal -o yaml <database-secret.yaml >k8s/prod/secrets/sealed-database-secret.yaml
 rm database-secret.yaml
+
+
+# Email properties
+kubectl create secret generic database-properties \
+  --from-file=EMAIL_SERVER=k8s/prod/secrets/email-server-secret \
+  --from-file=EMAIL_PORT=k8s/prod/secrets/email-port-secret \
+  --from-file=EMAI_USER=k8s/prod/secrets/email-user-secret \
+  --from-file=EMAIL_PASSWORD=k8s/prod/secrets/email-password-secret \
+  -o yaml --dry-run=client -n prod > email-secret.yaml
+kubeseal -o yaml <email-secret.yaml >k8s/prod/secrets/sealed-email-secret.yaml
+rm email-secret.yaml
 
 # Assumes google-SA-secret.txt has been downloaded to k8s/dev/google-SA-secret.txt
 GOOGLE_SECRET_FILE="k8s/dev/google-SA-secret.txt"
