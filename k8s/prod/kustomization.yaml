@@ -15,6 +15,7 @@ resources:
 - secrets/sealed-django-secret.yaml
 - secrets/sealed-database-secret.yaml
 - secrets/sealed-google-SA-secret.yaml
+- secrets/sealed-email-secret.yaml
 - ingress.yaml
 
 patchesStrategicMerge:
@@ -74,6 +75,9 @@ configMapGenerator:
   behavior: merge
   envs:
   - controller.properties
+- name: email-properties
+  envs: 
+  - email.properties
 
 
 generatorOptions:
