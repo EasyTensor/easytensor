@@ -75,9 +75,6 @@ configMapGenerator:
   behavior: merge
   envs:
   - controller.properties
-- name: email-properties
-  envs: 
-  - email.properties
 
 
 generatorOptions:
