@@ -26,7 +26,7 @@ rm database-secret.yaml
 
 
 # Email properties
-kubectl create secret generic database-properties \
+kubectl create secret generic email-properties \
   --from-file=EMAIL_SERVER=k8s/prod/secrets/email-server-secret \
   --from-file=EMAIL_PORT=k8s/prod/secrets/email-port-secret \
   --from-file=EMAI_USER=k8s/prod/secrets/email-user-secret \
