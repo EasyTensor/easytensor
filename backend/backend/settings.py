@@ -72,6 +72,8 @@ JWT_AUTH_HTTPONLY = False
 SITE_ID = 1
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_EMAIL_REQUIRED = True
+DEFAULT_FROM_EMAIL = "kamal@easytensor.com"
+ACCOUNT_EMAIL_SUBJECT_PREFIX = ""
 FRONTEND_REDIRECT_URL = get_env_var("FRONTEND_REDIRECT_URL")
 
 
@@ -119,7 +121,7 @@ ROOT_URLCONF = "backend.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        'DIRS': [BASE_DIR / 'backend/templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

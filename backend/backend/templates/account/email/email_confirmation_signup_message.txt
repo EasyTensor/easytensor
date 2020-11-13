@@ -1,0 +1,12 @@
+{% load account %}{% user_display user as user_display %}
+Hello from {{ site_name }}!
+
+Hello from EasyTensor!
+
+Please verify your email {{ user_display }} to get started!
+
+To verify your email, please visit this URL {{ activate_url }}
+
+You will be directed to login soon after confirming your email. If you have any questions or issues confirming your account, please email us at questions@easytensor.com.
+
+Thank you from EasyTensor!

@@ -144,7 +144,7 @@ func main() {
 		if consecutiveFailure > 5 {
 			c.JSON(503, gin.H{"cause": fmt.Sprintf("%d consecutive fetch failures", consecutiveFailure)})
 		} else {
-			c.JSON(200, gin.H{})
+			c.JSON(200, gin.H{"status": "ok", "consecutive failures": consecutiveFailure})
 		}
 	})
 	r.GET("/health_check/readiness/", func(c *gin.Context) {
@@ -153,7 +153,7 @@ func main() {
 		} else if consecutiveFailure > 5 {
 			c.JSON(503, gin.H{"cause": fmt.Sprintf("%d consecutive fetch failures", consecutiveFailure)})
 		} else {
-			c.JSON(200, gin.H{})
+			c.JSON(200, gin.H{"status": "ok", "consecutive failures": consecutiveFailure})
 		}
 	})
 	r.Run()
