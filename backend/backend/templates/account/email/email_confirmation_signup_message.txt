@@ -1,6 +1,4 @@
 {% load account %}{% user_display user as user_display %}
-Hello from {{ site_name }}!
-
 Hello from EasyTensor!
 
 Please verify your email {{ user_display }} to get started!

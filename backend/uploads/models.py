@@ -1,8 +1,9 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 import uuid
+from django.contrib.auth import get_user_model
 
-from django.db.models.deletion import CASCADE
+User = get_user_model()
 
 class Model(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
