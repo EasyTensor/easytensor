@@ -19,15 +19,12 @@ import os
 from typing import List
 import json
 import logging
-from pprint import pprint, pformat
+from pprint import pformat
 from typing import Collection
 from kubernetes import client, config
 import aiohttp
 import asyncio
 from aiohttp.client_exceptions import ClientConnectorError
-from kubernetes.client.models.v1_config_map_env_source import V1ConfigMapEnvSource
-from kubernetes.client.models.v1_env_from_source import V1EnvFromSource
-from kubernetes.client.models.v1_projected_volume_source import V1ProjectedVolumeSource
 
 
 def get_env_var(var_name):

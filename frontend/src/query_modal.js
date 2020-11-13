@@ -7,7 +7,8 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Button from "@material-ui/core/Button";
 import JSONInput from "react-json-editor-ajrm";
-import locale from 'react-json-editor-ajrm/locale/en'
+import locale from "react-json-editor-ajrm/locale/en";
+import { QUERY_URL } from "./constants";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -32,7 +33,7 @@ function QueryModal({ model }) {
   const [queryTokens, setQueryTokens] = useState(undefined);
   const [reqBody, setReqBody] = useState(stubBody);
   const [isValid, setIsValid] = useState(true);
-  const [responseBody, setResponseBody] = useState(null)
+  const [responseBody, setResponseBody] = useState(null);
 
   useEffect(() => {
     GetQueryAccessTokens().then((response) => {
@@ -57,12 +58,12 @@ function QueryModal({ model }) {
   function sendQuery() {
     Query(queryTokens[0], reqBody)
       .then((response) => {
-        setResponseBody(response.data)
+        setResponseBody(response.data);
       })
       .catch((error) => {
         alert("something went wrong.");
         console.log(error);
-        setResponseBody(error)
+        setResponseBody(error);
       });
   }
 
@@ -97,6 +98,14 @@ function QueryModal({ model }) {
     );
   }
 
+  function showCurl() {
+    alert(
+      `curl ${QUERY_URL}/query/ --header "content-type: application/json" --header "accessToken: ${
+        queryTokens[0]
+      }" --data '${JSON.stringify(reqBody)}'`
+    );
+  }
+
   const QueryBox = (
     <div>
       <DialogContent className={classes.model_content}>
@@ -114,38 +123,55 @@ function QueryModal({ model }) {
         </DialogContentText>
       </DialogContent>
       <div>
-        <Button
-          variant="contained"
-          color="primary"
-          disabled={!isValid}
-          onClick={sendQuery}
-        >
-          Send Query
-        </Button>
-        <div style={{display: "flex", width: "100%"}}>
-          <JSONInput
-            id="a_unique_id"
-            locale={locale}
-            placeholder={stubBody}
-            // colors      = { darktheme }
-            // locale      = { locale }
-            height="550px"
-            width="100%"
-            onChange={onBodyChange}
-          />
-          <div style={{width:".2em", height: "100%"}}/>
-          <JSONInput
-            id="a_unique_id2"
-            placeholder={responseBody}
-            locale={locale}
-            // colors      = { darktheme }
-            // locale      = { locale }
-            height="550px"
-            width="100%"
-            onChange={onBodyChange}
-            viewOnly={true}
-            confirmGood={false}
-          />
+        <div>
+          <Button
+            variant="contained"
+            color="primary"
+            disabled={!isValid}
+            onClick={sendQuery}
+            style={{ margin: ".5em" }}
+          >
+            Send Query
+          </Button>
+          <Button
+            variant="contained"
+            disabled={!isValid}
+            onClick={showCurl}
+            style={{ textTransform: "none", margin: ".5em" }}
+          >
+            SHOW cURL
+          </Button>
+        </div>
+        <div style={{ display: "flex" }}>
+          <div style={{ flexGrow: 1, textAlign: "center" }}>Request</div>
+          <div style={{ flexGrow: 1, textAlign: "center" }}>Response</div>
+        </div>
+        <div>
+          <div style={{ display: "flex", width: "100%" }}>
+            <JSONInput
+              id="a_unique_id"
+              locale={locale}
+              placeholder={stubBody}
+              // colors      = { darktheme }
+              // locale      = { locale }
+              height="550px"
+              width="100%"
+              onChange={onBodyChange}
+            />
+            <div style={{ width: ".2em", height: "100%" }} />
+            <JSONInput
+              id="a_unique_id2"
+              placeholder={responseBody}
+              locale={locale}
+              // colors      = { darktheme }
+              // locale      = { locale }
+              height="550px"
+              width="100%"
+              onChange={onBodyChange}
+              viewOnly={true}
+              confirmGood={false}
+            />
+          </div>
         </div>
       </div>
     </div>
