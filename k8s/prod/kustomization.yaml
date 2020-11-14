@@ -46,16 +46,16 @@ patchesJson6902:
 images:
 - name: easytensor/frontend
   newName: gcr.io/easytensor-291022/easytensor/frontend
-  newTag: 0.1.3
+  newTag: 0.1.4
 - name: easytensor/backend
   newName: gcr.io/easytensor-291022/easytensor/backend
-  newTag: 0.1.3
+  newTag: 0.1.4
 - name: easytensor/controller
   newName: gcr.io/easytensor-291022/easytensor/controller
-  newTag: 0.1.3
+  newTag: 0.1.4
 - name: easytensor/query
   newName: gcr.io/easytensor-291022/easytensor/query
-  newTag: 0.1.3
+  newTag: 0.1.4
 
 
 # labels added to all Resources
