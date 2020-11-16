@@ -89,10 +89,14 @@ function App() {
           </div>
           <div
             style={{
-              minHeight: "5em",
+              height: "3em",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
+              position: "fixed",
+              bottom: 0,
+              left: 0,
+              width: "100%",
             }}
           >
             <Typography color="secondary">© 2020 EasyTensor</Typography>
