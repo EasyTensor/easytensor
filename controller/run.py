@@ -220,7 +220,7 @@ def create_deployment_object(model: Model):
     # Configureate Pod template container
     tf_serve_contaienr = client.V1Container(
         name="tf-serve",
-        image="tensorflow/serving",
+        image="tensorflow/serving:2.3.0",
         ports=[
             client.V1ContainerPort(container_port=8500),
             client.V1ContainerPort(container_port=8501),
