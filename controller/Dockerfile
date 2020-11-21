@@ -7,7 +7,8 @@ WORKDIR /app
 
 RUN pip3 install kubernetes aiohttp
 
-COPY . .
+COPY . /app/controller/
+ENV PYTHONPATH=/app/controller/
 
 RUN touch /app/healthy
 
