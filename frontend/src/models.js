@@ -26,6 +26,12 @@ function DeleteAll() {
 
   return <button onClick={delete_models}>delete all</button>;
 }
+function getModelFrameworkString(model) {
+  return {
+    "TF": "TensorFlow",
+    "PT": "PyTorch"
+  }[model.framework]
+}
 
 function EmptyModelList() {
   return (
@@ -111,9 +117,10 @@ function Model({ model, onDelete }) {
             </ToolTip>
           </div>
         </div>
+        <p>{getModelFrameworkString(model)}</p>
         <p>id: {id}</p>
         <p>
-          size:{" "}
+          size:
           {Math.round(size / 1024 / 1024) < 1
             ? Math.round(model.size / 1024) + "KB"
             : Math.round(size / 1024 / 1024) + "MB"}

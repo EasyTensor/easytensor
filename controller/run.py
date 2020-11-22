@@ -26,29 +26,16 @@ import aiohttp
 import asyncio
 from aiohttp.client_exceptions import ClientConnectorError
 
-
-def get_env_var(var_name):
-    """
-    Gets an environment variable name or raises an exception
-    if it's not present.
-    """
-    var = os.getenv(var_name)
-    if var is None:
-        raise Exception(f"Variable {var_name} is not defined in the environment")
-    return var
-
-CONTROLLER_USERNAME = get_env_var("CONTROLLER_USERNAME")
-CONTROLLER_EMAIL = get_env_var("CONTROLLER_EMAIL")
-CONTROLLER_PASSWORD= get_env_var("CONTROLLER_PASSWORD")
-
-BACKEND_SERVER_ADDRESS = get_env_var("BACKEND_SERVER_ADDRESS")
-BACKEND_SERVER_PORT = get_env_var("BACKEND_SERVER_PORT")
-
-BACKEND_SERVICE_URL = f"http://{BACKEND_SERVER_ADDRESS}:{BACKEND_SERVER_PORT}"
-MODELS_URL = f"{BACKEND_SERVICE_URL}/v1/models/"
-AUTH_URL = f"{BACKEND_SERVICE_URL}/v1/dj-rest-auth/login/"
-NAMESPACE = get_env_var("CONTROLLED_NAMESPACE")
-BABYSITTER_IMAGE = get_env_var("BABYSITTER_IMAGE")
+from controller.config import (
+    CONTROLLER_USERNAME,
+    CONTROLLER_EMAIL,
+    CONTROLLER_PASSWORD,
+    MIGRATION_STATE,
+    MODELS_URL,
+    AUTH_URL,
+    NAMESPACE,
+    BABYSITTER_IMAGE,
+)
 
 
 logging.basicConfig()
@@ -83,12 +70,20 @@ class ExpiredTokenError(Exception):
 
 class Model:
     def __init__(
-        self, *, id: str, address: str, size: int, scale: int, deployment_config=None
+        self,
+        *,
+        id: str,
+        address: str,
+        size: int,
+        scale: int,
+        framework: str,
+        deployment_config=None,
     ):
         self.id = id
         self.size = size
         self.address = address
         self.scale = scale
+        self.framework = framework
         self.deployment_config = deployment_config
 
     def __eq__(self, other):
@@ -115,9 +110,14 @@ class ServiceNameParseException(Exception):
     pass
 
 
+def get_framework_label_from_model(model: Model):
+    return {"TF": "tensorflow", "PT": "pytorch"}[model.framework]
+
+
 def get_labels_from_model(model: Model) -> dict:
     return {
-        "model-server": "tensorflow",
+        "type": "model-server",
+        "framework": get_framework_label_from_model(model),
         "model-address": model.address,
         "model-id": model.id,
     }
@@ -248,7 +248,10 @@ def create_deployment_object(model: Model):
                 name="model-dir", mount_path="/models/", read_only=False
             )
         ],
-        env=[client.V1EnvVar(name="MODEL_ADDRESS", value=model.address)],
+        env=[
+            client.V1EnvVar(name="MODEL_ADDRESS", value=model.address),
+            client.V1EnvVar("EXTRACT_MODEL", value=str(model.framework == "TF").lower()),
+        ],
         env_from=[
             client.V1EnvFromSource(
                 config_map_ref=client.V1ConfigMapEnvSource(name="mesh-account-cred")
@@ -274,7 +277,8 @@ def create_deployment_object(model: Model):
         template=template,
         selector={
             "matchLabels": {
-                "model-server": "tensorflow",
+                "type": "model-server",
+                "framework": "tensorflow",
                 "model-address": model.address,
             }
         },
@@ -344,6 +348,7 @@ async def get_idea_model_state():
             address=model["address"],
             size=model["size"],
             scale=model["scale"],
+            framework=model["framework"],
         )
         for model in model_list
         if model["deployed"]
@@ -352,7 +357,7 @@ async def get_idea_model_state():
 
 def get_deployed_model_list():
     deployments = APPS_V1.list_namespaced_deployment(
-        namespace=NAMESPACE, label_selector="model-server=tensorflow"
+        namespace=NAMESPACE, label_selector="type=model-server"
     )
 
     models = []
@@ -362,6 +367,7 @@ def get_deployed_model_list():
             Model(
                 id=dep.metadata.labels.get("model-id"),
                 address=dep.metadata.labels.get("model-address"),
+                framework=dep.metadata.labels.get("model-address"),
                 size=0,
                 scale=dep.spec.replicas,
                 deployment_config=dep,
@@ -372,7 +378,7 @@ def get_deployed_model_list():
 
 def get_serviced_model_list():
     services = CORE_V1.list_namespaced_service(
-        namespace=NAMESPACE, label_selector="model-server=tensorflow"
+        namespace=NAMESPACE, label_selector="type=model-server"
     )
     models = []
 
@@ -381,6 +387,7 @@ def get_serviced_model_list():
             Model(
                 id=svc.metadata.labels.get("model-id"),
                 address=svc.metadata.labels.get("model-address"),
+                framework=None,
                 size=0,
                 scale=0,
                 deployment_config=svc,
@@ -502,7 +509,7 @@ async def authenticate():
             {
                 "username": CONTROLLER_USERNAME,
                 "email": CONTROLLER_EMAIL,
-                "password": CONTROLLER_PASSWORD
+                "password": CONTROLLER_PASSWORD,
             }
         )
         response = await session.post(AUTH_URL, data=body)
@@ -523,4 +530,7 @@ async def main():
 
 
 if __name__ == "__main__":
+    from controller.migrations.apply import run_migrations
+
+    run_migrations(MIGRATION_STATE)
     asyncio.get_event_loop().run_until_complete(main())

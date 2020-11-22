@@ -13,3 +13,7 @@ sudo rm -rf /mnt/data # make sure this is running inside the minikube node
 exit # exits the minikube node
 make dev # or whatever command you start the stack with
 ```
+
+##### Adding migrations
+`k cp et-backend-65f784577b-9tv29:/app/uploads/migrations/ backend/uploads/migrations/`
+
