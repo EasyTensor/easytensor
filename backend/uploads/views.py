@@ -24,7 +24,7 @@ def EmptyView():
 class ModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Model
-        fields = ["owner", "name", "address", "size", "scale", "id", "deployed"]
+        fields = ["owner", "name", "address", "size", "scale", "id", "deployed", "framework"]
 
 
 class QueryAccessTokenSerializer(serializers.ModelSerializer):

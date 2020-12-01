@@ -3,59 +3,70 @@
 # it in /models/model because Tensorflow Serving will pick up new files
 # immediately and will complain about files missing if the decompression takes
 # a long time.
-set -e 
+set -e
 
-imdone()
-{
+imdone() {
     echo "taking a long nap ..."
     sleep infinity
+}
+
+extract_model() {
+    echo "Uncompressing the model"
+    echo "Trying to unzip"
+    unzip model -d /models/tmp/
+    UNZIP=$?
+    if [[ "$UNZIP" == "0" ]]; then
+        echo "Unzipping worked!"
+        rm -rf /models/model/
+        mv /models/tmp /models/model
+        return
+    else
+        echo "Unzipping failed."
+        rm -rf /models/tmp
+    fi
+
+    echo "Trying to untar"
+    tar -xzvf model -C /models/tmp/
+    UNTAR=$?
+    if [[ "$UNTAR" == "0" ]]; then
+        echo "Untarring worked!"
+        rm -rf /models/model/
+        mv /models/tmp /models/model
+        return
+    else
+        echo "Untarring failed."
+        rm -rf /models/tmp
+    fi
+    echo "I ran out of ways to uncompress your file :( "
+    exit 1
 }
 
 # authentication
 # TODO: change this to an access token
 echo "Authenticating"
-wget -qO- "${BACKEND_SERVER_ADDRESS}":"${BACKEND_SERVER_PORT}"/v1/dj-rest-auth/login/ --post-data="$(cat <<EOF
+wget -qO- "${BACKEND_SERVER_ADDRESS}":"${BACKEND_SERVER_PORT}"/v1/dj-rest-auth/login/ --post-data="$(
+    cat <<EOF
 {
     "username": "${CONTROLLER_USERNAME}",
     "email": "${CONTROLLER_EMAIL}",
     "password": "${CONTROLLER_PASSWORD}"
 }
 EOF
-)" --header="Content-Type:application/json" | jq -r .access_token > auth_token.txt
+)" --header="Content-Type:application/json" | jq -r .access_token >auth_token.txt
 
 echo "Getting download URL"
-wget -qO- "${BACKEND_SERVER_ADDRESS}":"${BACKEND_SERVER_PORT}"/v1/model-uploads/${MODEL_ADDRESS}/ --header="Authorization: Bearer $(cat auth_token.txt)" | jq -r .url > download_url.txt
+wget -qO- "${BACKEND_SERVER_ADDRESS}":"${BACKEND_SERVER_PORT}"/v1/model-uploads/${MODEL_ADDRESS}/ --header="Authorization: Bearer $(cat auth_token.txt)" | jq -r .url >download_url.txt
 
 echo "Downloading model"
 cat download_url.txt | xargs wget -q -O model
 
-echo "Uncompressing the model"
-
-echo "Trying to unzip"
-unzip model -d /models/tmp/
-UNZIP=$?
-if [[ "$UNZIP" == "0" ]]; then
-    echo "Unzipping worked!"
-    rm -rf /models/model/
-    mv /models/tmp /models/model
-    imdone
+if [ "${EXTRACT_MODEL}" = true ]; then
+    if ! extract_model; then
+        echo "extracting did not work, exiting with error"
+        exit 1
+    else
+        imdone
+    fi
 else
-    echo "Unzipping failed."
-    rm -rf /models/tmp
-fi
-
-echo "Trying to untar"
-tar -xzvf model -C /models/tmp/
-UNTAR=$?
-if [[ "$UNTAR" == "0" ]]; then
-    echo "Untarring worked!"
-    rm -rf /models/model/
-    mv /models/tmp /models/model
     imdone
-else
-    echo "Untarring failed."
-    rm -rf /models/tmp
 fi
-
-echo "I ran out of ways to uncompress your file :( "
-exit 1
