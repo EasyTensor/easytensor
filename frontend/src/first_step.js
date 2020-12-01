@@ -5,8 +5,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Bubble } from "./bubble";
 import Paper from "@material-ui/core/Paper";
-const saveModelString = 
-`export_path = "~/my_model"
+const saveModelString = `export_path = "~/my_model"
 print("export_path = {}".format(export_path))
 
 tf.keras.models.save_model(
@@ -18,7 +17,7 @@ tf.keras.models.save_model(
     signatures=None,
     options=None
 )`;
-const comperssModelString = `tar -czf my_model.tar.gz ~/my_model`;
+const comperssModelString = `tar -czf my_model.tar.gz -C ~/my_model .`;
 
 const SaveModelComponent = () => {
   return (
