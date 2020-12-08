@@ -22,6 +22,10 @@ build:
       context: controller
       docker:
         dockerfile: Dockerfile
+    - image: easytensor/reporter
+      context: reporter
+      docker:
+        dockerfile: Dockerfile
     - image: easytensor/babysitter
       context: babysitter
       docker:

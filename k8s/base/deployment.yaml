@@ -194,6 +194,48 @@ spec:
       port: 8080
       name: http
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: et-reporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: easytensor
+      service: reporter
+  template:
+    metadata:
+      labels:
+        app: easytensor
+        service: reporter
+    spec:
+      serviceAccountName: deployment-control-sa
+      containers:
+        - name: reporter
+          image: easytensor/reporter
+          ports:
+            - name: http
+              containerPort: 80
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            httpGet:
+              path: /health_check/liveness/
+              port: http
+            failureThreshold: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health_check/readiness/
+              port: http
+            failureThreshold: 1
+            periodSeconds: 3
+          envFrom:
+            - configMapRef:
+                name: service-routing
+            - configMapRef:
+                name: mesh-account-cred
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
