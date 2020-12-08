@@ -28,9 +28,9 @@ function DeleteAll() {
 }
 function getModelFrameworkString(model) {
   return {
-    "TF": "TensorFlow",
-    "PT": "PyTorch"
-  }[model.framework]
+    TF: "TensorFlow",
+    PT: "PyTorch",
+  }[model.framework];
 }
 
 function EmptyModelList() {
@@ -60,8 +60,54 @@ function EmptyModelList() {
   );
 }
 
+// todo: add ability to finish editing with click outside div 
+// https://stackoverflow.com/questions/32553158/detect-click-outside-react-component
+function EditableText({ initialText, editedCallback }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(initialText);
+  if (isEditing) {
+    return (
+      <input
+      variant="h5"
+        type="text"
+        onChange={(e) => setEditValue(e.target.value)}
+        onKeyPress={(e) => {
+          if (e.key === "Enter") {
+            editedCallback(editValue)
+            setIsEditing(false);
+          }
+        }}
+        value={editValue}
+      />
+    );
+  } else {
+    return (
+      <Typography
+        variant="h5"
+        onMouseOver={(e) => {
+          e.target.style.borderColor = "#bbb";
+        }}
+        onMouseOut={(e) => (e.target.style.borderColor = "transparent")}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          flexGrow: 1,
+          textAlign: "left",
+          borderWidth: "0.01em",
+          borderRadius: "0.1em",
+          borderStyle: "solid",
+          borderColor: "transparent",
+        }}
+        onChange={(e) => console.log(e.target)}
+        onClick={() => setIsEditing(true)}
+      >
+        {initialText}
+      </Typography>
+    );
+  }
+}
 function Model({ model, onDelete }) {
-  const name = model.name;
+  const [name, setName] = useState(model.name);
   // const address = model.address;
   const id = model.id;
   const size = model.size;
@@ -95,20 +141,21 @@ function Model({ model, onDelete }) {
     });
   }
 
+  function handleNameEdit(newName) {
+    console.log("callback!")
+    PatchModel(id, {name: newName}).then((resp) => {
+      if (resp.status != 200) {
+        alert("could not update model name");
+      }
+      setName(newName);
+    })
+  }
+
   return (
     <Grid item xs={4}>
       <Card foo="bar" style={{ padding: ".5em", borderRadius: "1em" }}>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              flexGrow: 1,
-              textAlign: "left",
-            }}
-          >
-            <Typography variant="h5">{name}</Typography>
-          </div>
+          <EditableText initialText={name} editedCallback={handleNameEdit}></EditableText>
           <div>
             <ToolTip title="Delete Model">
               <IconButton onClick={() => delete_model(id)} color="primary">
@@ -126,7 +173,7 @@ function Model({ model, onDelete }) {
             : Math.round(size / 1024 / 1024) + "MB"}
         </p>
         <div style={{ display: "flex" }}>
-          <div style={{flexGrow: 1}}>
+          <div style={{ flexGrow: 1 }}>
             Not Deployed
             <Switch
               checked={isDeployed}
@@ -143,7 +190,12 @@ function Model({ model, onDelete }) {
               justifyContent: "flex-end",
             }}
           >
-            <Button variant="contained" color="primary" onClick={handleOpen} disabled={!isDeployed}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleOpen}
+              disabled={!isDeployed}
+            >
               Query
             </Button>
           </div>

@@ -3,7 +3,7 @@
         "model": "auth.user",
         "pk": 2,
         "fields": {
-            "password": "pbkdf2_sha256$216000$W8ccKSHVfBmf$lvPmi3qpzRs9/wofON3HiJZMrn2Y4sVPgr7VLDKYlfs=",
+            "password": "pbkdf2_sha256$216000$z1Psd09A5kvN$u7p1ER25qLJ/dOxBdZqPMtjFtWjYFWlSQNU9g43cmqE=",
             "is_superuser": false,
             "username": "kamal@easytensor.com",
             "first_name": "",
