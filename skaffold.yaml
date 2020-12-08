@@ -29,7 +29,7 @@ build:
     - image: easytensor/query
       context: query
       docker:
-        dockerfile: Dockerfile
+        dockerfile: Dockerfile.dev
 deploy:
   kustomize:
     paths:
