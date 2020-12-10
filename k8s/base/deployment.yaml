@@ -132,6 +132,11 @@ spec:
         - name: controller
           image: easytensor/controller
           imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+                - stat
+                - /app/healthy
           envFrom:
             - configMapRef:
                 name: service-routing
@@ -233,6 +238,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: service-routing
+            - configMapRef:
+                name: reporter-properties
             - configMapRef:
                 name: mesh-account-cred
 ---

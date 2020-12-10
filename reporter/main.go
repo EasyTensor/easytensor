@@ -50,6 +50,7 @@ func keepAuthAlive() {
 func main() {
 	// Intitial setup, block before strating
 	authenticate()
+	isInitialized = true
 	go keepAuthAlive()
 
 	r := gin.Default()

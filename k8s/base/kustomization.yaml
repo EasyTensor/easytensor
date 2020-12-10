@@ -19,6 +19,9 @@ configMapGenerator:
 - name: mesh-account-cred
   envs:
   - mesh-account.properties
+- name: reporter-properties
+  envs:
+  - reporter.properties
 
 
 generatorOptions: 

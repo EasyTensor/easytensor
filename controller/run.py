@@ -16,6 +16,8 @@
 Creates, updates, and deletes a deployment using AppsV1Api.
 """
 import os
+from pathlib import Path
+
 from typing import List
 import json
 import logging
@@ -49,6 +51,27 @@ CORE_V1 = client.CoreV1Api()
 
 ACCESS_TOKEN = ""
 REFRESH_TOKEN = ""
+CONSECUTIVE_FAILURES = 0
+FAILURE_THRESHOLD = 5
+
+
+def reset_consecutive_failures():
+    add_healthy_file()
+
+
+def report_consecutive_failure():
+    global CONSECUTIVE_FAILURES
+    CONSECUTIVE_FAILURES += 1
+    if CONSECUTIVE_FAILURES > FAILURE_THRESHOLD:
+        remove_healthy_file()
+
+
+def remove_healthy_file():
+    Path("/app/healthy").unlink()
+
+
+def add_healthy_file():
+    Path("/app/healthy").touch()
 
 
 def get_request_header():
@@ -174,16 +197,14 @@ def create_service_object(model: Model):
     """
     service_name = get_service_name_from_model(model)
     service_spec = client.V1ServiceSpec(
-        selector=get_labels_from_model(model),
-        ports=get_service_ports_for_model(model),
+        selector=get_labels_from_model(model), ports=get_service_ports_for_model(model),
     )
     return client.V1Service(
         api_version="v1",
         kind="Service",
         spec=service_spec,
         metadata=client.V1ObjectMeta(
-            name=service_name,
-            labels=get_labels_from_model(model),
+            name=service_name, labels=get_labels_from_model(model),
         ),
     )
 
@@ -250,7 +271,9 @@ def create_deployment_object(model: Model):
         ],
         env=[
             client.V1EnvVar(name="MODEL_ADDRESS", value=model.address),
-            client.V1EnvVar("EXTRACT_MODEL", value=str(model.framework == "TF").lower()),
+            client.V1EnvVar(
+                "EXTRACT_MODEL", value=str(model.framework == "TF").lower()
+            ),
         ],
         env_from=[
             client.V1EnvFromSource(
@@ -288,8 +311,7 @@ def create_deployment_object(model: Model):
         api_version="apps/v1",
         kind="Deployment",
         metadata=client.V1ObjectMeta(
-            name=deployment_name,
-            labels=get_labels_from_model(model),
+            name=deployment_name, labels=get_labels_from_model(model),
         ),
         spec=spec,
     )
@@ -472,7 +494,7 @@ async def correct_state(
 
 async def control():
     LOGGER.debug("initializing first authentication")
-    await authenticate()
+    await retry_forever(func=authenticate, async_fun=True)
     LOGGER.debug("Controlling namespace %s", NAMESPACE)
     failures = 0
     while True:
@@ -500,7 +522,31 @@ async def control():
             await asyncio.sleep(3)  # 3 seconds
 
 
+async def retry_forever(func, report_failure=True, async_fun=False, *args, **kwargs):
+    """
+    Retries the passed func until completion.
+    Sleeps for a second after every failure.
+    """
+    while True:
+        try:
+            if async_fun:
+                result = await func(*args, **kwargs)
+            else:
+                result = func(*args, **kwargs)
+            reset_consecutive_failures()
+            return result
+        except Exception as e:
+            LOGGER.debug(e)
+            if report_failure:
+                report_consecutive_failure()
+            await asyncio.sleep(1)
+
+
 async def authenticate():
+    """
+    Add retry forever if you want to block on a successful authentication to
+    proceed.
+    """
     async with aiohttp.ClientSession(
         headers={"Content-type": "application/json"}
     ) as session:
@@ -512,17 +558,19 @@ async def authenticate():
                 "password": CONTROLLER_PASSWORD,
             }
         )
-        response = await session.post(AUTH_URL, data=body)
-        if response.status == 200:
-            response = await response.json()
-            set_authentication_credentials(
-                response["access_token"], response["refresh_token"]
-            )
+        try:
+            response = await session.post(AUTH_URL, data=body)
+            if response.status == 200:
+                response = await response.json()
+                set_authentication_credentials(
+                    response["access_token"], response["refresh_token"]
+                )
+                return
+        except ClientConnectorError:
+            pass
         else:
             LOGGER.error("Could not login to backend server.")
             LOGGER.error(await response.json())
-
-            return None
 
 
 async def main():
