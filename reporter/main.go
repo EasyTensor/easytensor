@@ -11,6 +11,8 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"k8s.io/client-go/rest"
+
 )
 
 // var models = map[string]Model{}
@@ -32,7 +34,7 @@ type AuthReturn struct {
 // var authCache = map[string][]string{}
 var consecutiveFailure int64 = 0
 var isInitialized bool = false
-
+var namespace string;
 type Output struct {
 	Predictions []float64
 }
@@ -47,9 +49,24 @@ func keepAuthAlive() {
 	}
 }
 
+func initK8sCLient() {
+	var kubeconfig *string
+	namespace = os.Getenv("NAMESPACE")
+	config, err := rest.InClusterConfig()
+
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err)
+	}
+
+	deploymentsClient := clientset.AppsV1().Deployments(namespace)
+
+}
+
 func main() {
 	// Intitial setup, block before strating
 	authenticate()
+	initK8sCLient()
 	isInitialized = true
 	go keepAuthAlive()
 

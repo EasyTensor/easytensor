@@ -75,6 +75,10 @@ configMapGenerator:
   behavior: merge
   envs:
   - controller.properties
+- name: reporter-properties
+  behavior: merge
+  envs:
+  - reporter.properties
 
 
 generatorOptions:
