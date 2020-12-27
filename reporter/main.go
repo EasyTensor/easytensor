@@ -63,7 +63,7 @@ func main() {
 			"message": "pong",
 		})
 	})
-	r.POST("/model-status/:model_id", func(c *gin.Context) {
+	r.GET("/model-status/:model_id", func(c *gin.Context) {
 		ModelID := c.Param("model_id")
 		JWT := c.GetHeader("Authorization")
 		fmt.Printf("JWT: %s\n", JWT)
