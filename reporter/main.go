@@ -65,8 +65,9 @@ func initK8sCLient() {
 	client = clientset
 }
 
-func getDeployments() *appsv1.DeploymentList {
-	dalist, err := client.AppsV1().Deployments(namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: "type=model-server"})
+func getDeployments(ModelID string) *appsv1.DeploymentList {
+	dalist, err := client.AppsV1().Deployments(namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: fmt.Sprintf("type=model-server,model-id=%s", ModelID)})
+	fmt.Println(fmt.Sprintf("type=model-server,model-id=%s", ModelID))
 	if err != nil {
 		panic(err)
 	}
@@ -99,13 +100,27 @@ func main() {
 				"message": "Unauthorized Access",
 			})
 		}
-		status := "Ready"
-		for _, deployment := range getDeployments().Items {
-			for _, cond := range deployment.Status.Conditions {
-				fmt.Println(cond.Status)
+		status := "Not Found"
+		msg := "No such model is running."
+		for _, deployment := range getDeployments(ModelID).Items {
+			conditions := deployment.Status.Conditions
+			lastCondition := conditions[(len(conditions) - 1)]
+			if lastCondition.Type == appsv1.DeploymentAvailable {
+				status = "Ready"
+				msg = lastCondition.Reason
+			} else if lastCondition.Type == appsv1.DeploymentProgressing {
+				status = "Not Ready"
+				msg = lastCondition.Reason
+			} else if lastCondition.Type == appsv1.DeploymentReplicaFailure {
+				status = "Failed"
+				msg = lastCondition.Reason
 			}
+			// strconv.
+			fmt.Println(status)
 		}
-		c.JSON(200, status)
+		fmt.Println("returning")
+		fmt.Println(status)
+		c.JSON(200, gin.H{"status": status, "message": msg})
 	})
 	r.GET("/health_check/liveness/", func(c *gin.Context) {
 		if consecutiveFailure > 5 {
