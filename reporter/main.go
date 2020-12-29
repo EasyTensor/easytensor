@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,8 +12,10 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	appsv1 "k8s.io/api/apps/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-
 )
 
 // var models = map[string]Model{}
@@ -34,7 +37,9 @@ type AuthReturn struct {
 // var authCache = map[string][]string{}
 var consecutiveFailure int64 = 0
 var isInitialized bool = false
-var namespace string;
+var namespace string
+var client *kubernetes.Clientset
+
 type Output struct {
 	Predictions []float64
 }
@@ -50,7 +55,6 @@ func keepAuthAlive() {
 }
 
 func initK8sCLient() {
-	var kubeconfig *string
 	namespace = os.Getenv("NAMESPACE")
 	config, err := rest.InClusterConfig()
 
@@ -58,9 +62,15 @@ func initK8sCLient() {
 	if err != nil {
 		panic(err)
 	}
+	client = clientset
+}
 
-	deploymentsClient := clientset.AppsV1().Deployments(namespace)
-
+func getDeployments() *appsv1.DeploymentList {
+	dalist, err := client.AppsV1().Deployments(namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: "type=model-server"})
+	if err != nil {
+		panic(err)
+	}
+	return dalist
 }
 
 func main() {
@@ -80,7 +90,7 @@ func main() {
 			"message": "pong",
 		})
 	})
-	r.POST("/model-status/:model_id", func(c *gin.Context) {
+	r.GET("/model-status/:model_id", func(c *gin.Context) {
 		ModelID := c.Param("model_id")
 		JWT := c.GetHeader("Authorization")
 		fmt.Printf("JWT: %s\n", JWT)
@@ -90,6 +100,11 @@ func main() {
 			})
 		}
 		status := "Ready"
+		for _, deployment := range getDeployments().Items {
+			for _, cond := range deployment.Status.Conditions {
+				fmt.Println(cond.Status)
+			}
+		}
 		c.JSON(200, status)
 	})
 	r.GET("/health_check/liveness/", func(c *gin.Context) {
@@ -125,6 +140,7 @@ func authenticate() {
 		"email":    os.Getenv("CONTROLLER_EMAIL"),
 	}
 	var body, _ = json.Marshal(AuthBody)
+	fmt.Println(body)
 	// keep trying until we successfully authenticate
 	for {
 		response, err := http.Post(loginURL, "application/json", bytes.NewBuffer(body))

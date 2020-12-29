@@ -4,5 +4,6 @@ RUN mkdir /app
 WORKDIR /app
 COPY . .
 ENV GOBIN=/app/
+RUN go get -u github.com/cosmtrek/air
 
-CMD go run main.go
+CMD ./air
