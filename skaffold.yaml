@@ -25,7 +25,9 @@ build:
     - image: easytensor/reporter
       context: reporter
       docker:
-        dockerfile: Dockerfile
+        dockerfile: Dockerfile.dev
+      sync:
+        infer: ["**/*"]
     - image: easytensor/babysitter
       context: babysitter
       docker:

@@ -221,7 +221,7 @@ spec:
           image: easytensor/reporter
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 9090
           imagePullPolicy: IfNotPresent
           livenessProbe:
             httpGet:
@@ -242,6 +242,19 @@ spec:
                 name: reporter-properties
             - configMapRef:
                 name: mesh-account-cred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reporter-service
+spec:
+  selector:
+    app: easytensor
+    service: reporter
+  ports:
+    - protocol: TCP
+      port: 9090
+      name: http
 ---
 apiVersion: v1
 kind: ServiceAccount

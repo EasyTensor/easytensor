@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,6 +12,10 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	appsv1 "k8s.io/api/apps/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 )
 
 // var models = map[string]Model{}
@@ -32,6 +37,8 @@ type AuthReturn struct {
 // var authCache = map[string][]string{}
 var consecutiveFailure int64 = 0
 var isInitialized bool = false
+var namespace string
+var client *kubernetes.Clientset
 
 type Output struct {
 	Predictions []float64
@@ -47,9 +54,30 @@ func keepAuthAlive() {
 	}
 }
 
+func initK8sCLient() {
+	namespace = os.Getenv("NAMESPACE")
+	config, err := rest.InClusterConfig()
+
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err)
+	}
+	client = clientset
+}
+
+func getDeployments(ModelID string) *appsv1.DeploymentList {
+	dalist, err := client.AppsV1().Deployments(namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: fmt.Sprintf("type=model-server,model-id=%s", ModelID)})
+	fmt.Println(fmt.Sprintf("type=model-server,model-id=%s", ModelID))
+	if err != nil {
+		panic(err)
+	}
+	return dalist
+}
+
 func main() {
 	// Intitial setup, block before strating
 	authenticate()
+	initK8sCLient()
 	isInitialized = true
 	go keepAuthAlive()
 
@@ -72,8 +100,28 @@ func main() {
 				"message": "Unauthorized Access",
 			})
 		}
-		status := "Ready"
-		c.JSON(200, status)
+		status := "Not Deployed"
+		msg := "No such model is running."
+		for _, deployment := range getDeployments(ModelID).Items {
+			conditions := deployment.Status.Conditions
+			lastCondition := conditions[0]
+			fmt.Println(conditions)
+			if lastCondition.Type == appsv1.DeploymentAvailable {
+				status = "Ready"
+				msg = lastCondition.Reason
+			} else if lastCondition.Type == appsv1.DeploymentProgressing {
+				status = "Not Ready"
+				msg = lastCondition.Reason
+			} else if lastCondition.Type == appsv1.DeploymentReplicaFailure {
+				status = "Failed"
+				msg = lastCondition.Reason
+			}
+			// strconv.
+			fmt.Println(status)
+		}
+		fmt.Println("returning")
+		fmt.Println(status)
+		c.JSON(200, gin.H{"status": status, "message": msg})
 	})
 	r.GET("/health_check/liveness/", func(c *gin.Context) {
 		if consecutiveFailure > 5 {
@@ -91,7 +139,7 @@ func main() {
 			c.JSON(200, gin.H{"status": "ok", "consecutive failures": consecutiveFailure})
 		}
 	})
-	r.Run()
+	r.Run(":9090")
 }
 
 func userHasAccess(userID, modelID string) bool {
@@ -108,6 +156,7 @@ func authenticate() {
 		"email":    os.Getenv("CONTROLLER_EMAIL"),
 	}
 	var body, _ = json.Marshal(AuthBody)
+	fmt.Println(body)
 	// keep trying until we successfully authenticate
 	for {
 		response, err := http.Post(loginURL, "application/json", bytes.NewBuffer(body))

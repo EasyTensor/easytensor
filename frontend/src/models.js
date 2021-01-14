@@ -11,7 +11,13 @@ import Card from "@material-ui/core/Card";
 import Paper from "@material-ui/core/Paper";
 import { CleanLink } from "./link";
 import Tooltip from "@material-ui/core/Tooltip";
-import { GetModels, PatchModel, DeleteModel, DeleteAllModels } from "./api";
+import {
+  GetModels,
+  PatchModel,
+  DeleteModel,
+  DeleteAllModels,
+  GetModelStatus,
+} from "./api";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
@@ -60,7 +66,7 @@ function EmptyModelList() {
   );
 }
 
-// todo: add ability to finish editing with click outside div 
+// todo: add ability to finish editing with click outside div
 // https://stackoverflow.com/questions/32553158/detect-click-outside-react-component
 function EditableText({ initialText, editedCallback }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -68,12 +74,12 @@ function EditableText({ initialText, editedCallback }) {
   if (isEditing) {
     return (
       <input
-      variant="h5"
+        variant="h5"
         type="text"
         onChange={(e) => setEditValue(e.target.value)}
         onKeyPress={(e) => {
           if (e.key === "Enter") {
-            editedCallback(editValue)
+            editedCallback(editValue);
             setIsEditing(false);
           }
         }}
@@ -113,6 +119,18 @@ function Model({ model, onDelete }) {
   const size = model.size;
   // const scale = model.scale;
   const [isDeployed, setDeployed] = useState(model.deployed);
+  const [status, setStatus] = useState("Retrieving...");
+
+  useEffect(() => {
+    GetModelStatus(id).then((resp) => {
+      if (resp.status != 200) {
+        console.log("could not fetch model status");
+        console.log(resp.data);
+      }
+      console.log("for model", id, resp.data);
+      setStatus(resp.data.status);
+    });
+  });
 
   function delete_model(model_id) {
     console.log("Deleting", model_id);
@@ -133,8 +151,8 @@ function Model({ model, onDelete }) {
     // patch to whatever the opposite of this is
     PatchModel(id, { deployed: !isDeployed }).then((resp) => {
       if (resp.status != 200) {
-        console.log(resp.data);
         alert("could not update models");
+        console.log(resp.data);
         throw "could not update models";
       }
       setDeployed(!isDeployed);
@@ -142,20 +160,23 @@ function Model({ model, onDelete }) {
   }
 
   function handleNameEdit(newName) {
-    console.log("callback!")
-    PatchModel(id, {name: newName}).then((resp) => {
+    console.log("callback!");
+    PatchModel(id, { name: newName }).then((resp) => {
       if (resp.status != 200) {
         alert("could not update model name");
       }
       setName(newName);
-    })
+    });
   }
 
   return (
     <Grid item xs={4}>
       <Card foo="bar" style={{ padding: ".5em", borderRadius: "1em" }}>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <EditableText initialText={name} editedCallback={handleNameEdit}></EditableText>
+          <EditableText
+            initialText={name}
+            editedCallback={handleNameEdit}
+          ></EditableText>
           <div>
             <ToolTip title="Delete Model">
               <IconButton onClick={() => delete_model(id)} color="primary">
@@ -172,6 +193,7 @@ function Model({ model, onDelete }) {
             ? Math.round(model.size / 1024) + "KB"
             : Math.round(size / 1024 / 1024) + "MB"}
         </p>
+        <p>Status: {status}</p>
         <div style={{ display: "flex" }}>
           <div style={{ flexGrow: 1 }}>
             Not Deployed
