@@ -100,11 +100,12 @@ func main() {
 				"message": "Unauthorized Access",
 			})
 		}
-		status := "Not Found"
+		status := "Not Deployed"
 		msg := "No such model is running."
 		for _, deployment := range getDeployments(ModelID).Items {
 			conditions := deployment.Status.Conditions
-			lastCondition := conditions[(len(conditions) - 1)]
+			lastCondition := conditions[0]
+			fmt.Println(conditions)
 			if lastCondition.Type == appsv1.DeploymentAvailable {
 				status = "Ready"
 				msg = lastCondition.Reason
@@ -138,7 +139,7 @@ func main() {
 			c.JSON(200, gin.H{"status": "ok", "consecutive failures": consecutiveFailure})
 		}
 	})
-	r.Run()
+	r.Run(":9090")
 }
 
 func userHasAccess(userID, modelID string) bool {

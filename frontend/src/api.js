@@ -1,4 +1,4 @@
-import { BACKEND_URL, QUERY_URL } from "./constants";
+import { BACKEND_URL, QUERY_URL, REPORTER_URL } from "./constants";
 import axios from "axios";
 import {get_jwt_cookie} from "./auth/helper"
 
@@ -42,6 +42,9 @@ export function DeleteModel(model_id) {
   return axios.delete(`${BACKEND_URL}/v1/models/${model_id}/`, getConfig());
 }
 
+export function GetModelStatus(model_id) {
+  return axios.get(`${REPORTER_URL}/model-status/${model_id}`)
+}
 // Token URLS
 export function GetQueryAccessTokens() {
   return axios.get(`${BACKEND_URL}/v1/query-access-token/`, getConfig());
