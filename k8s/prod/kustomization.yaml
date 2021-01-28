@@ -56,6 +56,9 @@ images:
 - name: easytensor/query
   newName: gcr.io/easytensor-291022/easytensor/query
   newTag: 0.1.7
+- name: easytensor/reporter
+  newName: gcr.io/easytensor-291022/easytensor/reporter
+  newTag: 0.1.7
 
 
 # labels added to all Resources
