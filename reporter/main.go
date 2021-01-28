@@ -74,6 +74,20 @@ func getDeployments(ModelID string) *appsv1.DeploymentList {
 	return dalist
 }
 
+func getLatestCondition(conditions []appsv1.DeploymentCondition) appsv1.DeploymentCondition {
+	if len(conditions) < 1 {
+		panic("No conditions to parse.")
+	}
+
+	latest := conditions[0]
+	for _, condition := range conditions {
+		if latest.LastTransitionTime.Before(&condition.LastTransitionTime) {
+			latest = condition
+		}
+	}
+	return latest
+}
+
 func main() {
 	// Intitial setup, block before strating
 	authenticate()
@@ -84,7 +98,7 @@ func main() {
 	r := gin.Default()
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
-	config.AddAllowHeaders("accessToken")
+	config.AddAllowHeaders("Authorization")
 	r.Use(cors.New(config))
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -104,8 +118,10 @@ func main() {
 		msg := "No such model is running."
 		for _, deployment := range getDeployments(ModelID).Items {
 			conditions := deployment.Status.Conditions
-			lastCondition := conditions[0]
-			fmt.Println(conditions)
+			if len(conditions) < 1 {
+				continue
+			}
+			lastCondition := getLatestCondition(conditions)
 			if lastCondition.Type == appsv1.DeploymentAvailable {
 				status = "Ready"
 				msg = lastCondition.Reason
@@ -144,6 +160,7 @@ func main() {
 
 func userHasAccess(userID, modelID string) bool {
 	fmt.Println(userID, modelID)
+	// models, ok :=
 	return true
 }
 
