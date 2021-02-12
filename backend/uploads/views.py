@@ -39,8 +39,6 @@ class ModelUploadViewSet(viewsets.ModelViewSet):
     def create(self, request):
         if "filename" not in request.data:
             return ErrorResponse("filename must be provided")
-        if "contentType" not in request.data:
-            return ErrorResponse("contentType must be provided")
         url = generate_upload_signed_url_v4(BUCKET_NAME, request.data["filename"])
         return Response({"url": url, "method": "PUT", "fields": []})
 

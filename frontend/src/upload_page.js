@@ -22,7 +22,6 @@ uppy.use(AwsS3, {
   getUploadParameters(file) {
     const body = {
       filename: file.name,
-      contentType: file.type,
     };
     return PostModelUploadURL(body).then((response) => {
       // Return an object in the correct shape.
