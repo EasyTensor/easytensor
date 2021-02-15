@@ -6,7 +6,7 @@ import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import axios from "axios";
 import { BACKEND_URL } from "./constants";
-import { CreateModel, PostModelUploadURL } from "./api";
+import { CreateModel, GetModelStatus, PostModelUploadURL } from "./api";
 
 const uppy = new Uppy({
   meta: { type: "avatar" },
@@ -51,7 +51,6 @@ uppy.on("file-added", (file) => {
   file.name = uuidv4();
 });
 uppy.on("upload-success", (file, response) => {
-  var file_location = response.uploadURL.split("/").pop();
   CreateModel({
     address: file.name,
     name: file.original_name,
@@ -59,7 +58,18 @@ uppy.on("upload-success", (file, response) => {
   });
 });
 
-function UploadDashboard() {
+function UploadDashboard(props) {
+
+  const [framework, setFramework] = useState(props.framework)
+  uppy.on("upload-success", (file, response) => {
+    CreateModel({
+      address: file.name,
+      name: file.original_name,
+      size: file.size,
+      framework: framework,
+    });
+  });
+  
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
       <Dashboard

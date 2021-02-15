@@ -15,6 +15,7 @@
 """
 Creates, updates, and deletes a deployment using AppsV1Api.
 """
+from enum import Enum
 import os
 from pathlib import Path
 
@@ -23,6 +24,7 @@ import json
 import logging
 from pprint import pformat
 from typing import Collection
+from aiohttp.tracing import TraceDnsResolveHostEndParams
 from kubernetes import client, config
 import aiohttp
 import asyncio
@@ -91,6 +93,11 @@ class ExpiredTokenError(Exception):
     """"""
 
 
+class ModelFramework(Enum):
+    TENSORFLOW = "TENSORFLOW"
+    PYTORCH = "PYTORCH"
+
+
 class Model:
     def __init__(
         self,
@@ -99,7 +106,7 @@ class Model:
         address: str,
         size: int,
         scale: int,
-        framework: str,
+        framework: ModelFramework,
         deployment_config=None,
     ):
         self.id = id
@@ -134,7 +141,9 @@ class ServiceNameParseException(Exception):
 
 
 def get_framework_label_from_model(model: Model):
-    return {"TF": "tensorflow", "PT": "pytorch"}[model.framework]
+    return {ModelFramework.TENSORFLOW: "tensorflow", ModelFramework.PYTORCH: "pytorch"}[
+        model.framework
+    ]
 
 
 def get_labels_from_model(model: Model) -> dict:
@@ -197,14 +206,16 @@ def create_service_object(model: Model):
     """
     service_name = get_service_name_from_model(model)
     service_spec = client.V1ServiceSpec(
-        selector=get_labels_from_model(model), ports=get_service_ports_for_model(model),
+        selector=get_labels_from_model(model),
+        ports=get_service_ports_for_model(model),
     )
     return client.V1Service(
         api_version="v1",
         kind="Service",
         spec=service_spec,
         metadata=client.V1ObjectMeta(
-            name=service_name, labels=get_labels_from_model(model),
+            name=service_name,
+            labels=get_labels_from_model(model),
         ),
     )
 
@@ -233,29 +244,71 @@ def create_service(service):
     LOGGER.debug("Service created. status='%s'" % str(api_response.status))
 
 
+def get_server_container(model: Model) -> client.V1Container:
+    """
+    Returns the correct serving container for a model.
+    e.g. Pytorch serve or tensorflow serving.
+    """
+    if model.framework == ModelFramework.TENSORFLOW:
+        return client.V1Container(
+            name="tf-serve",
+            image="tensorflow/serving:2.3.0",
+            ports=[
+                client.V1ContainerPort(container_port=8500),
+                client.V1ContainerPort(container_port=8501),
+            ],
+            resources=client.V1ResourceRequirements(
+                requests={"cpu": "100m", "memory": f"{get_memory_request(model)}"},
+                limits={"cpu": "100m", "memory": f"{get_memory_limit(model)}"},
+            ),
+            volume_mounts=[
+                client.V1VolumeMount(
+                    name="model-dir", mount_path="/models/", read_only=False
+                )
+            ],
+        )
+    else:
+        return client.V1Container(
+            name="pytorch-serve",
+            image="pytorch/torchserve:0.3.0-cpu",
+            ports=[
+                client.V1ContainerPort(container_port=8080),
+                # client.V1ContainerPort(container_port=8501),
+            ],
+            resources=client.V1ResourceRequirements(
+                requests={"cpu": "100m", "memory": f"{get_memory_request(model)}"},
+                limits={"cpu": "100m", "memory": f"{get_memory_limit(model)}"},
+            ),
+            volume_mounts=[
+                client.V1VolumeMount(
+                    name="model-dir", mount_path="/models/", read_only=False
+                )
+            ],
+        )
+
+
+def get_server_mounts(model: Model) -> List[client.V1VolumeMount]:
+    """
+    Returns the volume mounts for the server. Each framework might expect
+    the models on a different path.
+    """
+    return [
+        client.V1VolumeMount(
+            name="model-dir",
+            mount_path="/models/"
+            if model.framework == ModelFramework.TENSORFLOW
+            else "/home/model-server/model-store",
+            read_only=False,
+        )
+    ]
+
+
 def create_deployment_object(model: Model):
     deployment_name = get_deployment_name_from_model(model)
     shared_volume = client.V1Volume(
         name="model-dir", empty_dir=client.V1EmptyDirVolumeSource()
     )
-    # Configureate Pod template container
-    tf_serve_contaienr = client.V1Container(
-        name="tf-serve",
-        image="tensorflow/serving:2.3.0",
-        ports=[
-            client.V1ContainerPort(container_port=8500),
-            client.V1ContainerPort(container_port=8501),
-        ],
-        resources=client.V1ResourceRequirements(
-            requests={"cpu": "100m", "memory": f"{get_memory_request(model)}"},
-            limits={"cpu": "100m", "memory": f"{get_memory_limit(model)}"},
-        ),
-        volume_mounts=[
-            client.V1VolumeMount(
-                name="model-dir", mount_path="/models/", read_only=False
-            )
-        ],
-    )
+    model_server_container = get_server_container(model)
     babysitter_container = client.V1Container(
         name="babysitter",
         image=BABYSITTER_IMAGE,
@@ -264,15 +317,11 @@ def create_deployment_object(model: Model):
             requests={"cpu": "100m", "memory": f"100Mi"},
             limits={"cpu": "100m", "memory": f"100Mi"},
         ),
-        volume_mounts=[
-            client.V1VolumeMount(
-                name="model-dir", mount_path="/models/", read_only=False
-            )
-        ],
+        volume_mounts=get_server_mounts(model),
         env=[
             client.V1EnvVar(name="MODEL_ID", value=model.id),
             client.V1EnvVar(
-                "EXTRACT_MODEL", value=str(model.framework == "TF").lower()
+                "MODEL_TYPE", value=model.framework
             ),
         ],
         env_from=[
@@ -290,7 +339,7 @@ def create_deployment_object(model: Model):
     template = client.V1PodTemplateSpec(
         metadata=client.V1ObjectMeta(labels=get_labels_from_model(model)),
         spec=client.V1PodSpec(
-            containers=[tf_serve_contaienr, babysitter_container],
+            containers=[model_server_container, babysitter_container],
             volumes=[shared_volume],
         ),
     )
@@ -311,7 +360,8 @@ def create_deployment_object(model: Model):
         api_version="apps/v1",
         kind="Deployment",
         metadata=client.V1ObjectMeta(
-            name=deployment_name, labels=get_labels_from_model(model),
+            name=deployment_name,
+            labels=get_labels_from_model(model),
         ),
         spec=spec,
     )
@@ -370,7 +420,9 @@ async def get_idea_model_state():
             address=model["address"],
             size=model["size"],
             scale=model["scale"],
-            framework=model["framework"],
+            framework=ModelFramework.PYTORCH
+            if model.get("framework", "") == "PT"
+            else ModelFramework.TENSORFLOW,
         )
         for model in model_list
         if model["deployed"]
