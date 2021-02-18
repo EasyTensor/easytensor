@@ -17,15 +17,32 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework import routers, serializers, viewsets
 from dj_rest_auth.registration.views import VerifyEmailView
+
 # from allauth.account.views import ConfirmEmailView
 from backend.confirm_email_view import ConfirmEmailView
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Models API",
+        default_version="v1",
+        description="API documentation for managing easytensor models.",
+        terms_of_service="",
+        contact=openapi.Contact(email="kamal@easytensor.com"),
+        license=openapi.License(name="BSD License"),
+    ),
+    public=True,
+    permission_classes=[permissions.AllowAny],
+)
 
 from uploads.views import (
     ModelUploadViewSet,
     ModelViewSet,
     health_check,
     QueryAccessTokenViewSet,
-    EmptyView
+    EmptyView,
 )
 
 from django.db import models
@@ -38,6 +55,19 @@ router.register(r"query-access-token", QueryAccessTokenViewSet)
 
 
 urlpatterns = [
+    path(
+        "swagger(?P<format>\.json|\.yaml)",
+        schema_view.without_ui(cache_timeout=0),
+        name="schema-json",
+    ),
+    path(
+        r"swagger/",
+        schema_view.with_ui("swagger", cache_timeout=0),
+        name="schema-swagger-ui",
+    ),
+    path(
+        r"redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"
+    ),
     path("v1/", include(router.urls)),
     path("v1/health_check/", health_check),
     # paths to override email confirmation
