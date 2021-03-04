@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 
@@ -10,8 +10,7 @@ function Login() {
   // const [isLoggedIn, setLoggedIn] = useState(false)
 
   let history = useHistory();
-  let location = useLocation();
-  const [cookies, setCookie, cookie] = useCookies();
+  const [_, setCookie] = useCookies();
 
   const [email, changeEmail] = useState("");
   const [password, changePassword] = useState("");
@@ -29,6 +28,10 @@ function Login() {
         }
 
         setCookie("jwt-auth", resp.data.access_token, {
+          path: "/",
+          maxAge: 60 * 60 * 24,
+        });
+        setCookie("user", resp.data.user, {
           path: "/",
           maxAge: 60 * 60 * 24,
         });

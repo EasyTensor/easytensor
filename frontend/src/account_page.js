@@ -1,16 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Paper from "@material-ui/core/Paper";
 import { AccountCircle } from "@material-ui/icons";
+
+import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import { useHistory } from "react-router-dom";
 import { PostChangePassword } from "./api";
 import { remove_jwt_cookie } from "./auth/helper";
+import { useCookies } from "react-cookie";
+
 
 function AccountPage() {
+  const [cookies] = useCookies("user");
+  const [username] = useState(cookies.user.email)
   const [currentPassword, changeCurrentPassword] = useState("");
   const [newPassword, changeNewPassword] = useState("");
   const [newPassword2, changeNewPassword2] = useState("");
   let history = useHistory();
+
 
   function onChangePassword(e) {
     e.preventDefault();
@@ -49,7 +56,7 @@ function AccountPage() {
         }}
       >
         <div style={{ display: "flex" }}>
-          <AccountCircle /> {}
+          <AccountCircle /> <Typography>{username}</Typography>
         </div>
       </Paper>
       <Paper
