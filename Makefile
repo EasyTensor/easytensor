@@ -36,4 +36,4 @@ push-image-%:
 	docker push "gcr.io/easytensor-291022/easytensor/$*:${RELEASE_VERSION}"
 
 gen-secrets:
-	./config/generate_secrets.sh
+	./config/generate_dev_secrets.sh
