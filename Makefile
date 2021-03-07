@@ -6,6 +6,7 @@ dev:
 	skaffold dev --cleanup=false  --port-forward
 
 build-all: build-image-backend \
+		build-image-migrations \
 		build-image-frontend \
 		build-image-controller \
 		build-image-babysitter \
@@ -13,6 +14,7 @@ build-all: build-image-backend \
 		build-image-reporter
 
 tag-all: tag-image-backend \
+		tag-image-migrations \
 		tag-image-frontend \
 		tag-image-controller \
 		tag-image-babysitter \
@@ -20,6 +22,7 @@ tag-all: tag-image-backend \
 		tag-image-reporter
 
 push-all: push-image-backend \
+		push-image-migrations \
 		push-image-frontend \
 		push-image-controller \
 		push-image-babysitter \

@@ -18,6 +18,10 @@ build:
         dockerfile: Dockerfile
       sync:
         infer: ["**/*"]
+    - image: easytensor/migrations
+      context: backend
+      docker:
+        dockerfile: Dockerfile.migrations
     - image: easytensor/controller
       context: controller
       docker:

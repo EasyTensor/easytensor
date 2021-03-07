@@ -112,6 +112,56 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: et-migrations
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: easytensor
+      service: migrations
+  template:
+    metadata:
+      labels:
+        app: easytensor
+        service: migrations
+    spec:
+      containers:
+        - name: migrations
+          image: easytensor/migrations
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: gsa
+              mountPath: "/app/gsa"
+              readOnly: true
+            - name: django-secret
+              mountPath: "/app/secrets/django"
+              readOnly: true
+            - name: jwt-secret
+              mountPath: "/app/secrets/jwt"
+              readOnly: true
+          envFrom:
+            - configMapRef:
+                name: backend-properties
+            - secretRef:
+                name: database-properties
+            - configMapRef:
+                name: service-routing
+            - secretRef:
+                name: email-properties
+      volumes:
+        - name: gsa
+          secret:
+            secretName: google-sa-secret
+        - name: jwt-secret
+          secret:
+            secretName: jwt-secret
+        - name: django-secret
+          secret:
+            secretName: django-secret
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: et-controller
   labels:
     app: easytensor

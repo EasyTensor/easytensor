@@ -30,7 +30,11 @@ make dev # or whatever command you start the stack with
 ```
 
 ##### Adding migrations
-`k cp et-backend-65f784577b-9tv29:/app/uploads/migrations/ backend/uploads/migrations/`
+When the SQL schema changes, you will need to run this set of commands. This will ensure that the SQL schema is updated before the new application code runs.
+```shell
+kubectl exec "$(kubectl get po | grep backend | awk '{print $1}')" -- python3 /app/manage.py makemigrations
+kubectl cp "$(kubectl get po | grep backend | awk '{print $1}')":/app/uploads/migrations backend/uploads/migrations
+```
 
 
 ##### Authenticating to prod cluster

@@ -10,6 +10,9 @@ FRAMEWORK_CHOICES = [
 ]
 DEFAULT_FRAMEWORK_CHOICE = "TF" # Tensorflow
 
+class Tag(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=128, blank=False, null=False)
 
 class Model(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -22,6 +25,9 @@ class Model(models.Model):
     framework = models.CharField(
         max_length=2, choices=FRAMEWORK_CHOICES, default=DEFAULT_FRAMEWORK_CHOICE
     )
+    public = models.BooleanField(blank=False, null=False, default=False)
+    tags = models.ManyToManyField(Tag)
+    description = models.CharField(max_length=256, blank=True, null=False, default="")
 
 
 class Team(models.Model):
@@ -42,3 +48,4 @@ class QueryAccessToken(models.Model):
     model = models.ForeignKey(Model, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     udpated_at = models.DateTimeField(auto_now=True)
+
