@@ -62,6 +62,7 @@ function App() {
               display: "flex",
               justifyContent: "center",
               minHeight: "80%",
+              paddingBottom: "3em",
             }}
           >
             <Switch>
