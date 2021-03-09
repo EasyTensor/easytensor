@@ -15,6 +15,7 @@ import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import WhiteShadows from "./light_shadows";
 import { AccountPage } from "./account_page";
+import { ExplorePage } from "./explore"
 
 import Box from "@material-ui/core/Box";
 
@@ -75,6 +76,9 @@ function App() {
               <Route path="/registration/failure/">
                 <RegistrationFailure />
               </Route>
+              <PrivateRoute path="/explore">
+                <ExplorePage />
+              </PrivateRoute>
               <PrivateRoute path="/models">
                 <ModelPage />
               </PrivateRoute>

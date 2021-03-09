@@ -18,8 +18,8 @@ function getConfig() {
 export function CreateModel(body) {
   return axios.post(`${BACKEND_URL}/v1/models/`, body, getConfig());
 }
-export function GetModels() {
-  return axios.get(`${BACKEND_URL}/v1/models/`, getConfig());
+export function GetModels(query="") {
+  return axios.get(`${BACKEND_URL}/v1/models/?${query}`, getConfig());
 }
 
 export function PatchModel(model_id, patch_body) {

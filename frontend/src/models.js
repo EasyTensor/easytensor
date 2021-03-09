@@ -5,10 +5,19 @@ import Button from "@material-ui/core/Button";
 import Fab from "@material-ui/core/Fab";
 
 import IconButton from "@material-ui/core/IconButton";
+import TextField from "@material-ui/core/TextField";
+import FormHelperText from "@material-ui/core/FormHelperText";
 import ToolTip from "@material-ui/core/Tooltip";
 import Grid from "@material-ui/core/Grid";
 import Card from "@material-ui/core/Card";
 import Paper from "@material-ui/core/Paper";
+import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
+import { green, yellow, red, grey } from '@material-ui/core/colors';
+import Error from "@material-ui/icons/Error"
+import Check from "@material-ui/icons/Check"
+import LoopIcon from '@material-ui/icons/Loop';
+import Stop from '@material-ui/icons/Stop';
+import TfIcon from "./images/tf_icon.png"
 import { CleanLink } from "./link";
 import Tooltip from "@material-ui/core/Tooltip";
 import {
@@ -18,8 +27,6 @@ import {
   DeleteAllModels,
   GetModelStatus,
 } from "./api";
-import FormGroup from "@material-ui/core/FormGroup";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 import { QueryModal } from "./query_modal";
 import Dialog from "@material-ui/core/Dialog";
@@ -32,12 +39,45 @@ function DeleteAll() {
 
   return <button onClick={delete_models}>delete all</button>;
 }
-function getModelFrameworkString(model) {
-  return {
-    TF: "TensorFlow",
-    PT: "PyTorch",
-  }[model.framework];
+
+function getModelFrameworkIcon(model) {
+  return <div style={{ "paddingRight": "0.25em" }}>
+    {
+      {
+        TF: (
+          <ToolTip title="TensorFlow model">
+            <img src={TfIcon} style={{ width: "20px", height: "20px" }} />
+          </ToolTip>
+        ),
+        PT: (
+          <ToolTip title="PyTorch model" >
+            <img src={TfIcon} style={{ width: "20px", height: "20px" }} />
+          </ToolTip>
+        ),
+      }[model.framework]
+    }
+  </div>
 }
+
+
+function getModelStatusIndicator(status) {
+  return (
+    <div style={{ paddingLeft: ".25em", paddingRight: ".25em" }}>
+      <ToolTip title={"Model deployment is " + status}>
+        {
+          {
+            "Ready": <FiberManualRecordIcon style={{ color: green[500] }} />,
+            "Not Ready": <FiberManualRecordIcon style={{ color: yellow[500] }} />,
+            "Failed": <Error style={{ color: red[500] }} />,
+            "Not Deployed": <FiberManualRecordIcon style={{ color: grey[700] }} />,
+            "Retrieving...": <LoopIcon />,
+          }[status]
+        }
+      </ToolTip>
+    </div>
+  )
+}
+
 
 function EmptyModelList() {
   return (
@@ -68,52 +108,68 @@ function EmptyModelList() {
 
 // todo: add ability to finish editing with click outside div
 // https://stackoverflow.com/questions/32553158/detect-click-outside-react-component
-function EditableText({ initialText, editedCallback }) {
+function EditableText({ initialText, editedCallback, emptyPlaceHolder = "", variant = "body1", style, inputstyle }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(initialText);
   if (isEditing) {
     return (
-      <input
-        variant="h5"
-        type="text"
-        onChange={(e) => setEditValue(e.target.value)}
-        onKeyPress={(e) => {
-          if (e.key === "Enter") {
+      <ToolTip title="Click ✔ to save" open={isEditing} arrow placement="top">
+        <div
+          style={{
+            display: "flex",
+            border: "solid",
+            borderColor: "#bbb",
+            borderWidth: "0.05em",
+            flexGrow: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "0.25em",
+            ...style
+          }}
+        >
+          <textarea
+            // type="text"
+            onChange={(e) => setEditValue(e.target.value)}
+            value={editValue}
+            style={{ border: "none 0", outline: "none", flexGrow: "1", ...inputstyle }}
+          />
+          <Check onClick={(e) => {
             editedCallback(editValue);
             setIsEditing(false);
-          }
-        }}
-        value={editValue}
-      />
+          }} />
+        </div>
+      </ToolTip>
     );
   } else {
     return (
       <Typography
-        variant="h5"
+        variant={variant}
         onMouseOver={(e) => {
           e.target.style.borderColor = "#bbb";
         }}
         onMouseOut={(e) => (e.target.style.borderColor = "transparent")}
         style={{
           display: "flex",
-          alignItems: "center",
           flexGrow: 1,
+          overflow: "hidden",
           textAlign: "left",
           borderWidth: "0.01em",
           borderRadius: "0.1em",
           borderStyle: "solid",
           borderColor: "transparent",
+          ...style
         }}
         onChange={(e) => console.log(e.target)}
         onClick={() => setIsEditing(true)}
       >
-        {initialText}
+        {initialText.trim() ? initialText : emptyPlaceHolder}
       </Typography>
     );
   }
 }
 function Model({ model, onDelete }) {
   const [name, setName] = useState(model.name);
+  const [description, setDescription] = useState(model.description);
   // const address = model.address;
   const id = model.id;
   const size = model.size;
@@ -169,14 +225,33 @@ function Model({ model, onDelete }) {
     });
   }
 
+
+  function handleDescriptionEdit(newDescription) {
+    console.log("callback!");
+    PatchModel(id, { description: newDescription }).then((resp) => {
+      if (resp.status != 200) {
+        console.log("could not update model description");
+        alert("could not update model description");
+      }
+      setDescription(newDescription);
+    }).catch(error => {
+      console.log(error);
+      alert("could not update model description");
+    });
+  }
+
   return (
     <Grid item xs={4}>
       <Card foo="bar" style={{ padding: ".5em", borderRadius: "1em" }}>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div style={{
+          display: "flex", justifyContent: "space-between"
+        }}>
           <EditableText
             initialText={name}
             editedCallback={handleNameEdit}
-          ></EditableText>
+            variant="h5"
+            style={{ alignItems: "center" }}
+          />
           <div>
             <ToolTip title="Delete Model">
               <IconButton onClick={() => delete_model(id)} color="primary">
@@ -185,7 +260,11 @@ function Model({ model, onDelete }) {
             </ToolTip>
           </div>
         </div>
-        <p>{getModelFrameworkString(model)}</p>
+        <div style={{ alignItems: "end", display: "flex" }}>
+          {getModelFrameworkIcon(model)}
+          {getModelStatusIndicator(status)}
+          <Typography style={{ "paddingLeft": ".25em", "paddingRight": ".25em" }}>{model.public ? "Public" : "Private"}</Typography>
+        </div>
         <p>id: {id}</p>
         <p>
           size:
@@ -193,7 +272,13 @@ function Model({ model, onDelete }) {
             ? Math.round(model.size / 1024) + "KB"
             : Math.round(size / 1024 / 1024) + "MB"}
         </p>
-        <p>Status: {status}</p>
+        <EditableText
+          initialText={description}
+          editedCallback={handleDescriptionEdit}
+          emptyPlaceHolder="Add a description..."
+          style={{ minHeight: "6em", width: "100%", margin: "1em 0 1em 0", variant: "body2" }}
+          inputstyle={{ minHeight: "6em" }}
+        />
         <div style={{ display: "flex" }}>
           <div style={{ flexGrow: 1 }}>
             Not Deployed

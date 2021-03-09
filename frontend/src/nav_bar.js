@@ -71,8 +71,14 @@ function NavBar() {
               </Typography>
               <Typography variant="h6" className={classes.headerItem}>
                 <CleanLink
+                  to="/explore"
+                >
+                  Explore
+                </CleanLink>
+              </Typography>
+              <Typography variant="h6" className={classes.headerItem}>
+                <CleanLink
                   to="/models"
-                  // style={{ color: "white", textDecoration: "none" }}
                 >
                   Models
                 </CleanLink>
