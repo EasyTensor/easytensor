@@ -24,7 +24,26 @@
             "size": 95029470,
             "scale": 1,
             "deployed": false,
-            "owner": 2
+            "owner": 2,
+            "public": true,
+            "tags": [
+                "69AC7B67-76D4-40CB-A5C7-26623AFEC088",
+                "69AC7B67-76D4-40CB-A5C7-26623AFEC088"
+            ]
+        }
+    },
+    {
+        "model": "uploads.Tag",
+        "pk": "67454EAA-E70A-44C9-AEA2-D08CD10697ED",
+        "fields": {
+            "name": "vision"
+        }
+    },
+    {
+        "model": "uploads.Tag",
+        "pk": "69AC7B67-76D4-40CB-A5C7-26623AFEC088",
+        "fields": {
+            "name": "NLP"
         }
     }
 ]

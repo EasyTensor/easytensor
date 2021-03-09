@@ -1,1 +1,1 @@
-0004_add_model_details
+0005_make_tags_optional

@@ -26,7 +26,7 @@ class Model(models.Model):
         max_length=2, choices=FRAMEWORK_CHOICES, default=DEFAULT_FRAMEWORK_CHOICE
     )
     public = models.BooleanField(blank=False, null=False, default=False)
-    tags = models.ManyToManyField(Tag)
+    tags = models.ManyToManyField(Tag, blank=True, null=False)
     description = models.CharField(max_length=256, blank=True, null=False, default="")
 
 
@@ -49,3 +49,9 @@ class QueryAccessToken(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     udpated_at = models.DateTimeField(auto_now=True)
 
+
+def user_has_model_access(user: User, model: Model):
+    return any(
+        model.owner == user,
+        model in Team.objects.filter(users__contain=user).models
+    )
