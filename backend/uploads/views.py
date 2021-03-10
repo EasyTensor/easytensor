@@ -22,7 +22,7 @@ from uploads.google_signing_helpers import (
     generate_upload_signed_url_v4,
     generate_download_signed_url_v4,
 )
-
+LOGGER = logging.getLogger(__name__)
 BUCKET_NAME = "easytensor-model-uploads"
 
 
@@ -72,10 +72,11 @@ class ModelUploadViewSet(viewsets.ModelViewSet):
         if pk is None:
             return ErrorResponse("You must indicate what file you want to downlaod")
         # check access if not admin.
-        if not request.user.is_staff:
-            _ = get_object_or_404(Model, address=pk, owner=request.user.id)
+        model = Model.objects.get(pk=pk)
+        if not request.user.is_staff and request.user.id is not model.owner.id:
+            return get_access_forbidden_response()
 
-        url = generate_download_signed_url_v4(BUCKET_NAME, pk)
+        url = generate_download_signed_url_v4(BUCKET_NAME, model.address)
         return Response({"url": url, "filename": pk})
 
 

@@ -1,22 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Typography from "@material-ui/core/Typography";
-import { Delete, Add, CloudDownload } from "@material-ui/icons";
+import { Delete, Add, CloudDownload, Link, Error, Loop, FiberManualRecord } from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
 import Fab from "@material-ui/core/Fab";
 
 import IconButton from "@material-ui/core/IconButton";
-import TextField from "@material-ui/core/TextField";
-import FormHelperText from "@material-ui/core/FormHelperText";
 import ToolTip from "@material-ui/core/Tooltip";
 import Grid from "@material-ui/core/Grid";
 import Card from "@material-ui/core/Card";
 import Paper from "@material-ui/core/Paper";
-import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import { green, yellow, red, grey } from '@material-ui/core/colors';
-import Error from "@material-ui/icons/Error"
-import Check from "@material-ui/icons/Check"
-import LoopIcon from '@material-ui/icons/Loop';
-import Stop from '@material-ui/icons/Stop';
 import TfIcon from "./images/tf_icon.png"
 import { CleanLink } from "./link";
 import Tooltip from "@material-ui/core/Tooltip";
@@ -26,10 +19,12 @@ import {
   DeleteModel,
   DeleteAllModels,
   GetModelStatus,
+  GetModelDownloadLink,
 } from "./api";
 import Switch from "@material-ui/core/Switch";
 import { QueryModal } from "./query_modal";
 import Dialog from "@material-ui/core/Dialog";
+import {EditableText} from "./editable_text";
 
 function DeleteAll() {
   function delete_models() {
@@ -66,11 +61,11 @@ function getModelStatusIndicator(status) {
       <ToolTip title={"Model deployment is " + status}>
         {
           {
-            "Ready": <FiberManualRecordIcon style={{ color: green[500] }} />,
-            "Not Ready": <FiberManualRecordIcon style={{ color: yellow[500] }} />,
+            "Ready": <FiberManualRecord style={{ color: green[500] }} />,
+            "Not Ready": <FiberManualRecord style={{ color: yellow[500] }} />,
             "Failed": <Error style={{ color: red[500] }} />,
-            "Not Deployed": <FiberManualRecordIcon style={{ color: grey[700] }} />,
-            "Retrieving...": <LoopIcon />,
+            "Not Deployed": <FiberManualRecord style={{ color: grey[700] }} />,
+            "Retrieving...": <Loop />,
           }[status]
         }
       </ToolTip>
@@ -78,6 +73,18 @@ function getModelStatusIndicator(status) {
   )
 }
 
+function getModelIDCopyLink(model_id) {
+  return (
+    <div style={{ paddingLeft: ".25em", paddingRight: ".25em" }}>
+      <ToolTip title={"Copy Model ID"}>
+        <Link
+          onClick={(e) => { navigator.clipboard.writeText(model_id); }}
+          style={{ cursor: "pointer" }}
+        />
+      </ToolTip>
+    </div>
+  )
+}
 
 function EmptyModelList() {
   return (
@@ -106,67 +113,6 @@ function EmptyModelList() {
   );
 }
 
-// todo: add ability to finish editing with click outside div
-// https://stackoverflow.com/questions/32553158/detect-click-outside-react-component
-function EditableText({ initialText, editedCallback, emptyPlaceHolder = "", variant = "body1", style, inputstyle }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(initialText);
-  if (isEditing) {
-    return (
-      <ToolTip title="Click ✔ to save" open={isEditing} arrow placement="top">
-        <div
-          style={{
-            display: "flex",
-            border: "solid",
-            borderColor: "#bbb",
-            borderWidth: "0.05em",
-            flexGrow: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            padding: "0.25em",
-            ...style
-          }}
-        >
-          <textarea
-            // type="text"
-            onChange={(e) => setEditValue(e.target.value)}
-            value={editValue}
-            style={{ border: "none 0", outline: "none", flexGrow: "1", ...inputstyle }}
-          />
-          <Check onClick={(e) => {
-            editedCallback(editValue);
-            setIsEditing(false);
-          }} />
-        </div>
-      </ToolTip>
-    );
-  } else {
-    return (
-      <Typography
-        variant={variant}
-        onMouseOver={(e) => {
-          e.target.style.borderColor = "#bbb";
-        }}
-        onMouseOut={(e) => (e.target.style.borderColor = "transparent")}
-        style={{
-          display: "flex",
-          flexGrow: 1,
-          overflow: "hidden",
-          textAlign: "left",
-          borderWidth: "0.01em",
-          borderRadius: "0.1em",
-          borderStyle: "solid",
-          borderColor: "transparent",
-          ...style
-        }}
-        onChange={(e) => console.log(e.target)}
-        onClick={() => setIsEditing(true)}
-      >
-        {initialText.trim() ? initialText : emptyPlaceHolder}
-      </Typography>
-    );
-  }
-}
 function Model({ model, onDelete }) {
   const [name, setName] = useState(model.name);
   const [description, setDescription] = useState(model.description);
@@ -192,6 +138,13 @@ function Model({ model, onDelete }) {
     console.log("Deleting", model_id);
     DeleteModel(model_id).then(() => {
       onDelete(model_id);
+    });
+  }
+
+  function download_model(model_id) {
+    console.log("Downloading", model_id);
+    GetModelDownloadLink(model_id).then(response => {
+      window.open(response.data.url);
     });
   }
 
@@ -253,6 +206,11 @@ function Model({ model, onDelete }) {
             style={{ alignItems: "center" }}
           />
           <div>
+            <ToolTip title="Download Model">
+              <IconButton onClick={() => download_model(id)} color="primary">
+                <CloudDownload />
+              </IconButton>
+            </ToolTip>
             <ToolTip title="Delete Model">
               <IconButton onClick={() => delete_model(id)} color="primary">
                 <Delete />
@@ -263,21 +221,20 @@ function Model({ model, onDelete }) {
         <div style={{ alignItems: "end", display: "flex" }}>
           {getModelFrameworkIcon(model)}
           {getModelStatusIndicator(status)}
+          {getModelIDCopyLink(model.id)}
           <Typography style={{ "paddingLeft": ".25em", "paddingRight": ".25em" }}>{model.public ? "Public" : "Private"}</Typography>
+          <Typography style={{ "paddingLeft": ".25em", "paddingRight": ".25em" }}>{Math.round(size / 1024 / 1024) < 1
+            ? Math.round(model.size / 1024) + " KB"
+            : Math.round(size / 1024 / 1024) + " MB"}
+          </Typography>
         </div>
-        <p>id: {id}</p>
-        <p>
-          size:
-          {Math.round(size / 1024 / 1024) < 1
-            ? Math.round(model.size / 1024) + "KB"
-            : Math.round(size / 1024 / 1024) + "MB"}
-        </p>
         <EditableText
           initialText={description}
           editedCallback={handleDescriptionEdit}
           emptyPlaceHolder="Add a description..."
           style={{ minHeight: "6em", width: "100%", margin: "1em 0 1em 0", variant: "body2" }}
           inputstyle={{ minHeight: "6em" }}
+          inputTag="textarea"
         />
         <div style={{ display: "flex" }}>
           <div style={{ flexGrow: 1 }}>

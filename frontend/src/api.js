@@ -42,6 +42,10 @@ export function DeleteModel(model_id) {
   return axios.delete(`${BACKEND_URL}/v1/models/${model_id}/`, getConfig());
 }
 
+export function GetModelDownloadLink(model_id) {
+  return axios.get(`${BACKEND_URL}/v1/model-uploads/${model_id}/`, getConfig());
+}
+
 export function GetModelStatus(model_id) {
   return axios.get(`${REPORTER_URL}/model-status/${model_id}`, getConfig());
 }
