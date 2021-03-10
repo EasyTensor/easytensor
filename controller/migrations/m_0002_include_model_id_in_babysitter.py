@@ -31,6 +31,7 @@ def include_model_id_in_babysitter_env():
                             "containers": [
                                 {
                                     "name": "babysitter",
+                                    "image": "gcr.io/easytensor-291022/easytensor/babysitter:0.1.8"
                                     "env": [
                                         {
                                             "name": "MODEL_ID",
