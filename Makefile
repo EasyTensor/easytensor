@@ -32,6 +32,10 @@ push-all: push-image-backend \
 build-image-%:
 	docker build $* -t easytensor/$*
 
+# special case since migrations inherits from backend
+build-image-migrations:
+	docker build migrations -t easytensor/backend
+
 tag-image-%:
 	docker tag easytensor/$* "gcr.io/easytensor-291022/easytensor/$*:${RELEASE_VERSION}"
 
