@@ -1,102 +1,122 @@
 import React, { useState, useEffect } from "react";
 import Typography from "@material-ui/core/Typography";
-import { Delete, Add, CloudDownload } from "@material-ui/icons";
+import { Add, Link, Error, Loop, FiberManualRecord } from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
 import Fab from "@material-ui/core/Fab";
 
-import IconButton from "@material-ui/core/IconButton";
 import ToolTip from "@material-ui/core/Tooltip";
 import Grid from "@material-ui/core/Grid";
 import Card from "@material-ui/core/Card";
+import Paper from "@material-ui/core/Paper";
+import { green, yellow, red, grey } from '@material-ui/core/colors';
 import TfIcon from "./images/tf_icon.png"
+import { CleanLink } from "./link";
+import Tooltip from "@material-ui/core/Tooltip";
 import {
   GetModels,
-  PatchModel,
-  DeleteModel,
-  DeleteAllModels,
   GetModelStatus,
 } from "./api";
-import FormGroup from "@material-ui/core/FormGroup";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Switch from "@material-ui/core/Switch";
 import { QueryModal } from "./query_modal";
 import Dialog from "@material-ui/core/Dialog";
 
-function DeleteAll() {
-  function delete_models() {
-    console.log("deleting all models");
-    DeleteAllModels();
-  }
 
-  return <button onClick={delete_models}>delete all</button>;
-}
 function getModelFrameworkIcon(model) {
-  return {
-    TF: <img src={TfIcon} style={{ width: "20px", height: "20px" }} title="TensorFlow model" />,
-    PT: <img src={TfIcon} style={{ width: "20px", height: "20px" }} title="PyTorch model" />,
-  }[model.framework]
+  return <div style={{ "paddingRight": "0.25em" }}>
+    {
+      {
+        TF: (
+          <ToolTip title="TensorFlow model">
+            <img src={TfIcon} style={{ width: "20px", height: "20px" }} />
+          </ToolTip>
+        ),
+        PT: (
+          <ToolTip title="PyTorch model" >
+            <img src={TfIcon} style={{ width: "20px", height: "20px" }} />
+          </ToolTip>
+        ),
+      }[model.framework]
+    }
+  </div>
 }
 
-// todo: add ability to finish editing with click outside div
-// https://stackoverflow.com/questions/32553158/detect-click-outside-react-component
-function EditableText({ initialText, editedCallback }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(initialText);
-  if (isEditing) {
-    return (
-      <input
-        variant="h5"
-        type="text"
-        onChange={(e) => setEditValue(e.target.value)}
-        onKeyPress={(e) => {
-          if (e.key === "Enter") {
-            editedCallback(editValue);
-            setIsEditing(false);
-          }
-        }}
-        value={editValue}
-      />
-    );
-  } else {
-    return (
-      <Typography
-        variant="h5"
-        onMouseOver={(e) => {
-          e.target.style.borderColor = "#bbb";
-        }}
-        onMouseOut={(e) => (e.target.style.borderColor = "transparent")}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          flexGrow: 1,
-          textAlign: "left",
-          borderWidth: "0.01em",
-          borderRadius: "0.1em",
-          borderStyle: "solid",
-          borderColor: "transparent",
-        }}
-        onChange={(e) => console.log(e.target)}
-        onClick={() => setIsEditing(true)}
-      >
-        {initialText}
-      </Typography>
-    );
-  }
+
+function getModelStatusIndicator(status) {
+  return (
+    <div style={{ paddingLeft: ".25em", paddingRight: ".25em" }}>
+      <ToolTip title={"Model deployment is " + status}>
+        {
+          {
+            "Ready": <FiberManualRecord style={{ color: green[500] }} />,
+            "Not Ready": <FiberManualRecord style={{ color: yellow[500] }} />,
+            "Failed": <Error style={{ color: red[500] }} />,
+            "Not Deployed": <FiberManualRecord style={{ color: grey[700] }} />,
+            "Retrieving...": <Loop />,
+          }[status]
+        }
+      </ToolTip>
+    </div>
+  )
 }
+
+function getModelIDCopyLink(model_id) {
+  return (
+    <div style={{ paddingLeft: ".25em", paddingRight: ".25em" }}>
+      <ToolTip title={"Copy Model ID"}>
+        <Link
+          onClick={(e) => { navigator.clipboard.writeText(model_id); }}
+          style={{ cursor: "pointer" }}
+        />
+      </ToolTip>
+    </div>
+  )
+}
+
+function EmptyModelList() {
+  return (
+    <Paper
+      elevation={24}
+      style={{
+        minHeight: "80%",
+        minWidth: "80%",
+        backgroundColor: "white",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: "1em",
+      }}
+    >
+      <div style={{ textAlign: "center" }}>
+        <p>You haven't uploaded any models yet.</p>
+        <p>Let's try adding your first one!</p>
+        <CleanLink to="/">
+          <Button color="primary" variant="contained">
+            Add Model
+          </Button>
+        </CleanLink>
+      </div>
+    </Paper>
+  );
+}
+
 function Model({ model, onDelete }) {
   const [name, setName] = useState(model.name);
+  const [description, setDescription] = useState(model.description);
   // const address = model.address;
   const id = model.id;
   const size = model.size;
   // const scale = model.scale;
-  const [isDeployed] = useState(model.deployed);
+  const [status, setStatus] = useState("Retrieving...");
 
-  function delete_model(model_id) {
-    console.log("Deleting", model_id);
-    DeleteModel(model_id).then(() => {
-      onDelete(model_id);
+  useEffect(() => {
+    GetModelStatus(id).then((resp) => {
+      if (resp.status != 200) {
+        console.log("could not fetch model status");
+        console.log(resp.data);
+      }
+      console.log("for model", id, resp.data);
+      setStatus(resp.data.status);
     });
-  }
+  });
 
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => {
@@ -106,41 +126,33 @@ function Model({ model, onDelete }) {
     setOpen(false);
   };
 
-
   return (
     <Grid item xs={4}>
       <Card foo="bar" style={{ padding: ".5em", borderRadius: "1em" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        {getModelFrameworkIcon(model)}
-          <Typography variant="h5" style={{
-            display: "flex",
-            flexGrow: 1,
-            overflow: "hidden",
-            textAlign: "left",
-            borderWidth: "0.01em",
-            borderRadius: "0.1em",
-            borderStyle: "solid",
-            borderColor: "transparent",
-          }}>
+        <div style={{
+          display: "flex", justifyContent: "space-between"
+        }}>
+          <Typography
+            variant="h5"
+            style={{ alignItems: "center" }}
+          >
             {name}
           </Typography>
-          <div>
-            <ToolTip title="Delete Model">
-              <IconButton onClick={() => delete_model(id)} color="primary">
-                <Delete />
-              </IconButton>
-            </ToolTip>
-          </div>
         </div>
-
-
-        <p>id: {id}</p>
-        <p>
-          size:
-          {Math.round(size / 1024 / 1024) < 1
-            ? Math.round(model.size / 1024) + "KB"
-            : Math.round(size / 1024 / 1024) + "MB"}
-        </p>
+        <div style={{ alignItems: "end", display: "flex" }}>
+          {getModelFrameworkIcon(model)}
+          {getModelStatusIndicator(status)}
+          {getModelIDCopyLink(model.id)}
+          <Typography style={{ "paddingLeft": ".25em", "paddingRight": ".25em" }}>{Math.round(size / 1024 / 1024) < 1
+            ? Math.round(model.size / 1024) + " KB"
+            : Math.round(size / 1024 / 1024) + " MB"}
+          </Typography>
+        </div>
+        <Typography
+          style={{ minHeight: "6em", width: "100%", margin: "1em 0 1em 0", variant: "body2" }}
+        >
+          {description}
+        </Typography>
         <div style={{ display: "flex" }}>
           <div
             style={{
@@ -152,7 +164,6 @@ function Model({ model, onDelete }) {
               variant="contained"
               color="primary"
               onClick={handleOpen}
-              disabled={!isDeployed}
             >
               Query
             </Button>
@@ -181,6 +192,10 @@ function ModelList() {
     });
   }, []);
 
+  if (models.length <= 0) {
+    return <EmptyModelList />;
+  }
+
   return (
     <Grid container spacing={2}>
       {models.map((model) => (
@@ -193,6 +208,21 @@ function ExplorePage() {
   return (
     <div style={{ width: "80%" }}>
       <ModelList />
+      <CleanLink to="/">
+        <Tooltip title="Add Model">
+          <Fab
+            style={{
+              position: "fixed",
+              right: "2%",
+              bottom: "2%",
+              // color: "primary",
+            }}
+            color="secondary"
+          >
+            <Add />
+          </Fab>
+        </Tooltip>
+      </CleanLink>
     </div>
   );
 }
