@@ -61,7 +61,7 @@ EOF
 )" --header="Content-Type:application/json" | jq -r .access_token >auth_token.txt
 
 echo "Getting download URL"
-wget -qO- "${BACKEND_SERVER_ADDRESS}":"${BACKEND_SERVER_PORT}"/v1/model-uploads/${MODEL_ADDRESS}/ --header="Authorization: Bearer $(cat auth_token.txt)" | jq -r .url >download_url.txt
+wget -qO- "${BACKEND_SERVER_ADDRESS}":"${BACKEND_SERVER_PORT}"/v1/model-uploads/${MODEL_ID}/ --header="Authorization: Bearer $(cat auth_token.txt)" | jq -r .url >download_url.txt
 
 echo "Downloading model"
 cat download_url.txt | xargs wget -q -O model

@@ -270,7 +270,7 @@ def create_deployment_object(model: Model):
             )
         ],
         env=[
-            client.V1EnvVar(name="MODEL_ADDRESS", value=model.address),
+            client.V1EnvVar(name="MODEL_ID", value=model.id),
             client.V1EnvVar(
                 "EXTRACT_MODEL", value=str(model.framework == "TF").lower()
             ),
