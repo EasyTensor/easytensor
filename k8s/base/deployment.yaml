@@ -127,7 +127,7 @@ spec:
     spec:
       containers:
         - name: migrations
-          image: easytensor/migrations
+          image: easytensor/backend
           imagePullPolicy: IfNotPresent
           command: ["./migrate_app.sh"]
           volumeMounts:
