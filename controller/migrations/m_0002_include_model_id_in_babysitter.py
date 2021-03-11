@@ -12,6 +12,10 @@ LOGGER.setLevel(logging.DEBUG)
 
 APPS_V1 = client.AppsV1Api()
 
+image = (
+    "easytensor/babysitter:latest" if NAMESPACE == "dev" else
+    "gcr.io/easytensor-291022/easytensor/babysitter:0.1.8"
+)
 
 def include_model_id_in_babysitter_env():
     deployments = APPS_V1.list_namespaced_deployment(
@@ -31,7 +35,7 @@ def include_model_id_in_babysitter_env():
                             "containers": [
                                 {
                                     "name": "babysitter",
-                                    "image": "gcr.io/easytensor-291022/easytensor/babysitter:0.1.8"
+                                    "image": image,
                                     "env": [
                                         {
                                             "name": "MODEL_ID",

@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { UploadDashboard } from "./upload_page";
 import Tabs from "@material-ui/core/Tabs"
 import AppBar from "@material-ui/core/AppBar"
 import Tab from "@material-ui/core/Tab"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { Bubble } from "./bubble";
 import Paper from "@material-ui/core/Paper";
 const saveModelString = `# Step 1: save your model
 export_path = "~/my_model"
