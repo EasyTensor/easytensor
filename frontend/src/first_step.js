@@ -3,9 +3,17 @@ import { UploadDashboard } from "./upload_page";
 import Tabs from "@material-ui/core/Tabs"
 import AppBar from "@material-ui/core/AppBar"
 import Tab from "@material-ui/core/Tab"
+import { CreateModel } from "./api";
+import {Button} from "@material-ui/core";
+import { useHistory } from 'react-router-dom';
+
+
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { Bubble } from "./bubble";
+import TextField from '@material-ui/core/TextField';
 import Paper from "@material-ui/core/Paper";
 const saveModelString = `# Step 1: save your model
 export_path = "~/my_model"
@@ -64,41 +72,74 @@ const CompressModelComponent = () => {
   );
 };
 
+function GuiInstructions() {
 
-const GuiInstructions = (
-  <div>
-    <SaveModelComponent />
-    <CompressModelComponent />
-    <p>Step 3: Upload the compressed model 👇</p>
-    <UploadDashboard />
-  </div>
-)
+  const [name, setName] = useState("");
+  const [framework, setFramework] = useState("TF");
+  const [address, setAddress] = useState("");
+  const [size, setSize] = useState(0);
+  const history = useHistory();
 
-const PythonInstructions = (
-  <div>
-    <SyntaxHighlighter
-      customStyle={{ borderRadius: ".8em" }}
-      language="python"
-      style={tomorrow}
-    >
-      {pythonUploadString}
-    </SyntaxHighlighter>
-  </div>
-)
+
+  function handleUploadSuccess(file) {
+    setAddress(file.name);
+    setSize(file.size)
+  }
+
+  function handleSave(){
+    console.log( typeof address)
+    console.log(address, name, size, framework)
+    if (address.trim() == "") {
+      alert("Upload a model before saving it.")
+      return
+    }
+    CreateModel({
+      address: address,
+      name: name,
+      size: size,
+      framework: framework,
+    });
+   history.push('/models')
+  }
+
+
+
+  return (
+    <div>
+      <SaveModelComponent />
+      <CompressModelComponent />
+      <div style={{alignItems: "left" }}>
+      <TextField label="name" onChange={(e) => setName(e.target.value)}/>
+      <RadioGroup aria-label="framework" name="framework" value={framework} onChange={(e) => setFramework(e.target.value)}>
+        <FormControlLabel value="TF" control={<Radio color="default"/>} label="TensorFlow" />
+        <FormControlLabel value="PT" control={<Radio color="default" variant="outlined" />} label="PyTorch" />
+        <FormControlLabel value="SK" control={<Radio color="default" />} label="SK Learn" />
+      </RadioGroup>
+      <Button onClick={handleSave} variant="contained" color="primary" >Save Model</Button>
+      <UploadDashboard onSuccess={handleUploadSuccess} />
+      </div>
+    </div>
+  )
+}
+
+function PythonInstructions() {
+  return (
+    <div>
+      <SyntaxHighlighter
+        customStyle={{ borderRadius: ".8em" }}
+        language="python"
+        style={tomorrow}
+      >
+        {pythonUploadString}
+      </SyntaxHighlighter>
+    </div>
+  )
+}
 
 
 function FirstStep() {
-  const [value, setValue] = React.useState(0);
-  const [instructions, setInstructions] = React.useState(PythonInstructions)
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-    if (newValue == 0) {
-      setInstructions(PythonInstructions)
-    } else if (newValue == 1) {
-      setInstructions(GuiInstructions)
-    }
-  };
-
+  const [value, setValue] = useState(0);
+  const [tab, setTab] = useState(1);
 
   return (
     <div style={{ textAlign: "center", width: "80%" }}>
@@ -116,16 +157,19 @@ function FirstStep() {
             value={value}
             indicatorColor="primary"
             textColor="primary"
-            onChange={handleChange}
+            onChange={(e, val) => setTab(val)}
             centered
           >
             <Tab label="Python" />
             <Tab label="GUI" />
           </Tabs>
         </AppBar>
-
-
-        {instructions}
+        {
+          {
+            0: <PythonInstructions />,
+            1: <GuiInstructions />
+          }[tab]
+        }
       </Paper>
 
     </div>

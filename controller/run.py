@@ -281,7 +281,7 @@ def get_server_container(model: Model) -> client.V1Container:
             ),
             volume_mounts=[
                 client.V1VolumeMount(
-                    name="model-dir", mount_path="/models/", read_only=False
+                    name="model-dir", mount_path="/home/model-server/model-store/", read_only=False
                 )
             ],
         )
@@ -321,7 +321,7 @@ def create_deployment_object(model: Model):
         env=[
             client.V1EnvVar(name="MODEL_ID", value=model.id),
             client.V1EnvVar(
-                "MODEL_TYPE", value=model.framework
+                "MODEL_TYPE", value=get_framework_label_from_model(model)
             ),
         ],
         env_from=[

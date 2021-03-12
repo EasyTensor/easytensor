@@ -6,6 +6,6 @@ RUN apk add unzip jq bash curl
 
 RUN mkdir /app
 WORKDIR /app
-COPY run.sh .
+COPY . .
 RUN echo "hi"
 CMD bash run.sh

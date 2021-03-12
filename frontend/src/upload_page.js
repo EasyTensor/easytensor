@@ -1,12 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import Uppy from "@uppy/core";
 import AwsS3 from "@uppy/aws-s3";
 import { Dashboard } from "@uppy/react";
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
-import axios from "axios";
-import { BACKEND_URL } from "./constants";
-import { CreateModel, GetModelStatus, PostModelUploadURL } from "./api";
+import { PostModelUploadURL } from "./api";
 
 const uppy = new Uppy({
   meta: { type: "avatar" },
@@ -50,31 +48,17 @@ uppy.on("file-added", (file) => {
   file.original_name = file.name;
   file.name = uuidv4();
 });
-uppy.on("upload-success", (file, response) => {
-  CreateModel({
-    address: file.name,
-    name: file.original_name,
-    size: file.size,
-  });
-});
 
-function UploadDashboard(props) {
+function UploadDashboard({onSuccess}) {
 
-  const [framework, setFramework] = useState(props.framework)
   uppy.on("upload-success", (file, response) => {
-    CreateModel({
-      address: file.name,
-      name: file.original_name,
-      size: file.size,
-      framework: framework,
-    });
+    onSuccess(file);
   });
   
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
       <Dashboard
         uppy={uppy}
-        // plugins={['Webcam']}
         width={500}
         height={300}
         showProgressDetails={true}

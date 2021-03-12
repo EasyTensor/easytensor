@@ -55,18 +55,25 @@ function getModelFrameworkIcon(model) {
 }
 
 
-function getModelStatusIndicator(status) {
+function ModelStatusIndicator({statusInd, deploymentMsg}) {
+  const status_title = {
+    "READY": "Model deployment is ready",
+    "NOT_READY": "Model deployment is not ready",
+    "FAILED": "Model deployment has failed",
+    "NOT_DEPLOYED": "Model deployment is not deployed",
+    "Retrieving...": "Retrieving model deployment status",
+  }[statusInd] + ". " + deploymentMsg
   return (
     <div style={{ paddingLeft: ".25em", paddingRight: ".25em" }}>
-      <ToolTip title={"Model deployment is " + status}>
+      <ToolTip title={status_title}>
         {
           {
-            "Ready": <FiberManualRecord style={{ color: green[500] }} />,
-            "Not Ready": <FiberManualRecord style={{ color: yellow[500] }} />,
-            "Failed": <Error style={{ color: red[500] }} />,
-            "Not Deployed": <FiberManualRecord style={{ color: grey[700] }} />,
+            "READY": <FiberManualRecord style={{ color: green[500] }} />,
+            "NOT_READY": <FiberManualRecord style={{ color: yellow[500] }} />,
+            "FAILED": <Error style={{ color: red[500] }} />,
+            "NOT_DEPLOYED": <FiberManualRecord style={{ color: grey[700] }} />,
             "Retrieving...": <Loop />,
-          }[status]
+          }[statusInd]
         }
       </ToolTip>
     </div>
@@ -76,7 +83,7 @@ function getModelStatusIndicator(status) {
 function getModelIDCopyLink(model_id) {
   return (
     <div style={{ paddingLeft: ".25em", paddingRight: ".25em" }}>
-      <ToolTip title={"Copy Model ID"}>
+      <ToolTip title={"Copy Model ID. "+model_id}>
         <Link
           onClick={(e) => { navigator.clipboard.writeText(model_id); }}
           style={{ cursor: "pointer" }}
@@ -122,6 +129,7 @@ function Model({ model, onDelete }) {
   // const scale = model.scale;
   const [isDeployed, setDeployed] = useState(model.deployed);
   const [status, setStatus] = useState("Retrieving...");
+  const [deploymentMsg, setDeploymentMsg] = useState("");
 
   useEffect(() => {
     GetModelStatus(id).then((resp) => {
@@ -130,7 +138,11 @@ function Model({ model, onDelete }) {
         console.log(resp.data);
       }
       console.log("for model", id, resp.data);
+      console.log("for model", id, resp.data);
+      console.log(resp.data.status);
+      console.log(resp.data.message);
       setStatus(resp.data.status);
+      setDeploymentMsg(resp.data.message);
     });
   });
 
@@ -220,7 +232,7 @@ function Model({ model, onDelete }) {
         </div>
         <div style={{ alignItems: "end", display: "flex" }}>
           {getModelFrameworkIcon(model)}
-          {getModelStatusIndicator(status)}
+          <ModelStatusIndicator statusInd={status} deploymentMsg={deploymentMsg}/>
           {getModelIDCopyLink(model.id)}
           <Typography style={{ "paddingLeft": ".25em", "paddingRight": ".25em" }}>{model.public ? "Public" : "Private"}</Typography>
           <Typography style={{ "paddingLeft": ".25em", "paddingRight": ".25em" }}>{Math.round(size / 1024 / 1024) < 1
