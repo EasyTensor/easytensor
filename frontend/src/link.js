@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 
-function CleanLink({ children, ...rest }) {
-  return (
-    <Link {...rest} style={{ textDecoration: "none", color: "inherit" }}>
-      {children}
+const CleanLink = React.forwardRef(
+  (props, ref) => (
+    <Link ref={ref} {...props} style={{ textDecoration: "none", color: "inherit" }}>
+      {props.children}
     </Link>
-  );
-}
+  )
+);
 
 export { CleanLink };

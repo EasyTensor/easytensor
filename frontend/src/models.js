@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Typography from "@material-ui/core/Typography";
-import { Delete, Add, CloudDownload, Link, Error, Loop, FiberManualRecord } from "@material-ui/icons";
+import { Delete, Add, CloudDownload, Link } from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
 import Fab from "@material-ui/core/Fab";
 
@@ -9,10 +9,8 @@ import ToolTip from "@material-ui/core/Tooltip";
 import Grid from "@material-ui/core/Grid";
 import Card from "@material-ui/core/Card";
 import Paper from "@material-ui/core/Paper";
-import { green, yellow, red, grey } from '@material-ui/core/colors';
 import TfIcon from "./images/tf_icon.png"
 import { CleanLink } from "./link";
-import Tooltip from "@material-ui/core/Tooltip";
 import {
   GetModels,
   PatchModel,
@@ -25,6 +23,7 @@ import Switch from "@material-ui/core/Switch";
 import { QueryModal } from "./query_modal";
 import Dialog from "@material-ui/core/Dialog";
 import {EditableText} from "./editable_text";
+import {ModelStatusIndicator} from "./model_utils"
 
 function DeleteAll() {
   function delete_models() {
@@ -55,30 +54,6 @@ function getModelFrameworkIcon(model) {
 }
 
 
-function ModelStatusIndicator({statusInd, deploymentMsg}) {
-  const status_title = {
-    "READY": "Model deployment is ready",
-    "NOT_READY": "Model deployment is not ready",
-    "FAILED": "Model deployment has failed",
-    "NOT_DEPLOYED": "Model deployment is not deployed",
-    "Retrieving...": "Retrieving model deployment status",
-  }[statusInd] + ". " + deploymentMsg
-  return (
-    <div style={{ paddingLeft: ".25em", paddingRight: ".25em" }}>
-      <ToolTip title={status_title}>
-        {
-          {
-            "READY": <FiberManualRecord style={{ color: green[500] }} />,
-            "NOT_READY": <FiberManualRecord style={{ color: yellow[500] }} />,
-            "FAILED": <Error style={{ color: red[500] }} />,
-            "NOT_DEPLOYED": <FiberManualRecord style={{ color: grey[700] }} />,
-            "Retrieving...": <Loop />,
-          }[statusInd]
-        }
-      </ToolTip>
-    </div>
-  )
-}
 
 function getModelIDCopyLink(model_id) {
   return (
@@ -137,10 +112,6 @@ function Model({ model, onDelete }) {
         console.log("could not fetch model status");
         console.log(resp.data);
       }
-      console.log("for model", id, resp.data);
-      console.log("for model", id, resp.data);
-      console.log(resp.data.status);
-      console.log(resp.data.message);
       setStatus(resp.data.status);
       setDeploymentMsg(resp.data.message);
     });
@@ -307,11 +278,12 @@ function ModelList() {
     return <EmptyModelList />;
   }
 
+  const ModelsGridItems = models.map((model) => (
+    <Model model={model} onDelete={onModelDelete} key={model.id}/>
+  ))
   return (
     <Grid container spacing={2}>
-      {models.map((model) => (
-        <Model model={model} onDelete={onModelDelete} />
-      ))}
+      {ModelsGridItems}
     </Grid>
   );
 }
@@ -320,7 +292,7 @@ function ModelPage() {
     <div style={{ width: "80%" }}>
       <ModelList />
       <CleanLink to="/">
-        <Tooltip title="Add Model">
+        <ToolTip title="Add Model">
           <Fab
             style={{
               position: "fixed",
@@ -332,7 +304,7 @@ function ModelPage() {
           >
             <Add />
           </Fab>
-        </Tooltip>
+        </ToolTip>
       </CleanLink>
     </div>
   );

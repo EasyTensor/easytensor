@@ -3,6 +3,7 @@ import Typography from "@material-ui/core/Typography";
 import { Add, Link, Error, Loop, FiberManualRecord } from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
 import Fab from "@material-ui/core/Fab";
+import {ModelStatusIndicator} from "./model_utils"
 
 import ToolTip from "@material-ui/core/Tooltip";
 import Grid from "@material-ui/core/Grid";
@@ -37,25 +38,6 @@ function getModelFrameworkIcon(model) {
       }[model.framework]
     }
   </div>
-}
-
-
-function getModelStatusIndicator(status) {
-  return (
-    <div style={{ paddingLeft: ".25em", paddingRight: ".25em" }}>
-      <ToolTip title={"Model deployment is " + status}>
-        {
-          {
-            "Ready": <FiberManualRecord style={{ color: green[500] }} />,
-            "Not Ready": <FiberManualRecord style={{ color: yellow[500] }} />,
-            "Failed": <Error style={{ color: red[500] }} />,
-            "Not Deployed": <FiberManualRecord style={{ color: grey[700] }} />,
-            "Retrieving...": <Loop />,
-          }[status]
-        }
-      </ToolTip>
-    </div>
-  )
 }
 
 function getModelIDCopyLink(model_id) {
@@ -98,23 +80,25 @@ function EmptyModelList() {
   );
 }
 
-function Model({ model, onDelete }) {
-  const [name, setName] = useState(model.name);
-  const [description, setDescription] = useState(model.description);
+function Model({ model }) {
+  const [name] = useState(model.name);
+  const [description] = useState(model.description);
   // const address = model.address;
   const id = model.id;
   const size = model.size;
   // const scale = model.scale;
   const [status, setStatus] = useState("Retrieving...");
+  const [deploymentMsg, setDeploymentMsg] = useState("");
 
   useEffect(() => {
-    GetModelStatus(id).then((resp) => {
+    GetModelStatus(id).then(resp => {
       if (resp.status != 200) {
         console.log("could not fetch model status");
         console.log(resp.data);
       }
-      console.log("for model", id, resp.data);
       setStatus(resp.data.status);
+      setDeploymentMsg(resp.data.message);
+
     });
   });
 
@@ -141,7 +125,7 @@ function Model({ model, onDelete }) {
         </div>
         <div style={{ alignItems: "end", display: "flex" }}>
           {getModelFrameworkIcon(model)}
-          {getModelStatusIndicator(status)}
+          {<ModelStatusIndicator statusInd={status} deploymentMsg={deploymentMsg}/>}
           {getModelIDCopyLink(model.id)}
           <Typography style={{ "paddingLeft": ".25em", "paddingRight": ".25em" }}>{Math.round(size / 1024 / 1024) < 1
             ? Math.round(model.size / 1024) + " KB"
@@ -195,12 +179,12 @@ function ModelList() {
   if (models.length <= 0) {
     return <EmptyModelList />;
   }
-
+  const ModelsGridList = models.map((model) => (
+    <Model model={model} key={model.id} />
+  ))
   return (
     <Grid container spacing={2}>
-      {models.map((model) => (
-        <Model model={model} />
-      ))}
+      {ModelsGridList}
     </Grid>
   );
 }
