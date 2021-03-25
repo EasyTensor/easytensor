@@ -2,7 +2,11 @@ FROM golang:latest
 
 RUN mkdir /app
 WORKDIR /app
-COPY . .
 ENV GOBIN=/app/
+COPY . .
+RUN go get -u github.com/cosmtrek/air
+RUN go mod download
+RUN go build
 
-CMD go run run.go
+
+CMD ./air
