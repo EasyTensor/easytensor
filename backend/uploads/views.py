@@ -22,6 +22,7 @@ from uploads.google_signing_helpers import (
     generate_upload_signed_url_v4,
     generate_download_signed_url_v4,
 )
+
 LOGGER = logging.getLogger(__name__)
 BUCKET_NAME = "easytensor-model-uploads"
 
@@ -133,10 +134,11 @@ class ModelViewSet(viewsets.ModelViewSet):
                 models = models.filter(owner=owner)
             else:
                 return get_access_forbidden_response()
-        if request.user.is_staff:
-            models = Model.objects.all()
         else:
-            models = models.filter(owner=request.user.id)
+            if request.user.is_staff:
+                models = Model.objects.all()
+            else:
+                models = models.filter(owner=request.user.id)
 
         serializer = ModelSerializer(models, many=True)
         return Response(serializer.data)

@@ -1,8 +1,7 @@
 #! /usr/bin/env python3
 from django.db.migrations.recorder import MigrationRecorder
 
-last_migration = MigrationRecorder.Migration.objects.filter(
-    app="uploads").latest('id')
+last_migration = MigrationRecorder.Migration.objects.filter(app="uploads").latest("id")
 
 with open("/app/uploads/migrations/LATEST_MIGRATION.txt") as fin:
     required_migration = fin.read().strip()

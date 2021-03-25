@@ -1,5 +1,6 @@
 import os
 
+
 def get_env_var(var_name, var_type=None):
     """
     Gets an environment variable name or raises an exception
@@ -26,3 +27,4 @@ MODELS_URL = f"{BACKEND_SERVICE_URL}/v1/models/"
 AUTH_URL = f"{BACKEND_SERVICE_URL}/v1/dj-rest-auth/login/"
 NAMESPACE = get_env_var("CONTROLLED_NAMESPACE")
 BABYSITTER_IMAGE = get_env_var("BABYSITTER_IMAGE")
+PYTORCH_SERVE_IMAGE = get_env_var("PYTORCH_SERVE_IMAGE")

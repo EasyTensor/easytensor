@@ -41,6 +41,12 @@ build:
     - image: easytensor/query
       context: query
       docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        infer: ["**/*"]
+    - image: easytensor/pytorch_serve
+      context: model_server/pytorch
+      docker:
         dockerfile: Dockerfile
 deploy:
   kustomize:

@@ -39,6 +39,7 @@ from controller.config import (
     AUTH_URL,
     NAMESPACE,
     BABYSITTER_IMAGE,
+    PYTORCH_SERVE_IMAGE,
 )
 
 
@@ -94,8 +95,8 @@ class ExpiredTokenError(Exception):
 
 
 class ModelFramework(Enum):
-    TENSORFLOW = "TENSORFLOW"
-    PYTORCH = "PYTORCH"
+    TENSORFLOW = "tensorflow"
+    PYTORCH = "pytorch"
 
 
 class Model:
@@ -109,6 +110,7 @@ class Model:
         framework: ModelFramework,
         deployment_config=None,
     ):
+        assert isinstance(framework, ModelFramework)
         self.id = id
         self.size = size
         self.address = address
@@ -156,7 +158,14 @@ def get_labels_from_model(model: Model) -> dict:
 
 
 def get_deployment_name_from_model(model: Model):
-    return f"model.serve.tf.{model.id}"
+    return f"model.serve.{model.id}"
+
+
+def get_model_framework_from_label(framework_label):
+    return {
+        "tensorflow": ModelFramework.TENSORFLOW,
+        "pytorch": ModelFramework.PYTORCH,
+    }[framework_label]
 
 
 # TODO: remove these if i dont end up using them
@@ -174,29 +183,24 @@ def get_model_name_from_deployment(deployemnt_name: str):
 
 
 def get_service_name_from_model(model: Model) -> str:
-    return f"model-serve-tf-{model.id}"
-
-
-# TODO: remove these if i dont end up using them
-def get_model_name_from_service(service_name: str):
-    """
-    works in tandem with get_service_name_from_model.
-    assuumes model-serve-tf-{model.id}
-    """
-    strs = service_name.rsplit("-")
-    if str is []:
-        raise ServiceNameParseException(f"could not read deployment {service_name}")
-    return str(strs[3:])
+    return f"model-serve-{model.id}"
 
 
 def get_service_ports_for_model(model: Model) -> List[client.V1ServicePort]:
     """
     TODO: add difference based on pytorch vs tensorflow
     """
-    return [
-        client.V1ServicePort(name="http", port=8501),
-        client.V1ServicePort(name="grpc", port=8500),
-    ]
+    if model.framework == ModelFramework.TENSORFLOW:
+        return [
+            client.V1ServicePort(name="http", port=8501),
+            client.V1ServicePort(name="grpc", port=8500),
+        ]
+    elif model.framework == ModelFramework.PYTORCH:
+        return [
+            client.V1ServicePort(name="http", port=8090),
+        ]
+    else:
+        raise BaseException("Unknown model framework.")
 
 
 def create_service_object(model: Model):
@@ -266,14 +270,14 @@ def get_server_container(model: Model) -> client.V1Container:
                     name="model-dir", mount_path="/models/", read_only=False
                 )
             ],
+            image_pull_policy="IfNotPresent",
         )
     else:
         return client.V1Container(
             name="pytorch-serve",
-            image="pytorch/torchserve:0.3.0-cpu",
+            image=PYTORCH_SERVE_IMAGE,
             ports=[
-                client.V1ContainerPort(container_port=8080),
-                # client.V1ContainerPort(container_port=8501),
+                client.V1ContainerPort(container_port=8090),
             ],
             resources=client.V1ResourceRequirements(
                 requests={"cpu": "100m", "memory": f"{get_memory_request(model)}"},
@@ -281,26 +285,11 @@ def get_server_container(model: Model) -> client.V1Container:
             ),
             volume_mounts=[
                 client.V1VolumeMount(
-                    name="model-dir", mount_path="/home/model-server/model-store/", read_only=False
+                    name="model-dir", mount_path="/models/", read_only=False
                 )
             ],
+            image_pull_policy="IfNotPresent",
         )
-
-
-def get_server_mounts(model: Model) -> List[client.V1VolumeMount]:
-    """
-    Returns the volume mounts for the server. Each framework might expect
-    the models on a different path.
-    """
-    return [
-        client.V1VolumeMount(
-            name="model-dir",
-            mount_path="/models/"
-            if model.framework == ModelFramework.TENSORFLOW
-            else "/home/model-server/model-store",
-            read_only=False,
-        )
-    ]
 
 
 def create_deployment_object(model: Model):
@@ -317,12 +306,16 @@ def create_deployment_object(model: Model):
             requests={"cpu": "100m", "memory": f"100Mi"},
             limits={"cpu": "100m", "memory": f"100Mi"},
         ),
-        volume_mounts=get_server_mounts(model),
+        volume_mounts=[
+            client.V1VolumeMount(
+                name="model-dir",
+                mount_path="/models/",
+                read_only=False,
+            )
+        ],
         env=[
             client.V1EnvVar(name="MODEL_ID", value=model.id),
-            client.V1EnvVar(
-                "MODEL_TYPE", value=get_framework_label_from_model(model)
-            ),
+            client.V1EnvVar("MODEL_TYPE", value=get_framework_label_from_model(model)),
         ],
         env_from=[
             client.V1EnvFromSource(
@@ -347,13 +340,7 @@ def create_deployment_object(model: Model):
     spec = client.V1DeploymentSpec(
         replicas=model.scale,
         template=template,
-        selector={
-            "matchLabels": {
-                "type": "model-server",
-                "framework": "tensorflow",
-                "model-address": model.address,
-            }
-        },
+        selector={"matchLabels": get_labels_from_model(model)},
     )
     # Instantiate the deployment object
     deployment = client.V1Deployment(
@@ -441,7 +428,9 @@ def get_deployed_model_list():
             Model(
                 id=dep.metadata.labels.get("model-id"),
                 address=dep.metadata.labels.get("model-address"),
-                framework=dep.metadata.labels.get("model-address"),
+                framework=get_model_framework_from_label(
+                    dep.metadata.labels.get("framework")
+                ),
                 size=0,
                 scale=dep.spec.replicas,
                 deployment_config=dep,
@@ -461,7 +450,9 @@ def get_serviced_model_list():
             Model(
                 id=svc.metadata.labels.get("model-id"),
                 address=svc.metadata.labels.get("model-address"),
-                framework=None,
+                framework=get_model_framework_from_label(
+                    svc.metadata.labels.get("framework")
+                ),
                 size=0,
                 scale=0,
                 deployment_config=svc,
@@ -507,8 +498,8 @@ def correct_deployments(ideal_models: list[Model], deployed_models: list[Model])
     to_delete = [m for m in deployed_models if m not in ideal_models]
     to_create = [m for m in ideal_models if m not in deployed_models]
     to_edit = [m for m in deployed_models if m not in to_delete and m not in to_create]
-    delete_model_deployments(to_delete)
     create_model_deployments(to_create)
+    delete_model_deployments(to_delete)
     edit_models(to_edit, ideal_models)
 
 

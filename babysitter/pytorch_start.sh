@@ -1,4 +1,4 @@
-#! /bin/env bash
+#! /usr/bin/env bash
 # NOTE: we need to unzip the files in a temp directory first before placing
 # it in /models/model because Tensorflow Serving will pick up new files
 # immediately and will complain about files missing if the decompression takes
@@ -10,15 +10,44 @@ imdone() {
     sleep infinity
 }
 
-
-place_model() {
-    # Expects the models to be extracted in ~/model
-    echo "placing model"
-        rm -rf ~/model-store/*
-        mv ~/model ~/model-store/
+extract_model() {
+    # Extracts the model and places it in /models/tmp/
+    echo "Uncompressing the model"
+    echo "Trying to unzip"
+    mkdir /models/tmp/
+    if ! unzip model -d /models/tmp/; then
+        echo "Unzipping failed."
+        rm -rf /models/tmp
+    else
+        echo "Unzipping worked!"
+        return
     fi
+
+    echo "Trying to untar"
+    mkdir /models/tmp/
+    if ! tar -xzvf model -C /models/tmp/; then
+            echo "Untarring failed."
+        rm -rf /models/tmp
+    else
+        echo "Untarring worked!"
+        return
+    fi
+    echo "I ran out of ways to uncompress your file :( "
+    exit 1
 }
 
+place_model() {
+    # Expects the models to be extracted in /models/tmp/
+    echo "placing model"
+    if [[ $(ls /models/tmp/ | wc -l) -gt 1 ]]; then
+        rm -rf /models/model
+        mkdir -p /models/model
+        mv /models/tmp/* /models/model/
+    else
+        rm -rf /models/model
+        mv /models/tmp /models/model
+    fi
+}
 # authentication
 # TODO: change this to an access token
 echo "Authenticating"

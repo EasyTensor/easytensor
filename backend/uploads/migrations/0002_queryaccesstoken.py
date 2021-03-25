@@ -8,17 +8,30 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('uploads', '0001_initial'),
+        ("uploads", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='QueryAccessToken',
+            name="QueryAccessToken",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('udpated_at', models.DateTimeField(auto_now=True)),
-                ('model', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='uploads.model')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("udpated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "model",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="uploads.model"
+                    ),
+                ),
             ],
         ),
     ]
