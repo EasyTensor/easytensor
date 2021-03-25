@@ -10,6 +10,7 @@ import Grid from "@material-ui/core/Grid";
 import Card from "@material-ui/core/Card";
 import Paper from "@material-ui/core/Paper";
 import TfIcon from "./images/tf_icon.png"
+import PyTorchIcon from "./images/pytorch_icon.png"
 import { CleanLink } from "./link";
 import {
   GetModels,
@@ -45,7 +46,7 @@ function getModelFrameworkIcon(model) {
         ),
         PT: (
           <ToolTip title="PyTorch model" >
-            <img src={TfIcon} style={{ width: "20px", height: "20px" }} />
+            <img src={PyTorchIcon} style={{ width: "20px", height: "20px" }} />
           </ToolTip>
         ),
       }[model.framework]
