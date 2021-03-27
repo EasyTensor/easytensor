@@ -11,7 +11,7 @@ const uppy = new Uppy({
   restrictions: {
     maxNumberOfFiles: 1,
     allowedFileTypes: [".7z", ".zip", ".gz", ".mar"],
-    maxFileSize: 1024*1024*250 //250 MB
+    maxFileSize: 1024 * 1024 * 250 //250 MB
   },
   autoProceed: false,
 });
@@ -49,22 +49,21 @@ uppy.on("file-added", (file) => {
   file.name = uuidv4();
 });
 
-function UploadDashboard({onSuccess}) {
+function UploadDashboard({ onSuccess }) {
 
   uppy.on("upload-success", (file, response) => {
     onSuccess(file);
   });
-  
+
   return (
-    <div style={{ display: "flex", justifyContent: "center" }}>
-      <Dashboard
-        uppy={uppy}
-        width={500}
-        height={300}
-        showProgressDetails={true}
-        theme="auto"
-      />
-    </div>
+    <Dashboard
+      uppy={uppy}
+      inline={true}
+      width="100%"
+      height={200}
+      showProgressDetails={true}
+      theme="auto"
+    />
   );
 }
 export { UploadDashboard };
