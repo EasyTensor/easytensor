@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('uploads', '0002_queryaccesstoken'),
+        ("uploads", "0002_queryaccesstoken"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='model',
-            name='framework',
-            field=models.CharField(choices=[('TF', 'Tensorflow'), ('PT', 'PyTorch')], default='TF', max_length=2),
+            model_name="model",
+            name="framework",
+            field=models.CharField(
+                choices=[("TF", "Tensorflow"), ("PT", "PyTorch")],
+                default="TF",
+                max_length=2,
+            ),
         ),
     ]

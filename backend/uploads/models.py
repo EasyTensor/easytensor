@@ -8,11 +8,13 @@ FRAMEWORK_CHOICES = [
     ("TF", "Tensorflow"),
     ("PT", "PyTorch"),
 ]
-DEFAULT_FRAMEWORK_CHOICE = "TF" # Tensorflow
+DEFAULT_FRAMEWORK_CHOICE = "TF"  # Tensorflow
+
 
 class Tag(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=128, blank=False, null=False)
+
 
 class Model(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -52,6 +54,5 @@ class QueryAccessToken(models.Model):
 
 def user_has_model_access(user: User, model: Model):
     return any(
-        model.owner == user,
-        model in Team.objects.filter(users__contain=user).models
+        model.owner == user, model in Team.objects.filter(users__contain=user).models
     )

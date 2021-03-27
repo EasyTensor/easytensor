@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Typography from "@material-ui/core/Typography";
-import { Delete, Add, CloudDownload, Link, Error, Loop, FiberManualRecord } from "@material-ui/icons";
+import { Delete, Add, CloudDownload, Link } from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
 import Fab from "@material-ui/core/Fab";
 
@@ -9,10 +9,9 @@ import ToolTip from "@material-ui/core/Tooltip";
 import Grid from "@material-ui/core/Grid";
 import Card from "@material-ui/core/Card";
 import Paper from "@material-ui/core/Paper";
-import { green, yellow, red, grey } from '@material-ui/core/colors';
 import TfIcon from "./images/tf_icon.png"
+import PyTorchIcon from "./images/pytorch_icon.png"
 import { CleanLink } from "./link";
-import Tooltip from "@material-ui/core/Tooltip";
 import {
   GetModels,
   PatchModel,
@@ -25,6 +24,7 @@ import Switch from "@material-ui/core/Switch";
 import { QueryModal } from "./query_modal";
 import Dialog from "@material-ui/core/Dialog";
 import {EditableText} from "./editable_text";
+import {ModelStatusIndicator} from "./model_utils"
 
 function DeleteAll() {
   function delete_models() {
@@ -46,7 +46,7 @@ function getModelFrameworkIcon(model) {
         ),
         PT: (
           <ToolTip title="PyTorch model" >
-            <img src={TfIcon} style={{ width: "20px", height: "20px" }} />
+            <img src={PyTorchIcon} style={{ width: "20px", height: "20px" }} />
           </ToolTip>
         ),
       }[model.framework]
@@ -55,28 +55,11 @@ function getModelFrameworkIcon(model) {
 }
 
 
-function getModelStatusIndicator(status) {
-  return (
-    <div style={{ paddingLeft: ".25em", paddingRight: ".25em" }}>
-      <ToolTip title={"Model deployment is " + status}>
-        {
-          {
-            "Ready": <FiberManualRecord style={{ color: green[500] }} />,
-            "Not Ready": <FiberManualRecord style={{ color: yellow[500] }} />,
-            "Failed": <Error style={{ color: red[500] }} />,
-            "Not Deployed": <FiberManualRecord style={{ color: grey[700] }} />,
-            "Retrieving...": <Loop />,
-          }[status]
-        }
-      </ToolTip>
-    </div>
-  )
-}
 
 function getModelIDCopyLink(model_id) {
   return (
     <div style={{ paddingLeft: ".25em", paddingRight: ".25em" }}>
-      <ToolTip title={"Copy Model ID"}>
+      <ToolTip title={"Copy Model ID. "+model_id}>
         <Link
           onClick={(e) => { navigator.clipboard.writeText(model_id); }}
           style={{ cursor: "pointer" }}
@@ -122,6 +105,7 @@ function Model({ model, onDelete }) {
   // const scale = model.scale;
   const [isDeployed, setDeployed] = useState(model.deployed);
   const [status, setStatus] = useState("Retrieving...");
+  const [deploymentMsg, setDeploymentMsg] = useState("");
 
   useEffect(() => {
     GetModelStatus(id).then((resp) => {
@@ -129,8 +113,8 @@ function Model({ model, onDelete }) {
         console.log("could not fetch model status");
         console.log(resp.data);
       }
-      console.log("for model", id, resp.data);
       setStatus(resp.data.status);
+      setDeploymentMsg(resp.data.message);
     });
   });
 
@@ -220,7 +204,7 @@ function Model({ model, onDelete }) {
         </div>
         <div style={{ alignItems: "end", display: "flex" }}>
           {getModelFrameworkIcon(model)}
-          {getModelStatusIndicator(status)}
+          <ModelStatusIndicator statusInd={status} deploymentMsg={deploymentMsg}/>
           {getModelIDCopyLink(model.id)}
           <Typography style={{ "paddingLeft": ".25em", "paddingRight": ".25em" }}>{model.public ? "Public" : "Private"}</Typography>
           <Typography style={{ "paddingLeft": ".25em", "paddingRight": ".25em" }}>{Math.round(size / 1024 / 1024) < 1
@@ -295,11 +279,12 @@ function ModelList() {
     return <EmptyModelList />;
   }
 
+  const ModelsGridItems = models.map((model) => (
+    <Model model={model} onDelete={onModelDelete} key={model.id}/>
+  ))
   return (
     <Grid container spacing={2}>
-      {models.map((model) => (
-        <Model model={model} onDelete={onModelDelete} />
-      ))}
+      {ModelsGridItems}
     </Grid>
   );
 }
@@ -308,7 +293,7 @@ function ModelPage() {
     <div style={{ width: "80%" }}>
       <ModelList />
       <CleanLink to="/">
-        <Tooltip title="Add Model">
+        <ToolTip title="Add Model">
           <Fab
             style={{
               position: "fixed",
@@ -320,7 +305,7 @@ function ModelPage() {
           >
             <Add />
           </Fab>
-        </Tooltip>
+        </ToolTip>
       </CleanLink>
     </div>
   );

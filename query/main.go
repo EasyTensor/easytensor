@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
+	"net"
 	"net/http"
 	"os"
 	"time"
@@ -16,17 +16,18 @@ import (
 
 // var models = map[string]Model{}
 
-// type Model struct {
-// 	Name    string
-// 	Id      string
-// 	Address string
-// }
+type Model struct {
+	Name      string
+	Id        string
+	Address   string
+	Framework string
+}
 
 var accessToken string
 var refreshToken string
 
 type QueryAccessToken struct {
-	ID    string
+	Id    string
 	Model string
 }
 
@@ -36,6 +37,7 @@ type AuthReturn struct {
 }
 
 var tokensMap = map[string]string{}
+var modelMap = map[string]Model{}
 var consecutiveFailure int64 = 0
 var isInitialized bool = false
 
@@ -43,16 +45,38 @@ type Output struct {
 	Predictions []float64
 }
 
-func getModelAddressFromModelID(modelID string) string {
-	return fmt.Sprintf("http://model-serve-tf-%s:8501/v1/models/model:predict", modelID)
+func getModelQueryURL(model Model) string {
+	predictPath := map[string]string{
+		"TF": "v1/models/model:predict",
+		"PT": "predict",
+	}[model.Framework]
+	queryPort := map[string]string{
+		"TF": "8501",
+		"PT": "8090",
+	}[model.Framework]
+	return fmt.Sprintf("http://model-serve-%s:%s/%s", model.Id, queryPort, predictPath)
 }
 
-func query(body []byte, headers http.Header, modelID string) interface{} {
-	url := getModelAddressFromModelID(modelID)
-	final := bytes.NewBuffer(body)
-	client := &http.Client{}
+func query(c *gin.Context, headers http.Header, model Model) (interface{}, bool) {
+	url := getModelQueryURL(model)
+	final := c.Request.Body
+	client := &http.Client{
+		Transport: &http.Transport{
+			Dial: (&net.Dialer{
+				Timeout:   60 * time.Second,
+				KeepAlive: 30 * time.Second,
+			}).Dial,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ResponseHeaderTimeout: 10 * time.Second,
+			ExpectContinueTimeout: 1 * time.Second,
+			DialContext: (&net.Dialer{
+				Timeout:   60 * time.Second,
+				KeepAlive: 30 * time.Second,
+			}).DialContext,
+		},
+	}
 
-	req, err := http.NewRequest("POST", url, final)
+	req, _ := http.NewRequest("POST", url, final)
 	for key, value := range headers {
 		req.Header.Add(key, value[0])
 	}
@@ -60,28 +84,29 @@ func query(body []byte, headers http.Header, modelID string) interface{} {
 	// ...
 	// resp, err := http.Post(url, "application/json", final)
 	if err != nil {
-		fmt.Println("error with quering the model")
-		log.Fatal(err)
-		return nil
+		fmt.Println("fatal error with quering the model")
+		fmt.Println(err)
+		return gin.H{"msg": "fatal error with quering the model"}, false
 	}
 	dec := json.NewDecoder(resp.Body)
 	var output map[string]interface{}
 	for {
-		// var model Model
 		if err := dec.Decode(&output); err == io.EOF {
 			break
 		} else if err != nil {
-			fmt.Println("fatal error")
-			log.Fatal(err)
+			fmt.Println("fatal error parsing prediction response")
+			fmt.Println(err)
+			return gin.H{"msg": "fatal error parsing prediction response"}, false
 		}
 	}
 
-	return &output
+	return &output, true
 }
 
 func checkAccessTokens() {
 	for {
 		refreshModelTokens()
+		refreshModelList()
 		if consecutiveFailure > 5 {
 			fmt.Println("5 consecutive failures contacting the backend service. Service is unhealthy.")
 		}
@@ -105,6 +130,7 @@ func main() {
 	// Intitial setup, block before strating
 	authenticate()
 	refreshModelTokens()
+	refreshModelList()
 	isInitialized = true
 
 	go checkAccessTokens()
@@ -124,12 +150,18 @@ func main() {
 		accessToken := c.GetHeader("accessToken")
 		modelID, ok := tokensMap[accessToken]
 		if !ok {
-			c.JSON(404, gin.H{"error": "model not found"})
+			c.JSON(404, gin.H{"error": "Access token not found"})
 		}
-		queryBody, _ := c.GetRawData()
-		// fmt.Printf("header %+v \n", c.Request.Header)
-		output := query(queryBody, c.Request.Header, modelID)
-
+		model, ok := modelMap[modelID]
+		if !ok {
+			c.JSON(404, gin.H{"error": "Model not found"})
+			return
+		}
+		output, ok := query(c, c.Request.Header, model)
+		if !ok {
+			c.JSON(400, output)
+			return
+		}
 		c.JSON(200, output)
 	})
 	r.GET("/refresh_models/", func(c *gin.Context) {
@@ -139,6 +171,13 @@ func main() {
 	// TODO: make sure this is only available for admins/in cluster
 	r.GET("/get_tokens/", func(c *gin.Context) {
 		c.JSON(200, tokensMap)
+	})
+	r.GET("/sleep/", func(c *gin.Context) {
+		time.Sleep(time.Second * 120)
+		c.JSON(200, gin.H{"hi": "bye"})
+	})
+	r.GET("/get_models/", func(c *gin.Context) {
+		c.JSON(200, modelMap)
 	})
 	r.GET("/health_check/liveness/", func(c *gin.Context) {
 		if consecutiveFailure > 5 {
@@ -157,6 +196,38 @@ func main() {
 		}
 	})
 	r.Run()
+}
+
+func refreshModelList() {
+	var accessTokensURL = fmt.Sprintf("%s/v1/models/", getBackendURL())
+	client := &http.Client{}
+
+	req, _ := http.NewRequest("GET", accessTokensURL, nil)
+	var bearer = "Bearer " + accessToken
+	req.Header.Add("Authorization", bearer)
+	response, _ := client.Do(req)
+
+	var fetchedModels []Model
+	defer response.Body.Close()
+	dec := json.NewDecoder(response.Body)
+
+	for {
+		// var model Model
+		if err := dec.Decode(&fetchedModels); err == io.EOF {
+			break
+		} else if err != nil {
+			fmt.Println("Could not decode token list, skipping update of token map.", err)
+			consecutiveFailure++
+			return
+		}
+	}
+
+	var newModelMap = map[string]Model{}
+	for _, model := range fetchedModels {
+		newModelMap[model.Id] = model
+	}
+	modelMap = newModelMap
+	consecutiveFailure = 0
 }
 
 func refreshModelTokens() {
@@ -185,7 +256,7 @@ func refreshModelTokens() {
 
 	var newTokensMap = map[string]string{}
 	for _, token := range fetchedTokens {
-		newTokensMap[token.ID] = token.Model
+		newTokensMap[token.Id] = token.Model
 	}
 	tokensMap = newTokensMap
 	consecutiveFailure = 0

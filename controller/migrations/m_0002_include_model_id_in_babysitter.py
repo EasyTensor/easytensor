@@ -39,9 +39,9 @@ def include_model_id_in_babysitter_env():
                                     "env": [
                                         {
                                             "name": "MODEL_ID",
-                                            "value": dep.metadata.labels["model-id"]
+                                            "value": dep.metadata.labels["model-id"],
                                         }
-                                    ]
+                                    ],
                                 }
                             ]
                         }

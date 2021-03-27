@@ -86,3 +86,76 @@ spec:
   resources:
     requests:
       storage: 5Gi
+---
+# Optional model server for iteration
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   annotations:
+#   labels:
+#     framework: pytorch
+#     model-address: 516df869-0134-47a4-b1d6-1b0e4400ff16
+#     model-id: cfe0ed6a-b0ef-472c-aaa5-ef90dbd1f856
+#     type: model-server
+#   name: model.serve.cfe0ed6a-b0ef-472c-aaa5-ef90dbd1f856-5f848c4b7s784p
+# spec:
+#   progressDeadlineSeconds: 600
+#   replicas: 1
+#   revisionHistoryLimit: 10
+#   selector:
+#     matchLabels:
+#       framework: pytorch
+#       model-address: 516df869-0134-47a4-b1d6-1b0e4400ff16
+#       model-id: cfe0ed6a-b0ef-472c-aaa5-ef90dbd1f856
+#       type: model-server
+#   template:
+#     metadata:
+#       labels:
+#         framework: pytorch
+#         model-address: 516df869-0134-47a4-b1d6-1b0e4400ff16
+#         model-id: cfe0ed6a-b0ef-472c-aaa5-ef90dbd1f856
+#         type: model-server
+#     spec:
+#       containers:
+#       - image: easytensor/pytorch_serve
+#         imagePullPolicy: IfNotPresent
+#         name: pytorch-serve
+#         ports:
+#         - containerPort: 8080
+#           protocol: TCP
+#         resources:
+#           limits:
+#             cpu: 100m
+#             memory: 1045Mi
+#           requests:
+#             cpu: 100m
+#             memory: 31Mi
+#         volumeMounts:
+#         - mountPath: /models/
+#           name: model-dir
+#       - env:
+#         - name: MODEL_ID
+#           value: cfe0ed6a-b0ef-472c-aaa5-ef90dbd1f856
+#         - name: MODEL_TYPE
+#           value: pytorch
+#         envFrom:
+#         - configMapRef:
+#             name: mesh-account-cred
+#         - configMapRef:
+#             name: service-routing
+#         image: easytensor/babysitter
+#         imagePullPolicy: IfNotPresent
+#         name: babysitter
+#         resources:
+#           limits:
+#             cpu: 100m
+#             memory: 100Mi
+#           requests:
+#             cpu: 100m
+#             memory: 100Mi
+#         volumeMounts:
+#         - mountPath: /models/
+#           name: model-dir
+#       volumes:
+#       - emptyDir: {}
+#         name: model-dir

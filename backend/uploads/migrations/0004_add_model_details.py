@@ -7,30 +7,38 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('uploads', '0003_model_framework'),
+        ("uploads", "0003_model_framework"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Tag',
+            name="Tag",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=128)),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("name", models.CharField(max_length=128)),
             ],
         ),
         migrations.AddField(
-            model_name='model',
-            name='description',
-            field=models.CharField(blank=True, default='', max_length=256),
+            model_name="model",
+            name="description",
+            field=models.CharField(blank=True, default="", max_length=256),
         ),
         migrations.AddField(
-            model_name='model',
-            name='public',
+            model_name="model",
+            name="public",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='model',
-            name='tags',
-            field=models.ManyToManyField(to='uploads.Tag'),
+            model_name="model",
+            name="tags",
+            field=models.ManyToManyField(to="uploads.Tag"),
         ),
     ]

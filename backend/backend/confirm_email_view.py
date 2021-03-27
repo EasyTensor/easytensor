@@ -6,8 +6,6 @@ from django.conf import settings
 
 
 class ConfirmEmailView(View):
-
-
     def get(self, *args, **kwargs):
         return self.post(*args, **kwargs)
 

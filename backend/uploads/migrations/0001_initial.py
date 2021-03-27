@@ -16,32 +16,62 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Model',
+            name="Model",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=128)),
-                ('address', models.CharField(max_length=128)),
-                ('size', models.IntegerField(blank=True)),
-                ('scale', models.IntegerField(default=1)),
-                ('deployed', models.BooleanField(default=True)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("name", models.CharField(max_length=128)),
+                ("address", models.CharField(max_length=128)),
+                ("size", models.IntegerField(blank=True)),
+                ("scale", models.IntegerField(default=1)),
+                ("deployed", models.BooleanField(default=True)),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ModelUpload',
+            name="ModelUpload",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('original_name', models.CharField(max_length=64)),
-                ('upload_name', models.CharField(max_length=128)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("original_name", models.CharField(max_length=64)),
+                ("upload_name", models.CharField(max_length=128)),
             ],
         ),
         migrations.CreateModel(
-            name='Team',
+            name="Team",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=128)),
-                ('models', models.ManyToManyField(to='uploads.Model')),
-                ('users', models.ManyToManyField(to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("name", models.CharField(max_length=128)),
+                ("models", models.ManyToManyField(to="uploads.Model")),
+                ("users", models.ManyToManyField(to=settings.AUTH_USER_MODEL)),
             ],
         ),
     ]

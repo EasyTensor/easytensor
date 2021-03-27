@@ -31,7 +31,7 @@ build:
     - image: easytensor/reporter
       context: reporter
       docker:
-        dockerfile: Dockerfile
+        dockerfile: Dockerfile.dev
       sync:
         infer: ["**/*"]
     - image: easytensor/babysitter
@@ -40,6 +40,12 @@ build:
         dockerfile: Dockerfile
     - image: easytensor/query
       context: query
+      docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        infer: ["**/*"]
+    - image: easytensor/pytorch_serve
+      context: model_server/pytorch
       docker:
         dockerfile: Dockerfile
 deploy:

@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 set -e
 
-./wait-for-django-db.sh
+./wait_for_django_db.sh
 
 python3 manage.py makemigrations
 python3 manage.py migrate

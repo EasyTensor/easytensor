@@ -13,6 +13,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -106,6 +107,11 @@ func main() {
 		})
 	})
 	r.GET("/model-status/:model_id", func(c *gin.Context) {
+		const Ready = "READY"
+		const NotReady = "NOT_READY"
+		const Failed = "FAILED"
+		const NotDeployed = "NOT_DEPLOYED"
+
 		ModelID := c.Param("model_id")
 		JWT := c.GetHeader("Authorization")
 		fmt.Printf("JWT: %s\n", JWT)
@@ -114,7 +120,7 @@ func main() {
 				"message": "Unauthorized Access",
 			})
 		}
-		status := "Not Deployed"
+		status := NotDeployed
 		msg := "No such model is running."
 		for _, deployment := range getDeployments(ModelID).Items {
 			conditions := deployment.Status.Conditions
@@ -122,17 +128,27 @@ func main() {
 				continue
 			}
 			lastCondition := getLatestCondition(conditions)
+			fmt.Print(lastCondition)
 			if lastCondition.Type == appsv1.DeploymentAvailable {
-				status = "Ready"
-				msg = lastCondition.Reason
+				if lastCondition.Status == corev1.ConditionTrue {
+					status = Ready
+					msg = lastCondition.Reason
+				} else if lastCondition.Status == corev1.ConditionFalse {
+					status = NotReady
+					msg = lastCondition.Reason
+				} else if lastCondition.Status == corev1.ConditionUnknown {
+					status = NotReady
+					msg = lastCondition.Reason
+				} else {
+					panic("Unknown deployment status was encountered.")
+				}
 			} else if lastCondition.Type == appsv1.DeploymentProgressing {
-				status = "Not Ready"
+				status = NotReady
 				msg = lastCondition.Reason
 			} else if lastCondition.Type == appsv1.DeploymentReplicaFailure {
-				status = "Failed"
+				status = Failed
 				msg = lastCondition.Reason
 			}
-			// strconv.
 			fmt.Println(status)
 		}
 		fmt.Println("returning")

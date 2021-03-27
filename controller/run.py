@@ -15,6 +15,7 @@
 """
 Creates, updates, and deletes a deployment using AppsV1Api.
 """
+from enum import Enum
 import os
 from pathlib import Path
 
@@ -23,6 +24,7 @@ import json
 import logging
 from pprint import pformat
 from typing import Collection
+from aiohttp.tracing import TraceDnsResolveHostEndParams
 from kubernetes import client, config
 import aiohttp
 import asyncio
@@ -37,6 +39,7 @@ from controller.config import (
     AUTH_URL,
     NAMESPACE,
     BABYSITTER_IMAGE,
+    PYTORCH_SERVE_IMAGE,
 )
 
 
@@ -91,6 +94,11 @@ class ExpiredTokenError(Exception):
     """"""
 
 
+class ModelFramework(Enum):
+    TENSORFLOW = "tensorflow"
+    PYTORCH = "pytorch"
+
+
 class Model:
     def __init__(
         self,
@@ -99,9 +107,10 @@ class Model:
         address: str,
         size: int,
         scale: int,
-        framework: str,
+        framework: ModelFramework,
         deployment_config=None,
     ):
+        assert isinstance(framework, ModelFramework)
         self.id = id
         self.size = size
         self.address = address
@@ -134,7 +143,9 @@ class ServiceNameParseException(Exception):
 
 
 def get_framework_label_from_model(model: Model):
-    return {"TF": "tensorflow", "PT": "pytorch"}[model.framework]
+    return {ModelFramework.TENSORFLOW: "tensorflow", ModelFramework.PYTORCH: "pytorch"}[
+        model.framework
+    ]
 
 
 def get_labels_from_model(model: Model) -> dict:
@@ -147,7 +158,14 @@ def get_labels_from_model(model: Model) -> dict:
 
 
 def get_deployment_name_from_model(model: Model):
-    return f"model.serve.tf.{model.id}"
+    return f"model.serve.{model.id}"
+
+
+def get_model_framework_from_label(framework_label):
+    return {
+        "tensorflow": ModelFramework.TENSORFLOW,
+        "pytorch": ModelFramework.PYTORCH,
+    }[framework_label]
 
 
 # TODO: remove these if i dont end up using them
@@ -165,29 +183,24 @@ def get_model_name_from_deployment(deployemnt_name: str):
 
 
 def get_service_name_from_model(model: Model) -> str:
-    return f"model-serve-tf-{model.id}"
-
-
-# TODO: remove these if i dont end up using them
-def get_model_name_from_service(service_name: str):
-    """
-    works in tandem with get_service_name_from_model.
-    assuumes model-serve-tf-{model.id}
-    """
-    strs = service_name.rsplit("-")
-    if str is []:
-        raise ServiceNameParseException(f"could not read deployment {service_name}")
-    return str(strs[3:])
+    return f"model-serve-{model.id}"
 
 
 def get_service_ports_for_model(model: Model) -> List[client.V1ServicePort]:
     """
     TODO: add difference based on pytorch vs tensorflow
     """
-    return [
-        client.V1ServicePort(name="http", port=8501),
-        client.V1ServicePort(name="grpc", port=8500),
-    ]
+    if model.framework == ModelFramework.TENSORFLOW:
+        return [
+            client.V1ServicePort(name="http", port=8501),
+            client.V1ServicePort(name="grpc", port=8500),
+        ]
+    elif model.framework == ModelFramework.PYTORCH:
+        return [
+            client.V1ServicePort(name="http", port=8090),
+        ]
+    else:
+        raise BaseException("Unknown model framework.")
 
 
 def create_service_object(model: Model):
@@ -197,14 +210,16 @@ def create_service_object(model: Model):
     """
     service_name = get_service_name_from_model(model)
     service_spec = client.V1ServiceSpec(
-        selector=get_labels_from_model(model), ports=get_service_ports_for_model(model),
+        selector=get_labels_from_model(model),
+        ports=get_service_ports_for_model(model),
     )
     return client.V1Service(
         api_version="v1",
         kind="Service",
         spec=service_spec,
         metadata=client.V1ObjectMeta(
-            name=service_name, labels=get_labels_from_model(model),
+            name=service_name,
+            labels=get_labels_from_model(model),
         ),
     )
 
@@ -233,29 +248,56 @@ def create_service(service):
     LOGGER.debug("Service created. status='%s'" % str(api_response.status))
 
 
+def get_server_container(model: Model) -> client.V1Container:
+    """
+    Returns the correct serving container for a model.
+    e.g. Pytorch serve or tensorflow serving.
+    """
+    if model.framework == ModelFramework.TENSORFLOW:
+        return client.V1Container(
+            name="tf-serve",
+            image="tensorflow/serving:2.3.0",
+            ports=[
+                client.V1ContainerPort(container_port=8500),
+                client.V1ContainerPort(container_port=8501),
+            ],
+            resources=client.V1ResourceRequirements(
+                requests={"cpu": "100m", "memory": f"{get_memory_request(model)}"},
+                limits={"cpu": "100m", "memory": f"{get_memory_limit(model)}"},
+            ),
+            volume_mounts=[
+                client.V1VolumeMount(
+                    name="model-dir", mount_path="/models/", read_only=False
+                )
+            ],
+            image_pull_policy="IfNotPresent",
+        )
+    else:
+        return client.V1Container(
+            name="pytorch-serve",
+            image=PYTORCH_SERVE_IMAGE,
+            ports=[
+                client.V1ContainerPort(container_port=8090),
+            ],
+            resources=client.V1ResourceRequirements(
+                requests={"cpu": "100m", "memory": f"{get_memory_request(model)}"},
+                limits={"cpu": "100m", "memory": f"{get_memory_limit(model)}"},
+            ),
+            volume_mounts=[
+                client.V1VolumeMount(
+                    name="model-dir", mount_path="/models/", read_only=False
+                )
+            ],
+            image_pull_policy="IfNotPresent",
+        )
+
+
 def create_deployment_object(model: Model):
     deployment_name = get_deployment_name_from_model(model)
     shared_volume = client.V1Volume(
         name="model-dir", empty_dir=client.V1EmptyDirVolumeSource()
     )
-    # Configureate Pod template container
-    tf_serve_contaienr = client.V1Container(
-        name="tf-serve",
-        image="tensorflow/serving:2.3.0",
-        ports=[
-            client.V1ContainerPort(container_port=8500),
-            client.V1ContainerPort(container_port=8501),
-        ],
-        resources=client.V1ResourceRequirements(
-            requests={"cpu": "100m", "memory": f"{get_memory_request(model)}"},
-            limits={"cpu": "100m", "memory": f"{get_memory_limit(model)}"},
-        ),
-        volume_mounts=[
-            client.V1VolumeMount(
-                name="model-dir", mount_path="/models/", read_only=False
-            )
-        ],
-    )
+    model_server_container = get_server_container(model)
     babysitter_container = client.V1Container(
         name="babysitter",
         image=BABYSITTER_IMAGE,
@@ -266,14 +308,14 @@ def create_deployment_object(model: Model):
         ),
         volume_mounts=[
             client.V1VolumeMount(
-                name="model-dir", mount_path="/models/", read_only=False
+                name="model-dir",
+                mount_path="/models/",
+                read_only=False,
             )
         ],
         env=[
             client.V1EnvVar(name="MODEL_ID", value=model.id),
-            client.V1EnvVar(
-                "EXTRACT_MODEL", value=str(model.framework == "TF").lower()
-            ),
+            client.V1EnvVar("MODEL_TYPE", value=get_framework_label_from_model(model)),
         ],
         env_from=[
             client.V1EnvFromSource(
@@ -290,7 +332,7 @@ def create_deployment_object(model: Model):
     template = client.V1PodTemplateSpec(
         metadata=client.V1ObjectMeta(labels=get_labels_from_model(model)),
         spec=client.V1PodSpec(
-            containers=[tf_serve_contaienr, babysitter_container],
+            containers=[model_server_container, babysitter_container],
             volumes=[shared_volume],
         ),
     )
@@ -298,20 +340,15 @@ def create_deployment_object(model: Model):
     spec = client.V1DeploymentSpec(
         replicas=model.scale,
         template=template,
-        selector={
-            "matchLabels": {
-                "type": "model-server",
-                "framework": "tensorflow",
-                "model-address": model.address,
-            }
-        },
+        selector={"matchLabels": get_labels_from_model(model)},
     )
     # Instantiate the deployment object
     deployment = client.V1Deployment(
         api_version="apps/v1",
         kind="Deployment",
         metadata=client.V1ObjectMeta(
-            name=deployment_name, labels=get_labels_from_model(model),
+            name=deployment_name,
+            labels=get_labels_from_model(model),
         ),
         spec=spec,
     )
@@ -370,7 +407,9 @@ async def get_idea_model_state():
             address=model["address"],
             size=model["size"],
             scale=model["scale"],
-            framework=model["framework"],
+            framework=ModelFramework.PYTORCH
+            if model.get("framework", "") == "PT"
+            else ModelFramework.TENSORFLOW,
         )
         for model in model_list
         if model["deployed"]
@@ -389,7 +428,9 @@ def get_deployed_model_list():
             Model(
                 id=dep.metadata.labels.get("model-id"),
                 address=dep.metadata.labels.get("model-address"),
-                framework=dep.metadata.labels.get("model-address"),
+                framework=get_model_framework_from_label(
+                    dep.metadata.labels.get("framework")
+                ),
                 size=0,
                 scale=dep.spec.replicas,
                 deployment_config=dep,
@@ -409,7 +450,9 @@ def get_serviced_model_list():
             Model(
                 id=svc.metadata.labels.get("model-id"),
                 address=svc.metadata.labels.get("model-address"),
-                framework=None,
+                framework=get_model_framework_from_label(
+                    svc.metadata.labels.get("framework")
+                ),
                 size=0,
                 scale=0,
                 deployment_config=svc,
@@ -455,8 +498,8 @@ def correct_deployments(ideal_models: list[Model], deployed_models: list[Model])
     to_delete = [m for m in deployed_models if m not in ideal_models]
     to_create = [m for m in ideal_models if m not in deployed_models]
     to_edit = [m for m in deployed_models if m not in to_delete and m not in to_create]
-    delete_model_deployments(to_delete)
     create_model_deployments(to_create)
+    delete_model_deployments(to_delete)
     edit_models(to_edit, ideal_models)
 
 

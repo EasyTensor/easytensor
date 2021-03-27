@@ -17,4 +17,4 @@ class MigrationCheckTest(TestCase):
         with open(latest_migration_file) as fin:
             latest_required_migration = fin.read().strip()
 
-        self.assertIn(latest_required_migration+".py", os.listdir(migrations_folder))
+        self.assertIn(latest_required_migration + ".py", os.listdir(migrations_folder))
