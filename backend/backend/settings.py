@@ -38,31 +38,44 @@ def get_env_var(var_name, default=None):
     return var
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY_FILE = get_env_var("DJANGO_SECRET_FILE_PATH")
-with open(SECRET_KEY_FILE) as fin:
-    SECRET_KEY = fin.read()
-
-JWT_SECRET_FILE = get_env_var("JWT_SECRET_FILE_PATH")
-with open(JWT_SECRET_FILE) as fin:
-    JWT_SECRET = fin.read()
-
-
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=24),
-    "SIGNING_KEY": JWT_SECRET,
-}
 # SECURITY WARNING: don't run with debug turned on in production!
-DEPLOYMENT_ENV = get_env_var("DEPLOYMENT_ENV", default="PROD")
+DEPLOYMENT_ENV = os.getenv("DEPLOYMENT_ENV", default="PROD")
 DEBUG = True if DEPLOYMENT_ENV == "DEV" else False
 EMAIL_BACKEND = (
     "django.core.mail.backends.console.EmailBackend"
     if DEPLOYMENT_ENV == "DEV"
     else "django.core.mail.backends.smtp.EmailBackend"
 )
+
+
+def is_in_dev():
+    return DEPLOYMENT_ENV == "DEV"
+
+
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
+
+# SECURITY WARNING: keep the secret key used in production secret!
+if is_in_dev():
+    SECRET_KEY = "dev"
+    JWT_SECRET = "dev"
+else:
+    SECRET_KEY_FILE = get_env_var("DJANGO_SECRET_FILE_PATH")
+    with open(SECRET_KEY_FILE) as fin:
+        SECRET_KEY = fin.read()
+
+    JWT_SECRET_FILE = get_env_var("JWT_SECRET_FILE_PATH")
+    with open(JWT_SECRET_FILE) as fin:
+        JWT_SECRET = fin.read()
+
+
+STRIPE_API_KEY = get_env_var("STRIPE_API_KEY")
+
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=24),
+    "SIGNING_KEY": JWT_SECRET,
+}
 
 # authentication settings
 REST_USE_JWT = True
@@ -80,7 +93,7 @@ FRONTEND_REDIRECT_URL = get_env_var("FRONTEND_REDIRECT_URL")
 #  Email setup
 EMAIL_HOST = get_env_var("EMAIL_SERVER")
 EMAIL_PORT = get_env_var("EMAIL_PORT")
-EMAIL_HOST_USER = get_env_var("EMAI_USER")
+EMAIL_HOST_USER = get_env_var("EMAIL_USER")
 EMAIL_HOST_PASSWORD = get_env_var("EMAIL_PASSWORD")
 EMAIL_USE_TLS = True
 

@@ -29,7 +29,7 @@ rm database-secret.yaml
 kubectl create secret generic email-properties \
   --from-file=EMAIL_SERVER=k8s/prod/secrets/email-server-secret \
   --from-file=EMAIL_PORT=k8s/prod/secrets/email-port-secret \
-  --from-file=EMAI_USER=k8s/prod/secrets/email-user-secret \
+  --from-file=EMAIL_USER=k8s/prod/secrets/email-user-secret \
   --from-file=EMAIL_PASSWORD=k8s/prod/secrets/email-password-secret \
   -o yaml --dry-run=client -n prod > email-secret.yaml
 kubeseal -o yaml <email-secret.yaml >k8s/prod/secrets/sealed-email-secret.yaml

@@ -18,6 +18,7 @@ import { AccountPage } from "./account_page";
 import { ExplorePage } from "./explore"
 
 import Box from "@material-ui/core/Box";
+import { PricingPage } from "./pricing";
 
 const theme = createMuiTheme({
   palette: {
@@ -83,6 +84,9 @@ function App() {
                 <ModelPage />
               </PrivateRoute>
 
+              <PrivateRoute path="/pricing">
+                <PricingPage />
+              </PrivateRoute>
               <PrivateRoute path="/account">
                 <AccountPage />
               </PrivateRoute>

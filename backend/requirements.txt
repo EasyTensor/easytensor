@@ -6,3 +6,4 @@ djangorestframework-simplejwt ~= 4.3
 dj-rest-auth[with_social] ~= 1.1.2
 psycopg2 ~=2.8
 drf-yasg ~= 1.2
+stripe ~= 2.56.0
