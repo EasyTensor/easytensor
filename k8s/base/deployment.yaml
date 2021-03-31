@@ -85,6 +85,8 @@ spec:
                 name: service-routing
             - secretRef:
                 name: email-properties
+            - secretRef:
+                name: stripe-properties
       volumes:
         - name: gsa
           secret:

@@ -16,6 +16,7 @@ resources:
 - secrets/sealed-database-secret.yaml
 - secrets/sealed-google-SA-secret.yaml
 - secrets/sealed-email-secret.yaml
+- secrets/sealed-stripe-secret.yaml
 - ingress.yaml
 
 patchesStrategicMerge:

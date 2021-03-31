@@ -35,6 +35,13 @@ kubectl create secret generic email-properties \
 kubeseal -o yaml <email-secret.yaml >k8s/prod/secrets/sealed-email-secret.yaml
 rm email-secret.yaml
 
+# stripe secret
+kubectl create secret generic stripe-properties \
+  --from-file=STRIPE_API_KEY=k8s/prod/secrets/stripe-secret \
+  -o yaml --dry-run=client -n prod > stripe-secret.yaml
+kubeseal -o yaml <stripe-secret.yaml >k8s/prod/secrets/sealed-stripe-secret.yaml
+rm stripe-secret.yaml
+
 # Assumes google-SA-secret.txt has been downloaded to k8s/dev/google-SA-secret.txt
 GOOGLE_SECRET_FILE="k8s/dev/google-SA-secret.txt"
 if [ ! -f "${GOOGLE_SECRET_FILE}" ]; then

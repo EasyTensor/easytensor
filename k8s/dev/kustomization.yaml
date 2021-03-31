@@ -47,6 +47,9 @@ secretGenerator:
 - name: email-properties
   envs: 
   - email.properties
+- name: stripe-properties
+  envs:
+  - stripe.properties
 
 generatorOptions:
   disableNameSuffixHash: true
