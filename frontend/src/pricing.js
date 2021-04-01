@@ -21,12 +21,12 @@ import { useHistory, useLocation } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { CleanLink } from "./link";
 export const STRIPE_API_KEY = `${process.env.REACT_APP_STRIPE_PUBLIC_KEY}`;
+export const IN_DEV = `${process.env.IN_DEV}`;
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
 
-const is_testing = true;
 const test_prices = [
   "price_1IXsO9DCzbZohuMOL3T4bbq8",
   "price_1IalnGDCzbZohuMOkizlp1SH",
@@ -36,7 +36,7 @@ const live_prices = [
   "price_1IbCkzDCzbZohuMONNgCAmjT",
   "price_1IbCkuDCzbZohuMOZgawp0Sa",
 ];
-const prices = is_testing ? test_prices : live_prices;
+const prices = IN_DEV == "1" ? test_prices : live_prices;
 
 function PricingColumn({
   name,
