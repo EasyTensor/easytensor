@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
 import Paper from "@material-ui/core/Paper";
-import { AccountCircle } from "@material-ui/icons";
+import { AccountCircle, SubscriptionsSharp } from "@material-ui/icons";
 import { CleanLink } from "./link";
 
 import Typography from "@material-ui/core/Typography";
+import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { useHistory } from "react-router-dom";
 import { GetSubscriptions, PostChangePassword } from "./api";
 import { remove_jwt_cookie } from "./auth/helper";
 import { useCookies } from "react-cookie";
 
-const subscriptions = {
+const SUBSCRIPTION = {
   FREE: {
     name: "Free Plan",
     cta_text: "Upgrade",
@@ -24,10 +25,11 @@ const subscriptions = {
     cta_text: "Modify",
   },
 };
+
 function AccountPage() {
   const [cookies] = useCookies("user");
   const [username] = useState(cookies.user.email);
-  const [subscription, setSubscription] = useState(subscriptions["FREE"]);
+  const [subscriptions, setSubscription] = useState([]);
   const [currentPassword, changeCurrentPassword] = useState("");
   const [newPassword, changeNewPassword] = useState("");
   const [newPassword2, changeNewPassword2] = useState("");
@@ -36,13 +38,34 @@ function AccountPage() {
   useEffect(() => {
     GetSubscriptions().then((res) => {
       const subs = res.data;
-      if (subs.length == 0) {
-        setSubscription(subscriptions["FREE"]);
-        return;
-      }
-      setSubscription(subscriptions[subs[0]["plan"]]);
+      setSubscription(subs);
     });
   }, []);
+
+  const subscriptionList =
+    subscriptions.length == 0 ? (
+      <Typography>Free</Typography>
+    ) : (
+      <div>
+        {subscriptions.map((sub) => (
+          <div style={{ display: "flex" }}>
+            <div style={{ padding: "0.5em" }}>
+              <Typography>
+                {
+                  {
+                    DEVELOPMENT: "Development",
+                    PRODUCTION: "Production",
+                  }[sub.plan]
+                }
+              </Typography>
+            </div>
+            <div style={{ padding: "0.5em" }}>
+              {sub.start_date} - {sub.end_date}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
 
   function onChangePassword(e) {
     e.preventDefault();
@@ -74,33 +97,42 @@ function AccountPage() {
         elevation={24}
         style={{
           textAlign: "center",
-          width: "80%",
           borderRadius: "1em",
           margin: "1em 0em 1em 0em",
         }}
       >
-        <div style={{ display: "flex" }}>
-          <div style={{ padding: "1em" }}>
+        <div
+          style={{
+            display: "flex",
+            backgroundColor: "rgba(255, 117, 13, 0.1)",
+          }}
+        >
+          <div
+            style={{
+              padding: "1em",
+            }}
+          >
             <AccountCircle />
           </div>
           <div style={{ padding: "1em" }}>
             <Typography>{username}</Typography>
           </div>
         </div>
-        <div style={{ padding: "1em" }}>
-          <Typography>{subscription.name}</Typography>
-          <CleanLink to="/pricing">
-            <Button color="primary" variant="contained">
-              {subscription.cta_text}
-            </Button>
-          </CleanLink>
+        <div>
+          {subscriptionList}
+          <div style={{ padding: "1em" }}>
+            <CleanLink to="/pricing">
+              <Button color="primary" variant="contained">
+                Modify
+              </Button>
+            </CleanLink>
+          </div>
         </div>
       </Paper>
       <Paper
         elevation={24}
         style={{
           textAlign: "center",
-          width: "80%",
           borderRadius: "1em",
           margin: "1em 0em 1em 0em",
         }}
@@ -111,37 +143,34 @@ function AccountPage() {
         <div style={{ padding: "1em" }}>
           <form onSubmit={onChangePassword}>
             <div>
-              <label>
-                Current Password
-                <input
-                  onChange={(e) => changeCurrentPassword(e.target.value)}
-                  value={currentPassword}
-                  type={"password"}
-                  name={"currentPassword"}
-                />
-              </label>
+              <TextField
+                id="old_password"
+                label="Current Password"
+                type={"password"}
+                value={currentPassword}
+                onChange={(e) => changeCurrentPassword(e.target.value)}
+                fullWidth
+              />
             </div>
             <div>
-              <label>
-                New Password
-                <input
-                  onChange={(e) => changeNewPassword(e.target.value)}
-                  value={newPassword}
-                  type={"password"}
-                  name={"newPassword"}
-                />
-              </label>
+              <TextField
+                id="new_password"
+                label="New Password"
+                type={"password"}
+                value={newPassword}
+                onChange={(e) => changeNewPassword(e.target.value)}
+                fullWidth
+              />
             </div>
             <div>
-              <label>
-                Confirm New Password
-                <input
-                  onChange={(e) => changeNewPassword2(e.target.value)}
-                  value={newPassword2}
-                  type={"password"}
-                  name={"newPassword2"}
-                />
-              </label>
+              <TextField
+                id="confirm_new_password"
+                label="Confirm New Password"
+                type={"password"}
+                value={newPassword2}
+                onChange={(e) => changeNewPassword2(e.target.value)}
+                fullWidth
+              />
             </div>
             <div style={{ padding: "1em" }}>
               <Button type={"submit"} variant="contained" color="primary">
