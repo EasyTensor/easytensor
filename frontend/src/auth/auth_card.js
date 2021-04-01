@@ -10,9 +10,9 @@ import { Login } from "./login_form";
 import { useCookies } from "react-cookie";
 import { is_authenticated } from "./helper";
 
-function AuthCard() {
-  const [isRegistering, setIsRegistration] = useState(false);
-  const [value, setValue] = React.useState(0);
+function AuthCard({ register = false }) {
+  const [isRegistering, setIsRegistration] = useState(register);
+  const [value, setValue] = useState(isRegistering ? 1 : 0);
   const [cookies, setCookie, removeCookie] = useCookies();
 
   const handleChange = (event, newValue) => {
@@ -44,11 +44,11 @@ function AuthCard() {
         }}
       >
         <p>You are already logged in. Did you mean to logout?</p>
-        <Button variant="contained" onClick={logout} style={{margin: "1em"}}>
+        <Button variant="contained" onClick={logout} style={{ margin: "1em" }}>
           Yes, Log me out
         </Button>
         <CleanLink to="/">
-          <Button variant="contained" color="primary"  style={{margin: "1em"}}>
+          <Button variant="contained" color="primary" style={{ margin: "1em" }}>
             No, go Home.
           </Button>
         </CleanLink>
@@ -73,7 +73,7 @@ function AuthCard() {
         // textColor="secondary"
 
         indicatorColor="primary"
-        // textColor="secondary"
+      // textColor="secondary"
       >
         <Tab label="Login" />
         <Tab label="Register" />

@@ -18,7 +18,7 @@ import { AccountPage } from "./account_page";
 import { ExplorePage } from "./explore"
 
 import Box from "@material-ui/core/Box";
-import { PricingPage } from "./pricing";
+import { PricingPage, PaymentSuccessPage } from "./pricing";
 
 const theme = createMuiTheme({
   palette: {
@@ -63,13 +63,15 @@ function App() {
               width: "100%",
               display: "flex",
               justifyContent: "center",
-              minHeight: "80%",
               paddingBottom: "3em",
             }}
           >
             <Switch>
               <Route path="/login">
                 <AuthCard />
+              </Route>
+              <Route path="/register">
+                <AuthCard register />
               </Route>
               <Route path="/registration/success/">
                 <RegistrationSuccess />
@@ -83,10 +85,12 @@ function App() {
               <PrivateRoute path="/models">
                 <ModelPage />
               </PrivateRoute>
-
-              <PrivateRoute path="/pricing">
-                <PricingPage />
+              <PrivateRoute path="/pricing/success">
+                <PaymentSuccessPage />
               </PrivateRoute>
+              <Route path="/pricing">
+                <PricingPage />
+              </Route>
               <PrivateRoute path="/account">
                 <AccountPage />
               </PrivateRoute>

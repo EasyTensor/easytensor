@@ -18,7 +18,7 @@ function getConfig() {
 export function CreateModel(body) {
   return axios.post(`${BACKEND_URL}/v1/models/`, body, getConfig());
 }
-export function GetModels(query="") {
+export function GetModels(query = "") {
   return axios.get(`${BACKEND_URL}/v1/models/?${query}`, getConfig());
 }
 
@@ -49,6 +49,7 @@ export function GetModelDownloadLink(model_id) {
 export function GetModelStatus(model_id) {
   return axios.get(`${REPORTER_URL}/model-status/${model_id}`, getConfig());
 }
+
 // Token URLS
 export function GetQueryAccessTokens() {
   return axios.get(`${BACKEND_URL}/v1/query-access-token/`, getConfig());
@@ -58,6 +59,18 @@ export function CreateQueryAccessToken(model_id) {
   return axios.post(
     `${BACKEND_URL}/v1/query-access-token/`,
     { model: model_id },
+    getConfig()
+  );
+}
+
+// Subscriptions
+export function GetSubscriptions() {
+  return axios.get(`${BACKEND_URL}/v1/payments/subscriptions/`, getConfig());
+}
+
+export function DeleteSubscription(subscription_id) {
+  return axios.delete(
+    `${BACKEND_URL}/v1/payments/subscriptions/${subscription_id}`,
     getConfig()
   );
 }
@@ -120,5 +133,35 @@ export function PostChangePassword(
       withCredentials: false,
       headers: getConfig()["headers"],
     }
+  );
+}
+
+export function CreateCheckoutSession(price_id) {
+  return axios.post(
+    `${BACKEND_URL}/v1/payments/create-checkout-sesssion`,
+    {
+      price_id: price_id,
+    },
+    getConfig()
+  );
+}
+
+export function GetCheckoutSession(session_id) {
+  return axios.post(
+    `${BACKEND_URL}/v1/payments/get-checkout-sesssion`,
+    {
+      session_id: session_id,
+    },
+    getConfig()
+  );
+}
+
+export function GetCustomerPortal(session_id) {
+  return axios.post(
+    `${BACKEND_URL}/v1/payments/get-customer-portal`,
+    {
+      session_id: session_id,
+    },
+    getConfig()
   );
 }

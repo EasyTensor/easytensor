@@ -1,23 +1,48 @@
 import React, { useState, useEffect } from "react";
 import Paper from "@material-ui/core/Paper";
 import { AccountCircle } from "@material-ui/icons";
+import { CleanLink } from "./link";
 
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import { useHistory } from "react-router-dom";
-import { PostChangePassword } from "./api";
+import { GetSubscriptions, PostChangePassword } from "./api";
 import { remove_jwt_cookie } from "./auth/helper";
 import { useCookies } from "react-cookie";
 
-
+const subscriptions = {
+  FREE: {
+    name: "Free Plan",
+    cta_text: "Upgrade",
+  },
+  DEVELOPMENT: {
+    name: "Development Plan",
+    cta_text: "Upgrade",
+  },
+  PRODUCTION: {
+    name: "Production Plan",
+    cta_text: "Modify",
+  },
+};
 function AccountPage() {
   const [cookies] = useCookies("user");
-  const [username] = useState(cookies.user.email)
+  const [username] = useState(cookies.user.email);
+  const [subscription, setSubscription] = useState(subscriptions["FREE"]);
   const [currentPassword, changeCurrentPassword] = useState("");
   const [newPassword, changeNewPassword] = useState("");
   const [newPassword2, changeNewPassword2] = useState("");
   let history = useHistory();
 
+  useEffect(() => {
+    GetSubscriptions().then((res) => {
+      const subs = res.data;
+      if (subs.length == 0) {
+        setSubscription(subscriptions["FREE"]);
+        return;
+      }
+      setSubscription(subscriptions[subs[0]["plan"]]);
+    });
+  }, []);
 
   function onChangePassword(e) {
     e.preventDefault();
@@ -26,7 +51,7 @@ function AccountPage() {
         if (!resp.status >= 300) {
         }
         alert("New password saved. Login with your new credentials");
-        remove_jwt_cookie()
+        remove_jwt_cookie();
         let { from } = { from: { pathname: "/" } };
         history.replace(from);
       })
@@ -52,11 +77,23 @@ function AccountPage() {
           width: "80%",
           borderRadius: "1em",
           margin: "1em 0em 1em 0em",
-          padding: "1em",
         }}
       >
         <div style={{ display: "flex" }}>
-          <AccountCircle /> <Typography>{username}</Typography>
+          <div style={{ padding: "1em" }}>
+            <AccountCircle />
+          </div>
+          <div style={{ padding: "1em" }}>
+            <Typography>{username}</Typography>
+          </div>
+        </div>
+        <div style={{ padding: "1em" }}>
+          <Typography>{subscription.name}</Typography>
+          <CleanLink to="/pricing">
+            <Button color="primary" variant="contained">
+              {subscription.cta_text}
+            </Button>
+          </CleanLink>
         </div>
       </Paper>
       <Paper
@@ -66,11 +103,12 @@ function AccountPage() {
           width: "80%",
           borderRadius: "1em",
           margin: "1em 0em 1em 0em",
-          padding: "1em",
         }}
       >
-        <h4>Reset Password</h4>
-        <div>
+        <div style={{ padding: "1em" }}>
+          <Typography variant="h6">Reset Password</Typography>
+        </div>
+        <div style={{ padding: "1em" }}>
           <form onSubmit={onChangePassword}>
             <div>
               <label>
@@ -105,9 +143,11 @@ function AccountPage() {
                 />
               </label>
             </div>
-            <Button type={"submit"} variant="contained">
-              Change Password
-            </Button>
+            <div style={{ padding: "1em" }}>
+              <Button type={"submit"} variant="contained" color="primary">
+                Change Password
+              </Button>
+            </div>
           </form>
         </div>
       </Paper>

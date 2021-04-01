@@ -23,8 +23,8 @@ import {
 import Switch from "@material-ui/core/Switch";
 import { QueryModal } from "./query_modal";
 import Dialog from "@material-ui/core/Dialog";
-import {EditableText} from "./editable_text";
-import {ModelStatusIndicator} from "./model_utils"
+import { EditableText } from "./editable_text";
+import { ModelStatusIndicator } from "./model_utils"
 
 function DeleteAll() {
   function delete_models() {
@@ -59,7 +59,7 @@ function getModelFrameworkIcon(model) {
 function getModelIDCopyLink(model_id) {
   return (
     <div style={{ paddingLeft: ".25em", paddingRight: ".25em" }}>
-      <ToolTip title={"Copy Model ID. "+model_id}>
+      <ToolTip title={"Copy Model ID. " + model_id}>
         <Link
           onClick={(e) => { navigator.clipboard.writeText(model_id); }}
           style={{ cursor: "pointer" }}
@@ -84,13 +84,19 @@ function EmptyModelList() {
       }}
     >
       <div style={{ textAlign: "center" }}>
-        <p>You haven't uploaded any models yet.</p>
-        <p>Let's try adding your first one!</p>
-        <CleanLink to="/">
-          <Button color="primary" variant="contained">
-            Add Model
+        <div>
+          <p>You haven't uploaded any models yet.</p>
+        </div>
+        <div>
+          <p>Let's try adding your first one!</p>
+        </div>
+        <div style={{ padding: "2em" }}>
+          <CleanLink to="/">
+            <Button color="primary" variant="contained">
+              Add Model
           </Button>
-        </CleanLink>
+          </CleanLink>
+        </div>
       </div>
     </Paper>
   );
@@ -204,7 +210,7 @@ function Model({ model, onDelete }) {
         </div>
         <div style={{ alignItems: "end", display: "flex" }}>
           {getModelFrameworkIcon(model)}
-          <ModelStatusIndicator statusInd={status} deploymentMsg={deploymentMsg}/>
+          <ModelStatusIndicator statusInd={status} deploymentMsg={deploymentMsg} />
           {getModelIDCopyLink(model.id)}
           <Typography style={{ "paddingLeft": ".25em", "paddingRight": ".25em" }}>{model.public ? "Public" : "Private"}</Typography>
           <Typography style={{ "paddingLeft": ".25em", "paddingRight": ".25em" }}>{Math.round(size / 1024 / 1024) < 1
@@ -280,7 +286,7 @@ function ModelList() {
   }
 
   const ModelsGridItems = models.map((model) => (
-    <Model model={model} onDelete={onModelDelete} key={model.id}/>
+    <Model model={model} onDelete={onModelDelete} key={model.id} />
   ))
   return (
     <Grid container spacing={2}>

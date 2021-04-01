@@ -1,13 +1,10 @@
 import React, { useState } from "react";
-import { useHistory, useLocation } from "react-router-dom";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 
 import { PostRegistration } from "../api";
 
 function Registration() {
-  let history = useHistory();
-
   const [email, changeEmail] = useState("");
   const [password, changePassword] = useState("");
   const [password2, changePassword2] = useState("");
