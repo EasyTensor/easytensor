@@ -18,7 +18,9 @@ function Registration() {
           alert(JSON.stringify(resp.data));
           throw resp.data;
         }
-        alert("A confirmation link was to your email.\nPlease confirm your email before logging in.")
+        alert(
+          "A confirmation link was to your email.\nPlease confirm your email before logging in."
+        );
       })
       .catch((error) => {
         console.log("error ->", error);
@@ -55,8 +57,13 @@ function Registration() {
           value={password2}
         />
       </div>
-      <div style={{ margin: "1em 0em 2em 0em" }}>
-        <Button color="primary" variant="contained" type={"submit"} style={{ width: "70%" }}>
+      <div style={{ padding: "1em 0em 2em 0em" }}>
+        <Button
+          color="primary"
+          variant="contained"
+          type={"submit"}
+          style={{ width: "70%" }}
+        >
           Register
         </Button>
       </div>

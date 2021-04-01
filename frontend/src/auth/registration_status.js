@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Button from "@material-ui/core/Button";
 import { Link } from "react-router-dom";
 import { CleanLink } from "../link";
@@ -9,8 +9,6 @@ function RegistrationSuccess() {
   return (
     <Paper
       style={{
-        // margin: "1em",
-        // padding: ".5em",
         height: "fit-content",
         textAlign: "center",
         padding: "1em",
@@ -31,8 +29,6 @@ function RegistrationFailure() {
   return (
     <Paper
       style={{
-        // margin: "1em",
-        // padding: ".5em",
         height: "fit-content",
         textAlign: "center",
         padding: "1em",

@@ -18,5 +18,5 @@ def log_and_return_error(error_message, exception=False):
     else:
         LOGGER.error(error_message)
     return JsonResponse(
-        {"error": {"message": error_message}}, staus=HTTP_400_BAD_REQUEST
+        {"error": {"message": error_message}}, status=HTTP_400_BAD_REQUEST
     )

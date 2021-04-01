@@ -1,27 +1,19 @@
 // Inspired by https://github.com/pricing
 import React, { useEffect, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
-import {
-  CardElement,
-  Elements,
-  useStripe,
-  useElements,
-} from "@stripe/react-stripe-js";
+import Grid from "@material-ui/core/Grid";
+import { Elements, useStripe } from "@stripe/react-stripe-js";
 import Paper from "@material-ui/core/Paper";
 import { Button, Typography } from "@material-ui/core";
 import { CheckCircle } from "@material-ui/icons";
 import { green } from "@material-ui/core/colors";
-import {
-  CreateCheckoutSession,
-  GetCheckoutSession,
-  GetCustomerPortal,
-} from "./api";
+import { CreateCheckoutSession, GetCustomerPortal } from "./api";
 import { is_authenticated } from "./auth/helper";
 import { useHistory, useLocation } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { CleanLink } from "./link";
+import { IN_DEV } from "./constants";
 export const STRIPE_API_KEY = `${process.env.REACT_APP_STRIPE_PUBLIC_KEY}`;
-export const IN_DEV = `${process.env.IN_DEV}`;
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -58,73 +50,77 @@ function PricingColumn({
   }
 
   return (
-    <Paper
-      elevation={12}
-      style={{
-        borderRadius: "1em",
-        flexGrow: "1",
-        flexBasis: "0",
-        margin: "1em",
-        width: "20em",
-        maxWidth: "20em",
-      }}
-    >
-      <div
+    <Grid item xs={12} sm={6} md={4}>
+      <Paper
+        elevation={12}
         style={{
-          margin: "2em",
-          textAlign: "-webkit-center",
-          minHeight: "10em",
+          borderRadius: "1em",
+          flexGrow: "1",
+          flexBasis: "0",
+          // padding: "1em",
+          width: "20em",
+          maxWidth: "20em",
         }}
       >
-        <Typography style={{ margin: "0.5em" }} variant="h5">
-          {name}
-        </Typography>
-        <Typography style={{ width: "75%" }} variant="subtitle1">
-          {description}
-        </Typography>
-      </div>
-      <div
-        style={{
-          minHeight: "20em",
-          paddingTop: "2em",
-          paddingBottom: "2em",
-          backgroundColor: "rgba(255, 117, 13, 0.1)",
-        }}
-      >
-        {featureList}
-      </div>
-      <div style={{ margin: "1em", textAlign: "center" }}>
-        <div style={{ margin: "0.5em" }}>
-          <Typography
-            style={{ verticalAlign: "super", display: "inline-block" }}
-            variant="body1"
-          >
-            $
+        <div
+          style={{
+            padding: "2em",
+            textAlign: "-webkit-center",
+            minHeight: "10em",
+          }}
+        >
+          <Typography style={{ margin: "0.5em" }} variant="h5">
+            {name}
           </Typography>
-          <Typography
-            style={{ verticalAlign: "super", display: "inline-block" }}
-            variant="h4"
-          >
-            {price}
-          </Typography>
-          <Typography
-            style={{ verticalAlign: "super", display: "inline-block" }}
-            variant="body1"
-          >
-            {" "}
-            per month{" "}
+          <Typography style={{ width: "75%" }} variant="subtitle1">
+            {description}
           </Typography>
         </div>
-        <Button
-          variant="contained"
-          color="primary"
-          style={{ width: "90%" }}
-          onClick={handleOnClick}
+        <div
+          style={{
+            minHeight: "20em",
+            paddingTop: "2em",
+            paddingBottom: "2em",
+            backgroundColor: "rgba(255, 117, 13, 0.1)",
+          }}
         >
-          {cta_text}
-        </Button>
-      </div>
-    </Paper>
+          {featureList}
+        </div>
+        <div style={{ margin: "1em", textAlign: "center" }}>
+          <div style={{ margin: "0.5em" }}>
+            <Typography
+              style={{ verticalAlign: "super", display: "inline-block" }}
+              variant="body1"
+            >
+              $
+            </Typography>
+            <Typography
+              style={{ verticalAlign: "super", display: "inline-block" }}
+              variant="h4"
+            >
+              {price}
+            </Typography>
+            <Typography
+              style={{ verticalAlign: "super", display: "inline-block" }}
+              variant="body1"
+            >
+              {" "}
+              per month{" "}
+            </Typography>
+          </div>
+          <div style={{ paddingBottom: "1em" }}>
+            <Button
+              variant="contained"
+              color="primary"
+              style={{ width: "90%" }}
+              onClick={handleOnClick}
+            >
+              {cta_text}
+            </Button>
+          </div>
+        </div>
+      </Paper>
+    </Grid>
   );
 }
 
@@ -145,11 +141,9 @@ function PricingPage() {
   // Paid plans
   function handle_pay(price_id, stripe) {
     if (is_authenticated(cookies)) {
-      CreateCheckoutSession(price_id)
-        .then((res) => {
-          return stripe.redirectToCheckout({ sessionId: res.data.session_id });
-        })
-        .then((res) => console.log(res));
+      CreateCheckoutSession(price_id).then((res) => {
+        return stripe.redirectToCheckout({ sessionId: res.data.session_id });
+      });
     } else {
       alert(
         "You need to register before subscribing to a plan.\nRedirecting now!"
@@ -212,9 +206,15 @@ function PricingPage() {
 
   return (
     <Elements stripe={stripePromise}>
-      <div style={{ width: "80%", display: "flex", justifyContent: "center" }}>
+      <Grid
+        container
+        direction="row"
+        justify="center"
+        alignItems="center"
+        spacing={3}
+      >
         {subscriptionColumns}
-      </div>
+      </Grid>
     </Elements>
   );
 }
@@ -224,57 +224,52 @@ function PaymentSuccessPage() {
   let query = useQuery();
   const session_id = query.get("session_id");
   const [customerPortal, setCustomerPortal] = useState("");
-  console.log(session_id);
   useEffect(() => {
     if (session_id != undefined && session_id != "") {
-      GetCheckoutSession(session_id).then((res) => console.log(res));
       GetCustomerPortal(session_id).then((res) => {
-        console.log("customer portal url:", res.data.url);
         setCustomerPortal(res.data.url);
       });
     }
   }, []);
   return (
-    <div
-      style={{
-        width: "80%",
-      }}
-    >
-      <Paper
-        elevation={12}
-        style={{
-          borderRadius: "1em",
-          flexGrow: "1",
-          flexBasis: "0",
-          margin: "1em",
-          textAlign: "center",
-        }}
-      >
-        <div style={{ padding: "2em" }}>
-          <CheckCircle style={{ color: green[700], fontSize: 40 }} />
-        </div>
-        <div style={{ paddingBottom: "2em" }}>
-          <Typography>Payment Received. Time to build!</Typography>
-          <div style={{ padding: "1em" }}>
-            <CleanLink to="/">
-              <Button color="primary" variant="contained">
-                Add Model
-              </Button>
-            </CleanLink>
+    <Grid container direction="row" justify="center" alignItems="flex-start">
+      <Grid item xs={8}>
+        <Paper
+          elevation={12}
+          style={{
+            borderRadius: "1em",
+            flexGrow: "1",
+            flexBasis: "0",
+            margin: "1em",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ padding: "2em" }}>
+            <CheckCircle style={{ color: green[700], fontSize: 40 }} />
           </div>
-          <div style={{ padding: "1em" }}>
-            <a
-              href={customerPortal}
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              <Button color="primary" variant="contained">
-                Customer Portal
-              </Button>
-            </a>
+          <div>
+            <Typography>Payment Received. Time to build!</Typography>
+            <div style={{ paddingTop: "1em" }}>
+              <CleanLink to="/">
+                <Button color="primary" variant="contained">
+                  Add Model
+                </Button>
+              </CleanLink>
+            </div>
+            <div style={{ padding: "1em" }}>
+              <a
+                href={customerPortal}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <Button color="primary" variant="contained">
+                  Customer Portal
+                </Button>
+              </a>
+            </div>
           </div>
-        </div>
-      </Paper>
-    </div>
+        </Paper>
+      </Grid>
+    </Grid>
   );
 }
 

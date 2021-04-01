@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Paper from "@material-ui/core/Paper";
 import { AccountCircle, SubscriptionsSharp } from "@material-ui/icons";
 import { CleanLink } from "./link";
+import Grid from "@material-ui/core/Grid";
 
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
@@ -93,95 +94,99 @@ function AccountPage() {
       });
   }
   return (
-    <div>
-      <Paper
-        elevation={24}
-        style={{
-          textAlign: "center",
-          borderRadius: "1em",
-          margin: "1em 0em 1em 0em",
-        }}
-      >
-        <div
+    <Grid container direction="column" justify="center" alignItems="center">
+      <Grid>
+        <Paper
+          elevation={24}
           style={{
-            display: "flex",
-            backgroundColor: "rgba(255, 117, 13, 0.1)",
+            textAlign: "center",
+            borderRadius: "1em",
+            margin: "1em 0em 1em 0em",
           }}
         >
           <div
             style={{
-              padding: "1em",
+              display: "flex",
+              backgroundColor: "rgba(255, 117, 13, 0.1)",
             }}
           >
-            <AccountCircle />
-          </div>
-          <div style={{ padding: "1em" }}>
-            <Typography>{username}</Typography>
-          </div>
-        </div>
-        <div>
-          {subscriptionList}
-          <div style={{ padding: "1em" }}>
-            <CleanLink to="/pricing">
-              <Button color="primary" variant="contained">
-                Modify
-              </Button>
-            </CleanLink>
-          </div>
-        </div>
-      </Paper>
-      <Paper
-        elevation={24}
-        style={{
-          textAlign: "center",
-          borderRadius: "1em",
-          margin: "1em 0em 1em 0em",
-        }}
-      >
-        <div style={{ padding: "1em" }}>
-          <Typography variant="h6">Reset Password</Typography>
-        </div>
-        <div style={{ padding: "1em" }}>
-          <form onSubmit={onChangePassword}>
-            <div>
-              <TextField
-                id="old_password"
-                label="Current Password"
-                type={"password"}
-                value={currentPassword}
-                onChange={(e) => changeCurrentPassword(e.target.value)}
-                fullWidth
-              />
-            </div>
-            <div>
-              <TextField
-                id="new_password"
-                label="New Password"
-                type={"password"}
-                value={newPassword}
-                onChange={(e) => changeNewPassword(e.target.value)}
-                fullWidth
-              />
-            </div>
-            <div>
-              <TextField
-                id="confirm_new_password"
-                label="Confirm New Password"
-                type={"password"}
-                value={newPassword2}
-                onChange={(e) => changeNewPassword2(e.target.value)}
-                fullWidth
-              />
+            <div
+              style={{
+                padding: "1em",
+              }}
+            >
+              <AccountCircle />
             </div>
             <div style={{ padding: "1em" }}>
-              <Button type={"submit"} variant="contained" color="primary">
-                Change Password
-              </Button>
+              <Typography>{username}</Typography>
             </div>
-          </form>
-        </div>
-      </Paper>
-    </div>
+          </div>
+          <div>
+            {subscriptionList}
+            <div style={{ padding: "1em" }}>
+              <CleanLink to="/pricing">
+                <Button color="primary" variant="contained">
+                  Modify
+                </Button>
+              </CleanLink>
+            </div>
+          </div>
+        </Paper>
+      </Grid>
+      <Grid item>
+        <Paper
+          elevation={24}
+          style={{
+            textAlign: "center",
+            borderRadius: "1em",
+            margin: "1em 0em 1em 0em",
+          }}
+        >
+          <div style={{ padding: "1em" }}>
+            <Typography variant="h6">Reset Password</Typography>
+          </div>
+          <div style={{ padding: "1em" }}>
+            <form onSubmit={onChangePassword}>
+              <div>
+                <TextField
+                  id="old_password"
+                  label="Current Password"
+                  type={"password"}
+                  value={currentPassword}
+                  onChange={(e) => changeCurrentPassword(e.target.value)}
+                  fullWidth
+                />
+              </div>
+              <div>
+                <TextField
+                  id="new_password"
+                  label="New Password"
+                  type={"password"}
+                  value={newPassword}
+                  onChange={(e) => changeNewPassword(e.target.value)}
+                  fullWidth
+                />
+              </div>
+              <div>
+                <TextField
+                  id="confirm_new_password"
+                  label="Confirm New Password"
+                  type={"password"}
+                  value={newPassword2}
+                  onChange={(e) => changeNewPassword2(e.target.value)}
+                  fullWidth
+                />
+              </div>
+              <div style={{ padding: "1em" }}>
+                <Button type={"submit"} variant="contained" color="primary">
+                  Change Password
+                </Button>
+              </div>
+            </form>
+          </div>
+        </Paper>
+      </Grid>
+    </Grid>
   );
 }
 

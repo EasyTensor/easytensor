@@ -12,3 +12,4 @@ export const REPORTER_PROTOCOL = `${process.env.REACT_APP_REPORTER_SERVER_PROTOC
 export const REPORTER_ADDRESS = `${process.env.REACT_APP_REPORTER_SERVER_ADDRESS}`;
 export const REPORTER_PORT = `${process.env.REACT_APP_REPORTER_SERVER_PORT}`;
 export const REPORTER_URL = `${REPORTER_PROTOCOL}://${REPORTER_ADDRESS}:${REPORTER_PORT}`;
+export const IN_DEV = `${process.env.REACT_APP_IN_DEV}`;

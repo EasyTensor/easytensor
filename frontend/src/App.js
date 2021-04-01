@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { CookiesProvider } from "react-cookie";
 import { AuthCard } from "./auth/auth_card";
+import Container from "@material-ui/core/Container";
+
 import {
   RegistrationFailure,
   RegistrationSuccess,
@@ -15,7 +17,7 @@ import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import WhiteShadows from "./light_shadows";
 import { AccountPage } from "./account_page";
-import { ExplorePage } from "./explore"
+import { ExplorePage } from "./explore";
 
 import Box from "@material-ui/core/Box";
 import { PricingPage, PaymentSuccessPage } from "./pricing";
@@ -49,23 +51,13 @@ function App() {
             width: "100%",
             height: "100%",
             minHeight: "100hv",
-            // minHeight: "100%",
-            // width: "100vh",
             backgroundImage:
               " linear-gradient(54deg, #FF750D 60%, #F5F6F7 100%)",
           }}
         >
           <CssBaseline />
           <NavBar />
-          {/* <main style={{ flexGrow: "1" }}> */}
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "center",
-              paddingBottom: "3em",
-            }}
-          >
+          <Container maxWidth="xl">
             <Switch>
               <Route path="/login">
                 <AuthCard />
@@ -99,7 +91,8 @@ function App() {
                 <FirstStep />
               </PrivateRoute>
             </Switch>
-          </div>
+          </Container>
+
           <div
             style={{
               height: "3em",
@@ -114,7 +107,6 @@ function App() {
           >
             <Typography color="secondary">© 2020 EasyTensor</Typography>
           </div>
-          {/* </main> */}
         </Box>
       </ThemeProvider>
     </CookiesProvider>

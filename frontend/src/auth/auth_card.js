@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Paper from "@material-ui/core/Paper";
 import { CleanLink } from "../link";
+import Grid from "@material-ui/core/Grid";
 
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -26,10 +27,10 @@ function AuthCard({ register = false }) {
   };
 
   function logout() {
-    console.log("removing cookie")
+    console.log("removing cookie");
     removeCookie("jwt-auth", { path: "/" });
-    console.log("cookies after removing:")
-    console.log(cookies)
+    console.log("cookies after removing:");
+    console.log(cookies);
   }
   if (is_authenticated(cookies)) {
     return (
@@ -40,7 +41,7 @@ function AuthCard({ register = false }) {
           height: "fit-content",
           textAlign: "center",
           padding: "1em",
-          margin: "1em"
+          margin: "1em",
         }}
       >
         <p>You are already logged in. Did you mean to logout?</p>
@@ -57,29 +58,33 @@ function AuthCard({ register = false }) {
   }
 
   return (
-    <Paper
-      style={{
-        // margin: "1em",
-        // padding: ".5em",
-        height: "fit-content",
-        textAlign: "center",
-      }}
-    >
-      <Tabs
-        value={value}
-        onChange={handleChange}
-        // aria-label="simple tabs example"
-        // indicatorColor="#FF750D"
-        // textColor="secondary"
+    <Grid container direction="row" justify="center" alignItems="center">
+      <Grid item cs={6}>
+        <Paper
+          style={{
+            // margin: "1em",
+            // padding: ".5em",
+            height: "fit-content",
+            textAlign: "center",
+          }}
+        >
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            // aria-label="simple tabs example"
+            // indicatorColor="#FF750D"
+            // textColor="secondary"
 
-        indicatorColor="primary"
-      // textColor="secondary"
-      >
-        <Tab label="Login" />
-        <Tab label="Register" />
-      </Tabs>
-      <div>{isRegistering ? <Registration /> : <Login />}</div>
-    </Paper>
+            indicatorColor="primary"
+            // textColor="secondary"
+          >
+            <Tab label="Login" />
+            <Tab label="Register" />
+          </Tabs>
+          <div>{isRegistering ? <Registration /> : <Login />}</div>
+        </Paper>
+      </Grid>
+    </Grid>
   );
 }
 

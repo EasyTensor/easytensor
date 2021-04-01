@@ -30,7 +30,7 @@ def get_env_var(var_name, default=None):
     var = os.getenv(var_name)
     if var is None:
         if default is not None:
-            LOGGER.warn(
+            LOGGER.warning(
                 "Environment variable %s not found. Defaulting to %s", var_name, default
             )
             var = default

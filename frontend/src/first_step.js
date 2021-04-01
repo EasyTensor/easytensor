@@ -1,18 +1,19 @@
 import React, { useState } from "react";
 import { UploadDashboard } from "./upload_page";
-import Tabs from "@material-ui/core/Tabs"
-import Tab from "@material-ui/core/Tab"
+import Tabs from "@material-ui/core/Tabs";
+import Tab from "@material-ui/core/Tab";
+import Grid from "@material-ui/core/Grid";
+
 import { CreateModel } from "./api";
 import { Button } from "@material-ui/core";
-import { useHistory } from 'react-router-dom';
+import { useHistory } from "react-router-dom";
 
 import TFIcon from "./images/tf_icon.png";
 import PTIcon from "./images/pytorch_icon.png";
 
-
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism";
-import TextField from '@material-ui/core/TextField';
+import TextField from "@material-ui/core/TextField";
 import Paper from "@material-ui/core/Paper";
 
 const TFSaveModelString = `# Step 1: save your model
@@ -47,7 +48,6 @@ tf.keras.models.save_model(
 import easytensor
 model_id, access_token = easytensor.upload_model("My Model", export_path)`;
 
-
 const PTSaveModelString = `# Step 1: save your model parameters
 import os
 from pathlib import Path
@@ -58,7 +58,6 @@ torch.save(model.state_dict(), os.path.join(export_path, "model.pt"))`;
 
 const PTComperssModelString = `# Step 2: compress your model
 tar -czf my_model.tar.gz -C ~/my_model .`;
-
 
 const PTPythonUploadString = `# 1. save the model class definition and a predict function in \`model.py\` 
 # For more information, see https://github.com/EasyTensor/python-client/blob/main/docs/examples/PyTorch%20Text%20Classifier.ipynb
@@ -79,7 +78,6 @@ const TFSaveModelComponent = () => {
     </SyntaxHighlighter>
   );
 };
-
 
 const PTSaveModelComponent = () => {
   return (
@@ -108,33 +106,29 @@ const TFCompressModelComponent = () => {
 };
 
 function TFGuiInstructions() {
-
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [size, setSize] = useState(0);
   const history = useHistory();
 
-
   function handleUploadSuccess(file) {
     setAddress(file.name);
-    setSize(file.size)
+    setSize(file.size);
   }
 
   function handleSave() {
-    console.log(typeof address)
-    console.log(address, name, size)
+    console.log(typeof address);
+    console.log(address, name, size);
     if (address.trim() == "") {
-      alert("Upload a model before saving it.")
-      return
+      alert("Upload a model before saving it.");
+      return;
     }
     CreateModel({
       address: address,
       name: name,
       size: size,
       framework: "TF",
-    }).then(() =>
-      history.push('/models')
-    );
+    }).then(() => history.push("/models"));
   }
 
   return (
@@ -143,21 +137,32 @@ function TFGuiInstructions() {
       <TFCompressModelComponent />
       <p>Step 3: Upload your model and save it 👇</p>
       <div style={{ display: "flex", alignItems: "left" }}>
-        <div style={{ display: "flex", flexDirection: "column", flexGrow: "1", alignItems: "end" }}>
-          <div >
-            <TextField label="Model Name" onChange={(e) => setName(e.target.value)} />
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            flexGrow: "1",
+            alignItems: "end",
+          }}
+        >
+          <div>
+            <TextField
+              label="Model Name"
+              onChange={(e) => setName(e.target.value)}
+            />
           </div>
           <div style={{ alignItems: "left", marginTop: "1em" }}>
-            <Button onClick={handleSave} variant="contained" color="primary" >Save Model</Button>
+            <Button onClick={handleSave} variant="contained" color="primary">
+              Save Model
+            </Button>
           </div>
         </div>
         <div style={{ flexGrow: "1" }}>
           <UploadDashboard onSuccess={handleUploadSuccess} />
-
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function TFPythonInstructions() {
@@ -172,9 +177,8 @@ function TFPythonInstructions() {
         {TFPythonUploadString}
       </SyntaxHighlighter>
     </div>
-  )
+  );
 }
-
 
 function PTPythonInstructions() {
   return (
@@ -188,28 +192,26 @@ function PTPythonInstructions() {
         {PTPythonUploadString}
       </SyntaxHighlighter>
     </div>
-  )
+  );
 }
 
 function PTGuiInstructions() {
-
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [size, setSize] = useState(0);
   const history = useHistory();
 
-
   function handleUploadSuccess(file) {
     setAddress(file.name);
-    setSize(file.size)
+    setSize(file.size);
   }
 
   function handleSave() {
-    console.log(typeof address)
-    console.log(address, name, size)
+    console.log(typeof address);
+    console.log(address, name, size);
     if (address.trim() == "") {
-      alert("Upload a model before saving it.")
-      return
+      alert("Upload a model before saving it.");
+      return;
     }
     CreateModel({
       address: address,
@@ -217,36 +219,47 @@ function PTGuiInstructions() {
       size: size,
       framework: "PT",
     });
-    history.push('/models')
+    history.push("/models");
   }
-
-
 
   return (
     <div>
       <PTSaveModelComponent />
       <p>
-        Step 2: Store the model class definition in a file called <code>model.py</code>.
-        The class definition must have a <code>predict_single</code> method that can run the predict method. Save the <code>model.py</code> file in <code>~/my_model</code>.
+        Step 2: Store the model class definition in a file called{" "}
+        <code>model.py</code>. The class definition must have a{" "}
+        <code>predict_single</code> method that can run the predict method. Save
+        the <code>model.py</code> file in <code>~/my_model</code>.
       </p>
       <TFCompressModelComponent />
       <p>Step 3: Upload your model and save it 👇</p>
       <div style={{ display: "flex", alignItems: "left" }}>
-        <div style={{ display: "flex", flexDirection: "column", flexGrow: "1", alignItems: "end" }}>
-          <div >
-            <TextField label="Model Name" onChange={(e) => setName(e.target.value)} />
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            flexGrow: "1",
+            alignItems: "end",
+          }}
+        >
+          <div>
+            <TextField
+              label="Model Name"
+              onChange={(e) => setName(e.target.value)}
+            />
           </div>
           <div style={{ alignItems: "left", marginTop: "1em" }}>
-            <Button onClick={handleSave} variant="contained" color="primary" >Save Model</Button>
+            <Button onClick={handleSave} variant="contained" color="primary">
+              Save Model
+            </Button>
           </div>
         </div>
         <div style={{ flexGrow: "1" }}>
           <UploadDashboard onSuccess={handleUploadSuccess} />
-
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function TensorFlowInstructions() {
@@ -267,22 +280,18 @@ function TensorFlowInstructions() {
       {
         {
           0: <TFPythonInstructions />,
-          1: <TFGuiInstructions />
+          1: <TFGuiInstructions />,
         }[tab]
       }
-
     </div>
-
   );
 }
-
 
 function PyTorchInstructions() {
   const [tab, setTab] = useState(0);
 
   return (
     <div style={{ textAlign: "center" }}>
-
       <Tabs
         value={tab}
         indicatorColor="primary"
@@ -296,31 +305,28 @@ function PyTorchInstructions() {
       {
         {
           0: <PTPythonInstructions />,
-          1: <PTGuiInstructions />
+          1: <PTGuiInstructions />,
         }[tab]
       }
-
     </div>
-
   );
 }
 
-
 function FirstStep() {
-  const [selectedFramework, setFramework] = useState("TF")
+  const [selectedFramework, setFramework] = useState("TF");
 
   return (
-    <div style={{ textAlign: "center", width: "80%" }}>
-      <Paper
-        elevation={12}
-        style={{
-          borderRadius: "1em",
-          display: "flex"
-        }}
-      >
-        <div style={{ marginRight: "1em", marginTop: "1em" }}>
-          {
-            [
+    <Grid container direction="row" justify="center" alignItems="flex-start">
+      <Grid item xs={8}>
+        <Paper
+          elevation={12}
+          style={{
+            borderRadius: "1em",
+            display: "flex",
+          }}
+        >
+          <div style={{ marginRight: "1em", marginTop: "1em" }}>
+            {[
               { displayName: "TensorFlow", label: "TF", icon: TFIcon },
               { displayName: "PyTorch", label: "PT", icon: PTIcon },
             ].map((framework) => {
@@ -328,32 +334,43 @@ function FirstStep() {
               return (
                 <div
                   style={{
-                    cursor: "pointer", paddingTop: "0.5em", paddingBottom: "0.5em", display: "flex",
-                    color: isSelected ? 'rgba(255, 117, 13)' : ""
+                    cursor: "pointer",
+                    paddingTop: "0.5em",
+                    paddingBottom: "0.5em",
+                    display: "flex",
+                    color: isSelected ? "rgba(255, 117, 13)" : "",
                   }}
                   onClick={() => setFramework(framework.label)}
                 >
                   <div style={{ marginRight: "0.5em", marginLeft: "0.5em" }}>
-                    <img src={framework.icon} style={{ width: "20px", height: "20px", filter: !isSelected ? "grayscale(100%)" : "" }} />
+                    <img
+                      src={framework.icon}
+                      style={{
+                        width: "20px",
+                        height: "20px",
+                        filter: !isSelected ? "grayscale(100%)" : "",
+                      }}
+                    />
                   </div>
-                  <div style={{ marginRight: "0.5em", marginLeft: "0.5em" }}> {framework.displayName} </div>
+                  <div style={{ marginRight: "0.5em", marginLeft: "0.5em" }}>
+                    {" "}
+                    {framework.displayName}{" "}
+                  </div>
                 </div>
-              )
-            })
-          }
-        </div>
-        <div style={{ width: "100%", padding: "1em" }}>
-          {
+              );
+            })}
+          </div>
+          <div style={{ width: "100%", padding: "1em" }}>
             {
-              "TF": <TensorFlowInstructions />,
-              "PT": <PyTorchInstructions />
-            }[selectedFramework]
-          }
-        </div>
-      </Paper>
-
-    </div >
-
+              {
+                TF: <TensorFlowInstructions />,
+                PT: <PyTorchInstructions />,
+              }[selectedFramework]
+            }
+          </div>
+        </Paper>
+      </Grid>
+    </Grid>
   );
 }
 

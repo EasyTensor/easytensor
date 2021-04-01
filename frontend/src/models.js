@@ -9,8 +9,8 @@ import ToolTip from "@material-ui/core/Tooltip";
 import Grid from "@material-ui/core/Grid";
 import Card from "@material-ui/core/Card";
 import Paper from "@material-ui/core/Paper";
-import TfIcon from "./images/tf_icon.png"
-import PyTorchIcon from "./images/pytorch_icon.png"
+import TfIcon from "./images/tf_icon.png";
+import PyTorchIcon from "./images/pytorch_icon.png";
 import { CleanLink } from "./link";
 import {
   GetModels,
@@ -24,7 +24,7 @@ import Switch from "@material-ui/core/Switch";
 import { QueryModal } from "./query_modal";
 import Dialog from "@material-ui/core/Dialog";
 import { EditableText } from "./editable_text";
-import { ModelStatusIndicator } from "./model_utils"
+import { ModelStatusIndicator } from "./model_utils";
 
 function DeleteAll() {
   function delete_models() {
@@ -36,37 +36,42 @@ function DeleteAll() {
 }
 
 function getModelFrameworkIcon(model) {
-  return <div style={{ "paddingRight": "0.25em" }}>
-    {
+  return (
+    <div style={{ paddingRight: "0.25em" }}>
       {
-        TF: (
-          <ToolTip title="TensorFlow model">
-            <img src={TfIcon} style={{ width: "20px", height: "20px" }} />
-          </ToolTip>
-        ),
-        PT: (
-          <ToolTip title="PyTorch model" >
-            <img src={PyTorchIcon} style={{ width: "20px", height: "20px" }} />
-          </ToolTip>
-        ),
-      }[model.framework]
-    }
-  </div>
+        {
+          TF: (
+            <ToolTip title="TensorFlow model">
+              <img src={TfIcon} style={{ width: "20px", height: "20px" }} />
+            </ToolTip>
+          ),
+          PT: (
+            <ToolTip title="PyTorch model">
+              <img
+                src={PyTorchIcon}
+                style={{ width: "20px", height: "20px" }}
+              />
+            </ToolTip>
+          ),
+        }[model.framework]
+      }
+    </div>
+  );
 }
-
-
 
 function getModelIDCopyLink(model_id) {
   return (
     <div style={{ paddingLeft: ".25em", paddingRight: ".25em" }}>
       <ToolTip title={"Copy Model ID. " + model_id}>
         <Link
-          onClick={(e) => { navigator.clipboard.writeText(model_id); }}
+          onClick={(e) => {
+            navigator.clipboard.writeText(model_id);
+          }}
           style={{ cursor: "pointer" }}
         />
       </ToolTip>
     </div>
-  )
+  );
 }
 
 function EmptyModelList() {
@@ -94,7 +99,7 @@ function EmptyModelList() {
           <CleanLink to="/">
             <Button color="primary" variant="contained">
               Add Model
-          </Button>
+            </Button>
           </CleanLink>
         </div>
       </div>
@@ -133,7 +138,7 @@ function Model({ model, onDelete }) {
 
   function download_model(model_id) {
     console.log("Downloading", model_id);
-    GetModelDownloadLink(model_id).then(response => {
+    GetModelDownloadLink(model_id).then((response) => {
       window.open(response.data.url);
     });
   }
@@ -168,27 +173,31 @@ function Model({ model, onDelete }) {
     });
   }
 
-
   function handleDescriptionEdit(newDescription) {
     console.log("callback!");
-    PatchModel(id, { description: newDescription }).then((resp) => {
-      if (resp.status != 200) {
-        console.log("could not update model description");
+    PatchModel(id, { description: newDescription })
+      .then((resp) => {
+        if (resp.status != 200) {
+          console.log("could not update model description");
+          alert("could not update model description");
+        }
+        setDescription(newDescription);
+      })
+      .catch((error) => {
+        console.log(error);
         alert("could not update model description");
-      }
-      setDescription(newDescription);
-    }).catch(error => {
-      console.log(error);
-      alert("could not update model description");
-    });
+      });
   }
 
   return (
-    <Grid item xs={4}>
+    <Grid item xs={12} sm={6} md={4} lg={3} xl={2}>
       <Card foo="bar" style={{ padding: ".5em", borderRadius: "1em" }}>
-        <div style={{
-          display: "flex", justifyContent: "space-between"
-        }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
           <EditableText
             initialText={name}
             editedCallback={handleNameEdit}
@@ -210,19 +219,30 @@ function Model({ model, onDelete }) {
         </div>
         <div style={{ alignItems: "end", display: "flex" }}>
           {getModelFrameworkIcon(model)}
-          <ModelStatusIndicator statusInd={status} deploymentMsg={deploymentMsg} />
+          <ModelStatusIndicator
+            statusInd={status}
+            deploymentMsg={deploymentMsg}
+          />
           {getModelIDCopyLink(model.id)}
-          <Typography style={{ "paddingLeft": ".25em", "paddingRight": ".25em" }}>{model.public ? "Public" : "Private"}</Typography>
-          <Typography style={{ "paddingLeft": ".25em", "paddingRight": ".25em" }}>{Math.round(size / 1024 / 1024) < 1
-            ? Math.round(model.size / 1024) + " KB"
-            : Math.round(size / 1024 / 1024) + " MB"}
+          <Typography style={{ paddingLeft: ".25em", paddingRight: ".25em" }}>
+            {model.public ? "Public" : "Private"}
+          </Typography>
+          <Typography style={{ paddingLeft: ".25em", paddingRight: ".25em" }}>
+            {Math.round(size / 1024 / 1024) < 1
+              ? Math.round(model.size / 1024) + " KB"
+              : Math.round(size / 1024 / 1024) + " MB"}
           </Typography>
         </div>
         <EditableText
           initialText={description}
           editedCallback={handleDescriptionEdit}
           emptyPlaceHolder="Add a description..."
-          style={{ minHeight: "6em", width: "100%", margin: "1em 0 1em 0", variant: "body2" }}
+          style={{
+            minHeight: "6em",
+            width: "100%",
+            margin: "1em 0 1em 0",
+            variant: "body2",
+          }}
           inputstyle={{ minHeight: "6em" }}
           inputTag="textarea"
         />
@@ -287,16 +307,22 @@ function ModelList() {
 
   const ModelsGridItems = models.map((model) => (
     <Model model={model} onDelete={onModelDelete} key={model.id} />
-  ))
+  ));
   return (
-    <Grid container spacing={2}>
+    <Grid
+      container
+      spacing={2}
+      direction="row"
+      justify="flex-start"
+      alignItems="flex-start"
+    >
       {ModelsGridItems}
     </Grid>
   );
 }
 function ModelPage() {
   return (
-    <div style={{ width: "80%" }}>
+    <div>
       <ModelList />
       <CleanLink to="/">
         <ToolTip title="Add Model">
