@@ -14,6 +14,7 @@ from pathlib import Path
 from datetime import timedelta
 import os
 import logging
+import stripe
 
 LOGGER = logging.getLogger(__name__)
 
@@ -70,6 +71,7 @@ else:
 
 
 STRIPE_API_KEY = get_env_var("STRIPE_API_KEY")
+stripe.api_key = STRIPE_API_KEY
 
 
 SIMPLE_JWT = {
@@ -103,6 +105,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "uploads.apps.UploadsConfig",
+    "payments.apps.PaymentsConfig",
     "corsheaders",
     "django.contrib.admin",
     "django.contrib.auth",

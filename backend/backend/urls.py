@@ -45,6 +45,14 @@ from uploads.views import (
     EmptyView,
 )
 
+from payments.views import (
+    create_checkout_session,
+    get_checkout_session,
+    get_customer_portal,
+    payment_webhook,
+    SubscriptionPlanViewSet,
+)
+
 from django.db import models
 
 # Routers provide an easy way of automatically determining the URL conf.
@@ -52,7 +60,7 @@ router = routers.DefaultRouter()
 router.register(r"model-uploads", ModelUploadViewSet)
 router.register(r"models", ModelViewSet)
 router.register(r"query-access-token", QueryAccessTokenViewSet)
-
+router.register(r"payments/subscriptions", SubscriptionPlanViewSet)
 
 urlpatterns = [
     path(
@@ -66,7 +74,6 @@ urlpatterns = [
         name="schema-swagger-ui",
     ),
     path(r"redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
-    path("v1/", include(router.urls)),
     path("v1/health_check/", health_check),
     # paths to override email confirmation
     re_path(
@@ -79,8 +86,13 @@ urlpatterns = [
         EmptyView,
         name="account_email_verification_sent",
     ),
+    path("v1/payments/webhook", payment_webhook),
+    path("v1/payments/create-checkout-sesssion", create_checkout_session),
+    path("v1/payments/get-checkout-sesssion", get_checkout_session),
+    path("v1/payments/get-customer-portal", get_customer_portal),
     path("v1/dj-rest-auth/", include("dj_rest_auth.urls")),
     path("v1/dj-rest-auth/registration/", include("dj_rest_auth.registration.urls")),
     path("v1/admin/", admin.site.urls),
     path("v1/api-auth/", include("rest_framework.urls", namespace="rest_framework")),
+    path("v1/", include(router.urls)),
 ]
