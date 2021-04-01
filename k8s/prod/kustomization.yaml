@@ -10,84 +10,82 @@ bases:
 
 # list of Resource Config to be Applied
 resources:
-- deployment.yaml
-- secrets/sealed-jwt-secret.yaml
-- secrets/sealed-django-secret.yaml
-- secrets/sealed-database-secret.yaml
-- secrets/sealed-google-SA-secret.yaml
-- secrets/sealed-email-secret.yaml
-- secrets/sealed-stripe-secret.yaml
-- ingress.yaml
+  - deployment.yaml
+  - secrets/sealed-jwt-secret.yaml
+  - secrets/sealed-django-secret.yaml
+  - secrets/sealed-database-secret.yaml
+  - secrets/sealed-google-SA-secret.yaml
+  - secrets/sealed-email-secret.yaml
+  - secrets/sealed-stripe-secret.yaml
+  - ingress.yaml
 
 patchesStrategicMerge:
-- database-patch.yaml
-- scale-patch.yaml
+  - database-patch.yaml
+  - scale-patch.yaml
 
 patchesJson6902:
-- target:
-    group: ""
-    version: v1
-    kind: Service
-    name: backend-service
-    namespace: prod
-  path: backend-service-patch.yaml
-- target:
-    group: "rbac.authorization.k8s.io"
-    version: v1
-    kind: Role
-    name: deployment-controller
-  path: rbac-role-patch.yaml
-- target:
-    group: "rbac.authorization.k8s.io"
-    version: v1
-    kind: RoleBinding
-    name: control-deployments
-  path: rbac-role-binding-patch.yaml
+  - target:
+      group: ""
+      version: v1
+      kind: Service
+      name: backend-service
+      namespace: prod
+    path: backend-service-patch.yaml
+  - target:
+      group: "rbac.authorization.k8s.io"
+      version: v1
+      kind: Role
+      name: deployment-controller
+    path: rbac-role-patch.yaml
+  - target:
+      group: "rbac.authorization.k8s.io"
+      version: v1
+      kind: RoleBinding
+      name: control-deployments
+    path: rbac-role-binding-patch.yaml
 
 images:
-- name: easytensor/frontend
-  newName: gcr.io/easytensor-291022/easytensor/frontend
-  newTag: 0.2.0
-- name: easytensor/backend
-  newName: gcr.io/easytensor-291022/easytensor/backend
-  newTag: 0.2.0
-# There is no such tag right now for migrations.
-- name: easytensor/migrations
-  newName: gcr.io/easytensor-291022/easytensor/migrations
-  newTag: 0.2.0
-- name: easytensor/controller
-  newName: gcr.io/easytensor-291022/easytensor/controller
-  newTag: 0.2.0
-- name: easytensor/query
-  newName: gcr.io/easytensor-291022/easytensor/query
-  newTag: 0.2.0
-- name: easytensor/reporter
-  newName: gcr.io/easytensor-291022/easytensor/reporter
-  newTag: 0.2.0
-
+  - name: easytensor/frontend
+    newName: gcr.io/easytensor-291022/easytensor/frontend
+    newTag: 0.2.1
+  - name: easytensor/backend
+    newName: gcr.io/easytensor-291022/easytensor/backend
+    newTag: 0.2.1
+  # There is no such tag right now for migrations.
+  - name: easytensor/migrations
+    newName: gcr.io/easytensor-291022/easytensor/migrations
+    newTag: 0.2.1
+  - name: easytensor/controller
+    newName: gcr.io/easytensor-291022/easytensor/controller
+    newTag: 0.2.1
+  - name: easytensor/query
+    newName: gcr.io/easytensor-291022/easytensor/query
+    newTag: 0.2.1
+  - name: easytensor/reporter
+    newName: gcr.io/easytensor-291022/easytensor/reporter
+    newTag: 0.2.1
 
 # labels added to all Resources
 commonLabels:
   deployment_env: prod
 
 configMapGenerator:
-- name: service-routing
-  behavior: merge
-  envs:
-  - service-routing.properties
-- name: backend-properties
-  behavior: merge
-  envs:
-  - backend.properties
-- name: controller-properties
-  behavior: merge
-  envs:
-  - controller.properties
-- name: reporter-properties
-  behavior: merge
-  envs:
-  - reporter.properties
-
+  - name: service-routing
+    behavior: merge
+    envs:
+      - service-routing.properties
+  - name: backend-properties
+    behavior: merge
+    envs:
+      - backend.properties
+  - name: controller-properties
+    behavior: merge
+    envs:
+      - controller.properties
+  - name: reporter-properties
+    behavior: merge
+    envs:
+      - reporter.properties
 
 generatorOptions:
   disableNameSuffixHash: true

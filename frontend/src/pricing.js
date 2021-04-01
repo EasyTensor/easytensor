@@ -20,6 +20,7 @@ import { is_authenticated } from "./auth/helper";
 import { useHistory, useLocation } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { CleanLink } from "./link";
+export const STRIPE_API_KEY = `${process.env.REACT_APP_STRIPE_PUBLIC_KEY}`;
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -128,9 +129,7 @@ function PricingColumn({
 }
 
 function PricingPage() {
-  const stripePromise = loadStripe(
-    "pk_test_51IWi1NDCzbZohuMOijpMRzx7twohXqP9yTv2HIJMcUxLrYaPJEtM50aepVXa5qRP8UaSIhPzKsFMNACQsdUNfMYb00h7BfDUwz"
-  );
+  const stripePromise = loadStripe(STRIPE_API_KEY);
   const [cookies] = useCookies();
   const history = useHistory();
 
