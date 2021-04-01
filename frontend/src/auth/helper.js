@@ -2,10 +2,10 @@ import Cookies from "universal-cookie";
 const cookies = new Cookies();
 
 function is_authenticated(reactCookies) {
-  console.log("checking if is authenticated")
+  console.log("checking if is authenticated");
   const authCookie = reactCookies["jwt-auth"];
-  console.log(authCookie)
-  return Boolean(
+  console.log(authCookie);
+  return (
     authCookie != "" && authCookie != undefined && authCookie != "undefined"
   );
 }
@@ -24,8 +24,4 @@ function remove_jwt_cookie() {
   cookies.remove("jwt-auth", { path: "/" });
 }
 
-export {
-  is_authenticated,
-  get_jwt_cookie,
-  remove_jwt_cookie,
-};
+export { is_authenticated, get_jwt_cookie, remove_jwt_cookie };

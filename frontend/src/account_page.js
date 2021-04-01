@@ -77,6 +77,7 @@ function AccountPage() {
         remove_jwt_cookie();
         let { from } = { from: { pathname: "/" } };
         history.replace(from);
+        window.location.reload();
       })
       .catch((error) => {
         if (

@@ -8,7 +8,6 @@ import { useCookies } from "react-cookie";
 // screen if you're not yet authenticated.
 function PrivateRoute({ children, ...rest }) {
   const [cookies, setCookies, removeCookies] = useCookies();
-  console.log("checking for authentication for", children)
   return (
     <Route
       {...rest}
