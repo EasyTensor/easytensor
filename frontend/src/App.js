@@ -53,11 +53,13 @@ function App() {
             minHeight: "100hv",
             backgroundImage:
               " linear-gradient(54deg, #FF750D 60%, #F5F6F7 100%)",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           <CssBaseline />
           <NavBar />
-          <Container maxWidth="xl">
+          <Container maxWidth="xl" style={{ flexGrow: "1" }}>
             <Switch>
               <Route path="/login">
                 <AuthCard />
@@ -99,7 +101,6 @@ function App() {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              position: "fixed",
               bottom: 0,
               left: 0,
               width: "100%",

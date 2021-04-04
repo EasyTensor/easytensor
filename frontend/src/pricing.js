@@ -50,7 +50,13 @@ function PricingColumn({
   }
 
   return (
-    <Grid item xs={12} sm={6} md={4}>
+    <Grid
+      item
+      xs={12}
+      sm={6}
+      md={4}
+      style={{ display: "flex", justifyContent: "center" }}
+    >
       <Paper
         elevation={12}
         style={{
