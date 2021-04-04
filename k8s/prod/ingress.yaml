@@ -11,29 +11,38 @@ metadata:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
 spec:
   tls:
-  - hosts:
-    - app.easytensor.com
-    secretName: app-easytensor-tls
+    - hosts:
+        - app.easytensor.com
+      secretName: app-easytensor-tls
+    - hosts:
+        - blog.easytensor.com
+      secretName: blog-easytensor-tls
   rules:
-  - http:
-      paths:
-      - path: /v1/.*
-        backend:
-          serviceName: backend-service
-          servicePort: http
-      - path: /query/
-        backend:
-          serviceName: query-service
-          servicePort: http
-      - path: /model-status/
-        backend:
-          serviceName: reporter-service
-          servicePort: http
-      - path: /
-        backend:
-          serviceName: frontend-service
-          servicePort: http
-    host: app.easytensor.com
+    - host: app.easytensor.com
+      http:
+        paths:
+          - path: /v1/.*
+            backend:
+              serviceName: backend-service
+              servicePort: http
+          - path: /query/
+            backend:
+              serviceName: query-service
+              servicePort: http
+          - path: /model-status/
+            backend:
+              serviceName: reporter-service
+              servicePort: http
+          - path: /
+            backend:
+              serviceName: frontend-service
+              servicePort: http
+    - host: blog.easytensor.com
+      http:
+        paths:
+          - path: /*
+            backend:
+              serviceName: blog-service
   # tls:
   # - hosts:
   #   - argocd.easytensor.com
