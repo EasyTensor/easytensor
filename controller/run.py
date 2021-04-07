@@ -303,7 +303,7 @@ def get_server_container(model: Model) -> client.V1Container:
                 client.V1ContainerPort(container_port=8090),
             ],
             resources=client.V1ResourceRequirements(
-                requests={"cpu": "1000m", "memory": f"{get_memory_request(model)}"},
+                requests={"cpu": "100m", "memory": f"{get_memory_request(model)}"},
                 limits={"cpu": "1000m", "memory": f"{get_memory_limit(model)}"},
             ),
             volume_mounts=[
