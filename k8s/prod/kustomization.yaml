@@ -50,7 +50,7 @@ images:
     newTag: 0.2.4
   - name: easytensor/backend
     newName: gcr.io/easytensor-291022/easytensor/backend
-    newTag: 0.2.4
+    newTag: 0.2.5
   # There is no such tag right now for migrations.
   - name: easytensor/migrations
     newName: gcr.io/easytensor-291022/easytensor/migrations
