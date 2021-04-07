@@ -40,6 +40,7 @@ from controller.config import (
     NAMESPACE,
     BABYSITTER_IMAGE,
     PYTORCH_SERVE_IMAGE,
+    TRANSFORMER_SERVE_IMAGE,
 )
 
 
@@ -97,6 +98,7 @@ class ExpiredTokenError(Exception):
 class ModelFramework(Enum):
     TENSORFLOW = "tensorflow"
     PYTORCH = "pytorch"
+    TRANSFORMERS = "transformers"
 
 
 class Model:
@@ -143,9 +145,11 @@ class ServiceNameParseException(Exception):
 
 
 def get_framework_label_from_model(model: Model):
-    return {ModelFramework.TENSORFLOW: "tensorflow", ModelFramework.PYTORCH: "pytorch"}[
-        model.framework
-    ]
+    return {
+        ModelFramework.TENSORFLOW: "tensorflow",
+        ModelFramework.PYTORCH: "pytorch",
+        ModelFramework.TRANSFORMERS: "transformer",
+    }[model.framework]
 
 
 def get_labels_from_model(model: Model) -> dict:
@@ -165,6 +169,7 @@ def get_model_framework_from_label(framework_label):
     return {
         "tensorflow": ModelFramework.TENSORFLOW,
         "pytorch": ModelFramework.PYTORCH,
+        "transformer": ModelFramework.TRANSFORMERS,
     }[framework_label]
 
 
@@ -195,7 +200,7 @@ def get_service_ports_for_model(model: Model) -> List[client.V1ServicePort]:
             client.V1ServicePort(name="http", port=8501),
             client.V1ServicePort(name="grpc", port=8500),
         ]
-    elif model.framework == ModelFramework.PYTORCH:
+    elif model.framework in [ModelFramework.PYTORCH, ModelFramework.TRANSFORMERS]:
         return [
             client.V1ServicePort(name="http", port=8090),
         ]
@@ -272,7 +277,7 @@ def get_server_container(model: Model) -> client.V1Container:
             ],
             image_pull_policy="IfNotPresent",
         )
-    else:
+    elif model.framework == ModelFramework.PYTORCH:
         return client.V1Container(
             name="pytorch-serve",
             image=PYTORCH_SERVE_IMAGE,
@@ -282,6 +287,24 @@ def get_server_container(model: Model) -> client.V1Container:
             resources=client.V1ResourceRequirements(
                 requests={"cpu": "100m", "memory": f"{get_memory_request(model)}"},
                 limits={"cpu": "100m", "memory": f"{get_memory_limit(model)}"},
+            ),
+            volume_mounts=[
+                client.V1VolumeMount(
+                    name="model-dir", mount_path="/models/", read_only=False
+                )
+            ],
+            image_pull_policy="IfNotPresent",
+        )
+    elif model.framework == ModelFramework.TRANSFORMERS:
+        return client.V1Container(
+            name="transformer-serve",
+            image=TRANSFORMER_SERVE_IMAGE,
+            ports=[
+                client.V1ContainerPort(container_port=8090),
+            ],
+            resources=client.V1ResourceRequirements(
+                requests={"cpu": "1000m", "memory": f"{get_memory_request(model)}"},
+                limits={"cpu": "1000m", "memory": f"{get_memory_limit(model)}"},
             ),
             volume_mounts=[
                 client.V1VolumeMount(
@@ -407,9 +430,11 @@ async def get_idea_model_state():
             address=model["address"],
             size=model["size"],
             scale=model["scale"],
-            framework=ModelFramework.PYTORCH
-            if model.get("framework", "") == "PT"
-            else ModelFramework.TENSORFLOW,
+            framework={
+                "PT": ModelFramework.PYTORCH,
+                "TF": ModelFramework.TENSORFLOW,
+                "TR": ModelFramework.TRANSFORMERS,
+            }[model.get("framework")],
         )
         for model in model_list
         if model["deployed"]

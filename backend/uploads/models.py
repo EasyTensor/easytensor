@@ -6,6 +6,7 @@ User = get_user_model()
 FRAMEWORK_CHOICES = [
     ("TF", "Tensorflow"),
     ("PT", "PyTorch"),
+    ("TR", "Transformers"),
 ]
 DEFAULT_FRAMEWORK_CHOICE = "TF"  # Tensorflow
 

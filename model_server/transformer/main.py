@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request
 from starlette.responses import JSONResponse
 import torch
 
-MODEL_PARAMETERS_FILE = "/models/model/model.pt"
+MODEL_PARAMETERS_FILE = "/models/model/model_weights"
 MODEL_ARCHITECTURE_FILE = "/models/model/model.py"
 spec = importlib.util.spec_from_file_location("model", MODEL_ARCHITECTURE_FILE)
 module = importlib.util.module_from_spec(spec)
@@ -38,8 +38,7 @@ ModelClass = classes[0]
 
 app = FastAPI()
 
-model = ModelClass()
-model.load_state_dict(torch.load(MODEL_PARAMETERS_FILE))
+model = ModelClass.from_pretrained(MODEL_PARAMETERS_FILE)
 model.eval()
 
 

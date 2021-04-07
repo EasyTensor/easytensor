@@ -48,6 +48,10 @@ build:
       context: model_server/pytorch
       docker:
         dockerfile: Dockerfile
+    - image: easytensor/transformer_serve
+      context: model_server/transformer
+      docker:
+        dockerfile: Dockerfile
 deploy:
   kustomize:
     paths:

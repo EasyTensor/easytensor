@@ -11,6 +11,8 @@ import { useHistory } from "react-router-dom";
 import TFIcon from "./images/tf_icon.png";
 import PTIcon from "./images/pytorch_icon.png";
 
+import TRIcon from "./images/huggingface.svg";
+
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism";
 import TextField from "@material-ui/core/TextField";
@@ -56,8 +58,13 @@ export_path = os.path.join(str(Path.home()), "my_model") # will point to ~/my_mo
 os.mkdir(export_path)
 torch.save(model.state_dict(), os.path.join(export_path, "model.pt"))`;
 
-const PTComperssModelString = `# Step 2: compress your model
-tar -czf my_model.tar.gz -C ~/my_model .`;
+const TRSaveModelString = `import os
+from pathlib import Path
+export_path = os.path.join(str(Path.home()), "my_model") # will point to ~/my_model
+os.mkdir(export_path)
+model.save_pretrained(os.path.join(export_path, "model_weights"))`;
+
+const PTComperssModelString = `tar -czf my_model.tar.gz -C ~/my_model .`;
 
 const PTPythonUploadString = `# 1. save the model class definition and a predict function in \`model.py\` 
 # For more information, see https://github.com/EasyTensor/python-client/blob/main/docs/examples/PyTorch%20Text%20Classifier.ipynb
@@ -65,6 +72,24 @@ const PTPythonUploadString = `# 1. save the model class definition and a predict
 # 2. Upload model and model file 
 import easytensor
 easytensor.pytorch.upload_model("My PyTorch Model", model, "model.py")`;
+
+const TRPythonModelFiletring = `# model.py
+from transformers import MobileBertTokenizer, MobileBertModel, MobileBertConfig
+
+class MyModel(MobileBertModel):
+    def __init__(self, *args, **kwargs):
+        MobileBertModel.__init__(self, *args, **kwargs)
+        self.tokenizer = MobileBertTokenizer.from_pretrained(
+            "google/mobilebert-uncased"
+        )
+
+    def predict_single(self, text):
+        inputs = self.tokenizer(text, return_tensors="pt")
+        outputs = self(**inputs)
+        return outputs`;
+
+const TRPythonUploadString = `import easytensor
+easytensor.transformers.upload_model("My Transformer Model", model, "model.py")`;
 
 const TFSaveModelComponent = () => {
   return (
@@ -79,6 +104,19 @@ const TFSaveModelComponent = () => {
   );
 };
 
+const PTCompressModelComponent = () => {
+  return (
+    <SyntaxHighlighter
+      customStyle={{ borderRadius: ".8em" }}
+      language="python"
+      style={tomorrow}
+      wrapLongLines={true}
+    >
+      {PTComperssModelString}
+    </SyntaxHighlighter>
+  );
+};
+
 const PTSaveModelComponent = () => {
   return (
     <SyntaxHighlighter
@@ -88,6 +126,19 @@ const PTSaveModelComponent = () => {
       wrapLongLines={true}
     >
       {PTSaveModelString}
+    </SyntaxHighlighter>
+  );
+};
+
+const TRSaveModelComponent = () => {
+  return (
+    <SyntaxHighlighter
+      customStyle={{ borderRadius: ".8em" }}
+      language="python"
+      style={tomorrow}
+      wrapLongLines={true}
+    >
+      {TRSaveModelString}
     </SyntaxHighlighter>
   );
 };
@@ -231,8 +282,110 @@ function PTGuiInstructions() {
         <code>predict_single</code> method that can run the predict method. Save
         the <code>model.py</code> file in <code>~/my_model</code>.
       </p>
-      <TFCompressModelComponent />
-      <p>Step 3: Upload your model and save it 👇</p>
+      <PTCompressModelComponent />
+      <p>Step 4: Upload your model and save it 👇</p>
+      <div style={{ display: "flex", alignItems: "left" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            flexGrow: "1",
+            alignItems: "end",
+          }}
+        >
+          <div>
+            <TextField
+              label="Model Name"
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+          <div style={{ alignItems: "left", marginTop: "1em" }}>
+            <Button onClick={handleSave} variant="contained" color="primary">
+              Save Model
+            </Button>
+          </div>
+        </div>
+        <div style={{ flexGrow: "1" }}>
+          <UploadDashboard onSuccess={handleUploadSuccess} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TRPythonInstructions() {
+  return (
+    <div>
+      <p>
+        Step 1: Save an inference class in a file <code>model.py</code>.
+      </p>
+      <SyntaxHighlighter
+        customStyle={{ borderRadius: ".8em" }}
+        language="python"
+        style={tomorrow}
+        wrapLongLines={true}
+      >
+        {TRPythonModelFiletring}
+      </SyntaxHighlighter>
+
+      <p>Step 2. Upload model and model file </p>
+      <SyntaxHighlighter
+        customStyle={{ borderRadius: ".8em" }}
+        language="python"
+        style={tomorrow}
+        wrapLongLines={true}
+      >
+        {TRPythonUploadString}
+      </SyntaxHighlighter>
+    </div>
+  );
+}
+
+function TRGuiInstructions() {
+  const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
+  const [size, setSize] = useState(0);
+  const history = useHistory();
+
+  function handleUploadSuccess(file) {
+    setAddress(file.name);
+    setSize(file.size);
+  }
+
+  function handleSave() {
+    console.log(typeof address);
+    console.log(address, name, size);
+    if (address.trim() == "") {
+      alert("Upload a model before saving it.");
+      return;
+    }
+    CreateModel({
+      address: address,
+      name: name,
+      size: size,
+      framework: "PT",
+    });
+    history.push("/models");
+  }
+
+  return (
+    <div>
+      <p>
+        Step 1: Save an inference class in a file <code>model.py</code>.
+      </p>
+      <SyntaxHighlighter
+        customStyle={{ borderRadius: ".8em" }}
+        language="python"
+        style={tomorrow}
+        wrapLongLines={true}
+      >
+        {TRPythonModelFiletring}
+      </SyntaxHighlighter>
+      <p>Step 2: save your model parameters</p>
+      <TRSaveModelComponent />
+      <p># Step 3: compress your model</p>
+      <PTCompressModelComponent />
+      <p>Step 4: Upload your model and save it 👇</p>
       <div style={{ display: "flex", alignItems: "left" }}>
         <div
           style={{
@@ -312,6 +465,31 @@ function PyTorchInstructions() {
   );
 }
 
+function TransformerInstructions() {
+  const [tab, setTab] = useState(0);
+
+  return (
+    <div style={{ textAlign: "center" }}>
+      <Tabs
+        value={tab}
+        indicatorColor="primary"
+        textColor="primary"
+        onChange={(e, val) => setTab(val)}
+        centered
+      >
+        <Tab label="Python" />
+        <Tab label="GUI" />
+      </Tabs>
+      {
+        {
+          0: <TRPythonInstructions />,
+          1: <TRGuiInstructions />,
+        }[tab]
+      }
+    </div>
+  );
+}
+
 function FirstStep() {
   const [selectedFramework, setFramework] = useState("TF");
 
@@ -325,10 +503,11 @@ function FirstStep() {
             display: "flex",
           }}
         >
-          <div style={{ marginRight: "1em", marginTop: "1em" }}>
+          <div style={{ marginRight: "1em", marginTop: "1em", flex: "none" }}>
             {[
               { displayName: "TensorFlow", label: "TF", icon: TFIcon },
               { displayName: "PyTorch", label: "PT", icon: PTIcon },
+              { displayName: "Hugging Face", label: "TR", icon: TRIcon },
             ].map((framework) => {
               const isSelected = framework.label == selectedFramework;
               return (
@@ -365,6 +544,7 @@ function FirstStep() {
               {
                 TF: <TensorFlowInstructions />,
                 PT: <PyTorchInstructions />,
+                TR: <TransformerInstructions />,
               }[selectedFramework]
             }
           </div>

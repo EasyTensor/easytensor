@@ -49,10 +49,12 @@ func getModelQueryURL(model Model) string {
 	predictPath := map[string]string{
 		"TF": "v1/models/model:predict",
 		"PT": "predict",
+		"TR": "predict",
 	}[model.Framework]
 	queryPort := map[string]string{
 		"TF": "8501",
 		"PT": "8090",
+		"TR": "8090",
 	}[model.Framework]
 	return fmt.Sprintf("http://model-serve-%s:%s/%s", model.Id, queryPort, predictPath)
 }
