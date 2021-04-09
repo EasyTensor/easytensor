@@ -106,7 +106,7 @@ function App() {
               width: "100%",
             }}
           >
-            <Typography color="secondary">© 2020 EasyTensor</Typography>
+            <Typography color="secondary">© 2021 EasyTensor</Typography>
           </div>
         </Box>
       </ThemeProvider>
