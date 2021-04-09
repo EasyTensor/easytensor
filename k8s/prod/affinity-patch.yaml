@@ -14,7 +14,7 @@ spec:
                   - key: preemptible
                     operator: In
                     values:
-                      - false
+                      - "false"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -31,7 +31,7 @@ spec:
                   - key: preemptible
                     operator: In
                     values:
-                      - false
+                      - "false"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -48,7 +48,7 @@ spec:
                   - key: preemptible
                     operator: In
                     values:
-                      - false
+                      - "false"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -65,7 +65,7 @@ spec:
                   - key: preemptible
                     operator: In
                     values:
-                      - false
+                      - "false"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -82,7 +82,7 @@ spec:
                   - key: preemptible
                     operator: In
                     values:
-                      - false
+                      - "false"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -99,4 +99,4 @@ spec:
                   - key: preemptible
                     operator: In
                     values:
-                      - false
+                      - "false"
