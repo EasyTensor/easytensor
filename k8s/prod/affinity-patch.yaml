@@ -1,0 +1,102 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: et-backend
+spec:
+  template:
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: preemptible
+                    operator: In
+                    values:
+                      - false
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: et-frontend
+spec:
+  template:
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: preemptible
+                    operator: In
+                    values:
+                      - false
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: et-controller
+spec:
+  template:
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: preemptible
+                    operator: In
+                    values:
+                      - false
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: et-query
+spec:
+  template:
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: preemptible
+                    operator: In
+                    values:
+                      - false
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: et-migrations
+spec:
+  template:
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: preemptible
+                    operator: In
+                    values:
+                      - false
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: et-reporter
+spec:
+  template:
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: preemptible
+                    operator: In
+                    values:
+                      - false
