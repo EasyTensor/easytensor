@@ -19,15 +19,15 @@ function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
 
-const test_prices = [
-  "price_1IXsO9DCzbZohuMOL3T4bbq8",
-  "price_1IalnGDCzbZohuMOkizlp1SH",
-];
+const test_prices = {
+  developer: "price_1IeLdaDCzbZohuMOP4JfP35M",
+  business: "price_1IeLclDCzbZohuMOGit1TiJy",
+};
 
-const live_prices = [
-  "price_1IbCkzDCzbZohuMONNgCAmjT",
-  "price_1IbCkuDCzbZohuMOZgawp0Sa",
-];
+const live_prices = {
+  developer: "price_1IeLaKDCzbZohuMOZTlLShYc",
+  business: "price_1IeLbwDCzbZohuMOOOwb7PgZ",
+};
 const prices = IN_DEV == "1" ? test_prices : live_prices;
 
 function PricingColumn({
@@ -187,7 +187,7 @@ function PricingPage() {
         "Team based access control",
       ],
       cta_text: "Start Building",
-      price_id: prices[0],
+      price_id: prices["developer"],
       button_handler: handle_pay,
     },
     {
@@ -201,7 +201,7 @@ function PricingPage() {
         "Multi zone availability",
       ],
       cta_text: "Scale",
-      price_id: prices[1],
+      price_id: prices["business"],
       button_handler: handle_pay,
     },
   ];
