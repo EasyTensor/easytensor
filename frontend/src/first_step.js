@@ -74,7 +74,7 @@ import easytensor
 easytensor.pytorch.upload_model("My PyTorch Model", model, "model.py")`;
 
 const TRPythonModelFiletring = `# model.py
-from transformers import MobileBertTokenizer, MobileBertModel, MobileBertConfig
+from transformers import MobileBertTokenizer, MobileBertModel
 
 class MyModel(MobileBertModel):
     def __init__(self, *args, **kwargs):
@@ -85,7 +85,7 @@ class MyModel(MobileBertModel):
 
     def predict_single(self, text):
         inputs = self.tokenizer(text, return_tensors="pt")
-        outputs = self(**inputs)
+        outputs = self.__call__(**inputs)
         return outputs`;
 
 const TRPythonUploadString = `import easytensor
