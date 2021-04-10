@@ -1,4 +1,8 @@
 import os
+from distutils.util import strtobool
+import logging
+
+LOGGER = logging.getLogger(__name__)
 
 
 def get_env_var(var_name, var_type=None):
@@ -29,3 +33,12 @@ NAMESPACE = get_env_var("CONTROLLED_NAMESPACE")
 BABYSITTER_IMAGE = get_env_var("BABYSITTER_IMAGE")
 PYTORCH_SERVE_IMAGE = get_env_var("PYTORCH_SERVE_IMAGE")
 TRANSFORMER_SERVE_IMAGE = get_env_var("TRANSFORMER_SERVE_IMAGE")
+
+try:
+    DEBUG = strtobool(os.getenv("DEBUG", "0"))
+except ValueError:
+    LOGGER.warning(
+        "DEBUG config value %s could not be parsed to a bool . Defaulting to false",
+        os.getenv("DEBUG", "0"),
+    )
+    DEBUG = False

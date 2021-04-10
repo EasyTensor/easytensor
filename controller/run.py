@@ -41,12 +41,16 @@ from controller.config import (
     BABYSITTER_IMAGE,
     PYTORCH_SERVE_IMAGE,
     TRANSFORMER_SERVE_IMAGE,
+    DEBUG,
 )
 
 
 logging.basicConfig()
 LOGGER = logging.getLogger(__name__)
-LOGGER.setLevel(logging.DEBUG)
+if DEBUG:
+    LOGGER.setLevel(logging.DEBUG)
+else:
+    LOGGER.setLevel(logging.WARNING)
 
 
 config.load_incluster_config()
