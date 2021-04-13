@@ -65,7 +65,7 @@ function ModelLogs() {
       });
       if (pods.length > 0) {
         setSelectedPod(pods[0]);
-        setSelectedContainer(r.data.pods[selectedPod][0]);
+        setSelectedContainer(r.data.pods[pods[0]][0]);
       }
       setPodList(pods);
     });

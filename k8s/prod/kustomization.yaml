@@ -48,7 +48,7 @@ patchesJson6902:
 images:
   - name: easytensor/frontend
     newName: gcr.io/easytensor-291022/easytensor/frontend
-    newTag: 0.2.7
+    newTag: 0.2.7.1
   - name: easytensor/backend
     newName: gcr.io/easytensor-291022/easytensor/backend
     newTag: 0.2.7
