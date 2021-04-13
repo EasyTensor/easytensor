@@ -17,15 +17,18 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+
+	"github.com/gorilla/websocket"
 )
 
 // var models = map[string]Model{}
 
-// type Model struct {
-// 	Name    string
-// 	Id      string
-// 	Address string
-// }
+type Model struct {
+	Name      string
+	Id        string
+	Address   string
+	Framework string
+}
 
 var accessToken string
 var refreshToken string
@@ -75,6 +78,14 @@ func getDeployments(ModelID string) *appsv1.DeploymentList {
 	return dalist
 }
 
+func getModelPods(ModelID string) *corev1.PodList {
+	podsList, err := client.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: fmt.Sprintf("type=model-server,model-id=%s", ModelID)})
+	if err != nil {
+		panic(err)
+
+	}
+	return podsList
+}
 func getLatestCondition(conditions []appsv1.DeploymentCondition) appsv1.DeploymentCondition {
 	if len(conditions) < 1 {
 		panic("No conditions to parse.")
@@ -106,7 +117,7 @@ func main() {
 			"message": "pong",
 		})
 	})
-	r.GET("/model-status/:model_id", func(c *gin.Context) {
+	r.GET("/info/model-status/:model_id", func(c *gin.Context) {
 		const Ready = "READY"
 		const NotReady = "NOT_READY"
 		const Failed = "FAILED"
@@ -154,6 +165,26 @@ func main() {
 		fmt.Println("returning")
 		fmt.Println(status)
 		c.JSON(200, gin.H{"status": status, "message": msg})
+	})
+	r.GET("/info/logs/list/:model_id", func(c *gin.Context) {
+		ModelID := c.Param("model_id")
+		pods := getModelPods(ModelID)
+		podList := make(map[string][]string, len(pods.Items))
+		for _, pod := range pods.Items {
+			containerNames := make([]string, len(pod.Spec.Containers))
+			for cIndex, container := range pod.Spec.Containers {
+				containerNames[cIndex] = container.Name
+			}
+			podList[pod.Name] = containerNames
+		}
+		c.JSON(200, gin.H{"pods": podList})
+	})
+	// Websocket connection
+	r.GET("/info/logs/stream/:pod_name/:container_name", func(c *gin.Context) {
+		podName := c.Param("pod_name")
+		containerName := c.Param("container_name")
+		ws_container_log(c.Writer, c.Request, podName, containerName)
+
 	})
 	r.GET("/health_check/liveness/", func(c *gin.Context) {
 		if consecutiveFailure > 5 {
@@ -231,4 +262,46 @@ func getBackendURL() string {
 	var backendServiceAddress = os.Getenv("BACKEND_SERVER_ADDRESS")
 	var backendServicePort = os.Getenv("BACKEND_SERVER_PORT")
 	return fmt.Sprintf("http://%s:%s", backendServiceAddress, backendServicePort)
+}
+
+var wsupgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
+
+func ws_container_log(w http.ResponseWriter, r *http.Request, podName string, containerName string) {
+	wsupgrader.CheckOrigin = func(r *http.Request) bool {
+		return true
+	}
+
+	conn, err := wsupgrader.Upgrade(w, r, nil)
+	if err != nil {
+		fmt.Println("Failed to set websocket upgrade: %+v", err)
+		return
+	}
+
+	req := client.CoreV1().Pods(namespace).GetLogs(podName, &corev1.PodLogOptions{Container: containerName, Follow: true})
+	podLogs, err := req.Stream(context.TODO())
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println("error in opening stream")
+		return
+	}
+	defer podLogs.Close()
+
+	for {
+		buf := make([]byte, 2000)
+		numBytes, err := podLogs.Read(buf)
+		if numBytes == 0 {
+			continue
+		}
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			fmt.Println(err)
+		}
+		// message := string(buf[:numBytes])
+		conn.WriteMessage(websocket.TextMessage, buf[:numBytes])
+	}
 }

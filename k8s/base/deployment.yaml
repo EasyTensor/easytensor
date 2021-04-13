@@ -322,7 +322,7 @@ metadata:
   name: deployment-controller
 rules:
   - apiGroups: ["apps", ""] # "apps" indicates pods api group
-    resources: ["deployments", "services"]
+    resources: ["deployments", "services", "pods", "pods", "pods/log"]
     verbs: ["get", "watch", "list", "create", "update", "delete", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1

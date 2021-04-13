@@ -9,31 +9,30 @@ metadata:
     kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "7200s" #two hours for websockets
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "7200s" #two hours for websockets
 spec:
   tls:
-  - hosts:
-    - app.easytensor.com
-    secretName: app-easytensor-tls
+    - hosts:
+        - app.easytensor.com
+      secretName: app-easytensor-tls
   rules:
-  - http:
-      paths:
-      - path: /v1/.*
-        backend:
-          serviceName: backend-service
-          servicePort: http
-      - path: /query/
-        backend:
-          serviceName: query-service
-          servicePort: http
-      - path: /model-status/
-        backend:
-          serviceName: reporter-service
-          servicePort: http
-      - path: /
-        backend:
-          serviceName: frontend-service
-          servicePort: http
-    host: app.easytensor.com
-  # tls:
-  # - hosts:
-  #   - argocd.easytensor.com
+    - http:
+        paths:
+          - path: /v1/.*
+            backend:
+              serviceName: backend-service
+              servicePort: http
+          - path: /query/
+            backend:
+              serviceName: query-service
+              servicePort: http
+          - path: /info/
+            backend:
+              serviceName: reporter-service
+              servicePort: http
+          - path: /
+            backend:
+              serviceName: frontend-service
+              servicePort: http
+      host: app.easytensor.com

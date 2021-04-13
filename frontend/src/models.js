@@ -5,6 +5,7 @@ import Button from "@material-ui/core/Button";
 import Fab from "@material-ui/core/Fab";
 
 import IconButton from "@material-ui/core/IconButton";
+import AssignmentIcon from "@material-ui/icons/Assignment";
 import ToolTip from "@material-ui/core/Tooltip";
 import Grid from "@material-ui/core/Grid";
 import Card from "@material-ui/core/Card";
@@ -211,7 +212,14 @@ function Model({ model, onDelete }) {
             style={{ alignItems: "center" }}
           />
           <div>
-            <ToolTip title="Download Model">
+            <ToolTip title="View Logs">
+              <CleanLink to={"/models/" + id + "/logs"}>
+                <IconButton color="primary">
+                  <AssignmentIcon />
+                </IconButton>
+              </CleanLink>
+            </ToolTip>
+            <ToolTip title="View Logs">
               <IconButton onClick={() => download_model(id)} color="primary">
                 <CloudDownload />
               </IconButton>
@@ -326,7 +334,7 @@ function ModelList() {
     </Grid>
   );
 }
-function ModelPage() {
+function ModelsPage() {
   return (
     <div>
       <ModelList />
@@ -348,4 +356,4 @@ function ModelPage() {
     </div>
   );
 }
-export { ModelList, DeleteAll, ModelPage };
+export { ModelList, DeleteAll, ModelsPage };

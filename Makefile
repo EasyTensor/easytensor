@@ -3,7 +3,7 @@ SHELL := /bin/bash
 all: build-all tag-all push-all
 
 dev:
-	skaffold dev --cleanup=false  --port-forward
+	skaffold dev --cleanup=false  --port-forward --detect-minikube=true
 
 build-all: build-image-backend \
 		build-image-frontend \

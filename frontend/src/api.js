@@ -47,7 +47,14 @@ export function GetModelDownloadLink(model_id) {
 }
 
 export function GetModelStatus(model_id) {
-  return axios.get(`${REPORTER_URL}/model-status/${model_id}`, getConfig());
+  return axios.get(
+    `${REPORTER_URL}/info/model-status/${model_id}`,
+    getConfig()
+  );
+}
+
+export function GetModelPodList(model_id) {
+  return axios.get(`${REPORTER_URL}/info/logs/list/${model_id}`, getConfig());
 }
 
 // Token URLS

@@ -7,7 +7,7 @@ import {
   RegistrationFailure,
   RegistrationSuccess,
 } from "./auth/registration_status";
-import { ModelPage } from "./models";
+import { ModelsPage } from "./models";
 import { Route, Switch } from "react-router-dom";
 import { NavBar } from "./nav_bar";
 import { PrivateRoute } from "./routes";
@@ -18,6 +18,7 @@ import Typography from "@material-ui/core/Typography";
 import WhiteShadows from "./light_shadows";
 import { AccountPage } from "./account_page";
 import { ExplorePage } from "./explore";
+import { ModelLogs } from "./model_logs";
 
 import Box from "@material-ui/core/Box";
 import { PricingPage, PaymentSuccessPage } from "./pricing";
@@ -76,8 +77,11 @@ function App() {
               <PrivateRoute path="/explore">
                 <ExplorePage />
               </PrivateRoute>
+              <PrivateRoute path="/models/:modelId/logs">
+                <ModelLogs />
+              </PrivateRoute>
               <PrivateRoute path="/models">
-                <ModelPage />
+                <ModelsPage />
               </PrivateRoute>
               <PrivateRoute path="/pricing/success">
                 <PaymentSuccessPage />
