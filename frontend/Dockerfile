@@ -5,7 +5,7 @@ RUN apk add git
 WORKDIR /app
 
 COPY package.json /app/package.json
-RUN npm install
+RUN npm install  --legacy-peer-deps
 RUN npm install -g serve
 
 COPY . /app

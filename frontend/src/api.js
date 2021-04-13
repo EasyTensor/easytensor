@@ -50,6 +50,10 @@ export function GetModelStatus(model_id) {
   return axios.get(`${REPORTER_URL}/model-status/${model_id}`, getConfig());
 }
 
+export function GetModelPodList(model_id) {
+  return axios.get(`${REPORTER_URL}/logs/list/${model_id}`, getConfig());
+}
+
 // Token URLS
 export function GetQueryAccessTokens() {
   return axios.get(`${BACKEND_URL}/v1/query-access-token/`, getConfig());
