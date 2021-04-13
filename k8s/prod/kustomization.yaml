@@ -48,23 +48,22 @@ patchesJson6902:
 images:
   - name: easytensor/frontend
     newName: gcr.io/easytensor-291022/easytensor/frontend
-    newTag: 0.2.6.2
+    newTag: 0.2.7
   - name: easytensor/backend
     newName: gcr.io/easytensor-291022/easytensor/backend
-    newTag: 0.2.6
-  # There is no such tag right now for migrations.
+    newTag: 0.2.7
   - name: easytensor/migrations
     newName: gcr.io/easytensor-291022/easytensor/migrations
-    newTag: 0.2.6
+    newTag: 0.2.7
   - name: easytensor/controller
     newName: gcr.io/easytensor-291022/easytensor/controller
-    newTag: 0.2.6
+    newTag: 0.2.7
   - name: easytensor/query
     newName: gcr.io/easytensor-291022/easytensor/query
-    newTag: 0.2.6
+    newTag: 0.2.7
   - name: easytensor/reporter
     newName: gcr.io/easytensor-291022/easytensor/reporter
-    newTag: 0.2.6
+    newTag: 0.2.7
 
 # labels added to all Resources
 commonLabels:
