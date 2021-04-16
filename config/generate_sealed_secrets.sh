@@ -20,6 +20,10 @@ kubectl create secret generic database-properties \
   --from-file=DATABASE_PASSWORD=k8s/prod/secrets/database-password-secret \
   --from-literal=DATABASE_HOST=localhost \
   --from-literal=DATABASE_PORT=5432 \
+  --from-file=DOCUMENT_STORE_USERNAME=k8s/prod/secrets/document-store-username-secret \
+  --from-file=DOCUMENT_STORE_PASSWORD=k8s/prod/secrets/document-store-password-secret \
+  --from-file=DOCUMENT_STORE_HOST=k8s/prod/secrets/document-store-host-secret \
+  --from-literal=DOCUMENT_STORE_PORT=27017 \
   -o yaml --dry-run=client -n prod > database-secret.yaml
 kubeseal -o yaml <database-secret.yaml >k8s/prod/secrets/sealed-database-secret.yaml
 rm database-secret.yaml

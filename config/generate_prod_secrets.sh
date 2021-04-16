@@ -6,6 +6,10 @@ gcloud secrets versions access 2 --secret="ET_PROD_DATABASE_NAME" > k8s/prod/sec
 gcloud secrets versions access 1 --secret="ET_PROD_DATABASE_USER" > k8s/prod/secrets/database-user-secret
 gcloud secrets versions access 1 --secret="ET_PROD_DATABASE_PASSWORD" > k8s/prod/secrets/database-password-secret
 
+gcloud secrets versions access 1 --secret="ET_PROD_DOCUMENT_STORE_USERNAME" > k8s/prod/secrets/document-store-username-secret
+gcloud secrets versions access 1 --secret="ET_PROD_DOCUMENT_STORE_PASSWORD" > k8s/prod/secrets/document-store-password-secret
+gcloud secrets versions access 1 --secret="ET_PROD_DOCUMENT_STORE_HOST" > k8s/prod/secrets/document-store-host-secret
+
 gcloud secrets versions access 1 --secret="SMTP_EMAIL_SERVER" > k8s/prod/secrets/email-server-secret
 gcloud secrets versions access 1 --secret="SMTP_EMAIL_PORT" > k8s/prod/secrets/email-port-secret
 gcloud secrets versions access 1 --secret="SMTP_EMAIL_USER" > k8s/prod/secrets/email-user-secret
