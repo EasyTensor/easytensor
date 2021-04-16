@@ -1,6 +1,7 @@
 from pprint import pprint
 import logging
 from django import views
+
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action, permission_classes
@@ -13,10 +14,13 @@ from uploads.models import (
     User,
     Team,
 )
+from rest_framework.views import APIView
 from rest_framework import viewsets, serializers
 from rest_framework.response import Response
+from rest_framework import generics
 from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST
 from dj_rest_auth.jwt_auth import JWTCookieAuthentication
+from backend.ds_connector import get_client
 from uploads.errors import ErrorResponse
 from uploads.google_signing_helpers import (
     generate_upload_signed_url_v4,
@@ -130,7 +134,7 @@ class ModelViewSet(viewsets.ModelViewSet):
             models = models.filter(tags=tag_models)
 
         if owner is not None:
-            if request.user.is_authenticated() and request.user == owner:
+            if request.user.is_authenticated and request.user == owner:
                 models = models.filter(owner=owner)
             else:
                 return get_access_forbidden_response()
@@ -153,10 +157,12 @@ class ModelViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
+    @permission_classes([JWTCookieAuthentication])
     def retrieve(self, request, pk, *args, **kwargs):
         model = get_object_or_404(Model, pk=pk)
+
         if not model.public and (
-            not request.user.is_authenticated()
+            not request.user.is_authenticated
             or not user_has_model_access(request.user, model)
         ):
             return get_access_forbidden_response()
@@ -197,6 +203,63 @@ class QueryAccessTokenViewSet(viewsets.ModelViewSet):
         token.delete()
         serializer = QueryAccessTokenSerializer(token)
         return Response(serializer.data)
+
+
+class ModelPageView(APIView):
+    """
+    View to retrieve and set the model's page content.
+    """
+
+    authentication_classes = [JWTCookieAuthentication]
+
+    def get(self, request, model_id: str, format=None):
+        """
+        Return a list of all users.
+        """
+        model = get_object_or_404(Model, pk=model_id)
+        if not model.public and (
+            not request.user.is_authenticated
+            or not user_has_model_access(request.user, model)
+        ):
+            return get_access_forbidden_response()
+
+        ds_client = get_client()
+        documents = ds_client.models.pages.find(
+            filter={"model_id": model.id}, projection={"_id": False, "content": True}
+        )
+        if documents.count() < 1:
+            return JsonResponse({"content": None})
+
+        return JsonResponse(documents[0])
+
+    def post(self, request, model_id: str, format=None):
+        """
+        Return a list of all users.
+        """
+        data = request.data
+        if "content" not in data:
+            return Response(
+                {"msg": 'no "content" passed in model page update.'},
+                status=HTTP_400_BAD_REQUEST,
+            )
+
+        model = get_object_or_404(Model, pk=model_id)
+        if not model.public and (
+            not request.user.is_authenticated
+            or not user_has_model_access(request.user, model)
+        ):
+            return get_access_forbidden_response()
+
+        ds_client = get_client()
+        result = ds_client.models.pages.update_one(
+            filter={"model_id": model.id},
+            update={"$set": {"content": data["content"]}},
+            upsert=True,
+        )
+
+        return JsonResponse(
+            {"found": result.matched_count, "updated": result.modified_count}
+        )
 
 
 def health_check(request):

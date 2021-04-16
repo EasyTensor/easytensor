@@ -18,8 +18,13 @@ function getConfig() {
 export function CreateModel(body) {
   return axios.post(`${BACKEND_URL}/v1/models/`, body, getConfig());
 }
+
 export function GetModels(query = "") {
   return axios.get(`${BACKEND_URL}/v1/models/?${query}`, getConfig());
+}
+
+export function GetModel(model_id) {
+  return axios.get(`${BACKEND_URL}/v1/models/${model_id}/`, getConfig());
 }
 
 export function PatchModel(model_id, patch_body) {
@@ -40,6 +45,26 @@ export function DeleteAllModels(body) {
 
 export function DeleteModel(model_id) {
   return axios.delete(`${BACKEND_URL}/v1/models/${model_id}/`, getConfig());
+}
+
+export function GetModelPage(model_id) {
+  return axios.get(`${BACKEND_URL}/v1/models/${model_id}/page`, getConfig());
+}
+
+export function CreateModelPage(model_id, body) {
+  return axios.post(
+    `${BACKEND_URL}/v1/models/${model_id}/page`,
+    body,
+    getConfig()
+  );
+}
+
+export function PatchModelPage(model_id, body) {
+  return axios.patch(
+    `${BACKEND_URL}/v1/models/${model_id}/page`,
+    body,
+    getConfig()
+  );
 }
 
 export function GetModelDownloadLink(model_id) {

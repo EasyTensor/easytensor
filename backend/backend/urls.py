@@ -43,6 +43,7 @@ from uploads.views import (
     health_check,
     QueryAccessTokenViewSet,
     EmptyView,
+    ModelPageView,
 )
 
 from payments.views import (
@@ -63,6 +64,7 @@ router.register(r"query-access-token", QueryAccessTokenViewSet)
 router.register(r"payments/subscriptions", SubscriptionPlanViewSet)
 
 urlpatterns = [
+    path("v1/models/<uuid:model_id>/page", ModelPageView.as_view()),
     path(
         "swagger(?P<format>\.json|\.yaml)",
         schema_view.without_ui(cache_timeout=0),

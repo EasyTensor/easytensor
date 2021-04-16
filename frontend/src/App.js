@@ -19,7 +19,7 @@ import WhiteShadows from "./light_shadows";
 import { AccountPage } from "./account_page";
 import { ExplorePage } from "./explore";
 import { ModelLogs } from "./model_logs";
-
+import { ModelPageEditor } from "./model_page_editor";
 import Box from "@material-ui/core/Box";
 import { PricingPage, PaymentSuccessPage } from "./pricing";
 
@@ -76,6 +76,9 @@ function App() {
               </Route>
               <PrivateRoute path="/explore">
                 <ExplorePage />
+              </PrivateRoute>
+              <PrivateRoute path="/models/:modelId/page-edit">
+                <ModelPageEditor />
               </PrivateRoute>
               <PrivateRoute path="/models/:modelId/logs">
                 <ModelLogs />

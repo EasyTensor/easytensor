@@ -168,6 +168,11 @@ DATABASES = {
     }
 }
 
+DOCUMENT_STORE_HOST = get_env_var("DOCUMENT_STORE_HOST")
+DOCUMENT_STORE_PORT = int(get_env_var("DOCUMENT_STORE_PORT"))
+DOCUMENT_STORE_USERNAME = get_env_var("DOCUMENT_STORE_USERNAME")
+DOCUMENT_STORE_PASSWORD = get_env_var("DOCUMENT_STORE_PASSWORD")
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

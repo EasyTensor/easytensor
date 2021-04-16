@@ -13,6 +13,7 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
+    "@uiw/react-md-editor": "^3.0.0-beta.5",
     "@uppy/aws-s3": "^1.7.0",
     "@uppy/core": "^1.13.2",
     "@uppy/react": "^1.10.8",

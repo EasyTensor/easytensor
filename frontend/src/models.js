@@ -3,7 +3,7 @@ import Typography from "@material-ui/core/Typography";
 import { Delete, Add, CloudDownload, Link } from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
 import Fab from "@material-ui/core/Fab";
-
+import EditIcon from "@material-ui/icons/Edit";
 import IconButton from "@material-ui/core/IconButton";
 import AssignmentIcon from "@material-ui/icons/Assignment";
 import ToolTip from "@material-ui/core/Tooltip";
@@ -117,10 +117,8 @@ function EmptyModelList() {
 function Model({ model, onDelete }) {
   const [name, setName] = useState(model.name);
   const [description, setDescription] = useState(model.description);
-  // const address = model.address;
   const id = model.id;
   const size = model.size;
-  // const scale = model.scale;
   const [isDeployed, setDeployed] = useState(model.deployed);
   const [status, setStatus] = useState("Retrieving...");
   const [deploymentMsg, setDeploymentMsg] = useState("");
@@ -212,13 +210,15 @@ function Model({ model, onDelete }) {
             style={{ alignItems: "center" }}
           />
           <div>
-            <ToolTip title="View Logs">
-              <CleanLink to={"/models/" + id + "/logs"}>
-                <IconButton color="primary">
-                  <AssignmentIcon />
-                </IconButton>
-              </CleanLink>
-            </ToolTip>
+            {isDeployed && (
+              <ToolTip title="View Logs">
+                <CleanLink to={"/models/" + id + "/logs"}>
+                  <IconButton color="primary">
+                    <AssignmentIcon />
+                  </IconButton>
+                </CleanLink>
+              </ToolTip>
+            )}
             <ToolTip title="View Logs">
               <IconButton onClick={() => download_model(id)} color="primary">
                 <CloudDownload />
@@ -262,7 +262,7 @@ function Model({ model, onDelete }) {
         />
         <div style={{ display: "flex" }}>
           <div style={{ flexGrow: 1 }}>
-            Not Deployed
+            Deployment
             <Switch
               checked={isDeployed}
               onChange={switchDeploy}
@@ -270,7 +270,6 @@ function Model({ model, onDelete }) {
               color="primary"
               inputProps={{ "aria-label": "secondary checkbox" }}
             />
-            Deployed
           </div>
           <div
             style={{
@@ -278,14 +277,23 @@ function Model({ model, onDelete }) {
               justifyContent: "flex-end",
             }}
           >
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleOpen}
-              disabled={!isDeployed}
-            >
-              Query
-            </Button>
+            <div style={{ marginLeft: "0.5em" }}>
+              <CleanLink to={"/models/" + id + "/page-edit"}>
+                <Button variant="contained" color="primary">
+                  Page
+                </Button>
+              </CleanLink>
+            </div>
+            <div style={{ marginLeft: "0.5em", marginRight: "0.5em" }}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleOpen}
+                disabled={!isDeployed}
+              >
+                Query
+              </Button>
+            </div>
           </div>
           <Dialog
             fullWidth={true}

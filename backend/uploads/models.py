@@ -54,5 +54,8 @@ class QueryAccessToken(models.Model):
 
 def user_has_model_access(user: User, model: Model):
     return any(
-        model.owner == user, model in Team.objects.filter(users__contain=user).models
+        (
+            model.owner == user,
+            Team.objects.filter(users__in=[user], models__in=[model.id]).count() > 0,
+        )
     )
