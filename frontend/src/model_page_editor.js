@@ -10,10 +10,12 @@ import { CreateModelPage, GetModelPage, GetModel } from "./api";
 import { get_user } from "./auth/helper";
 import NoAccessPaper from "./no_access";
 
+const DEFAULT_CONTENT =
+  "# Model Name\n\n This is my model's page\n\n```python\nprint('hi')\n```";
 function ModelPageEditor() {
   let { modelId } = useParams();
 
-  const [value, setValue] = useState("**Hello world!!!**");
+  const [value, setValue] = useState(DEFAULT_CONTENT);
   const [isAuthor, setIsAuthor] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
   const [model, setModel] = useState({});
@@ -25,7 +27,7 @@ function ModelPageEditor() {
     GetModelPage(modelId)
       .then((res) => {
         if (res.data.content === null) {
-          setValue("## My first model\n");
+          setValue(DEFAULT_CONTENT);
           return;
         }
         setValue(res.data.content);
