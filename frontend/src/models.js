@@ -3,7 +3,8 @@ import Typography from "@material-ui/core/Typography";
 import { Delete, Add, CloudDownload, Link } from "@material-ui/icons";
 import Button from "@material-ui/core/Button";
 import Fab from "@material-ui/core/Fab";
-import EditIcon from "@material-ui/icons/Edit";
+import LockOpenIcon from "@material-ui/icons/LockOpen";
+import LockIcon from "@material-ui/icons/Lock";
 import IconButton from "@material-ui/core/IconButton";
 import AssignmentIcon from "@material-ui/icons/Assignment";
 import ToolTip from "@material-ui/core/Tooltip";
@@ -119,6 +120,7 @@ function Model({ model, onDelete }) {
   const [description, setDescription] = useState(model.description);
   const id = model.id;
   const size = model.size;
+  const [isPublic, setIsPublic] = useState(model.public);
   const [isDeployed, setDeployed] = useState(model.deployed);
   const [status, setStatus] = useState("Retrieving...");
   const [deploymentMsg, setDeploymentMsg] = useState("");
@@ -146,6 +148,10 @@ function Model({ model, onDelete }) {
     GetModelDownloadLink(model_id).then((response) => {
       window.open(response.data.url);
     });
+  }
+
+  function handlePublicChange() {
+    PatchModel(id, { public: !isPublic }).then(setIsPublic(!isPublic));
   }
 
   const [open, setOpen] = React.useState(false);
@@ -239,7 +245,25 @@ function Model({ model, onDelete }) {
           />
           {getModelIDCopyLink(model.id)}
           <Typography style={{ paddingLeft: ".25em", paddingRight: ".25em" }}>
-            {model.public ? "Public" : "Private"}
+            {isPublic ? (
+              <ToolTip title="Public Model">
+                <LockOpenIcon
+                  onClick={(e) => {
+                    handlePublicChange();
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
+              </ToolTip>
+            ) : (
+              <ToolTip title="Private Model">
+                <LockIcon
+                  onClick={(e) => {
+                    handlePublicChange();
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
+              </ToolTip>
+            )}
           </Typography>
           <Typography style={{ paddingLeft: ".25em", paddingRight: ".25em" }}>
             {Math.round(size / 1024 / 1024) < 1
