@@ -2,16 +2,26 @@ import { BACKEND_URL, QUERY_URL, REPORTER_URL } from "./constants";
 import axios from "axios";
 import { get_jwt_cookie } from "./auth/helper";
 
+// returns null if the app is not authorized.
+// else returns the header content required for authorization.
 function getAuthorization() {
+  const jwt_cookie = get_jwt_cookie();
+  if (jwt_cookie === null || jwt_cookie === undefined) {
+    return null;
+  }
   return `Bearer ${get_jwt_cookie()}`;
 }
 function getConfig() {
+  const headers = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  };
+  const auth = getAuthorization();
+  if (auth !== null) {
+    headers.Authorization = auth;
+  }
   return {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: getAuthorization(),
-      Accept: "application/json",
-    },
+    headers: headers,
   };
 }
 

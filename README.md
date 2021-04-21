@@ -2,7 +2,7 @@
 
 ##### Requirements
 
-- [Docker] (https://www.docker.com/get-started)
+- [Docker](https://www.docker.com/get-started)
 - [minikube](https://minikube.sigs.k8s.io/docs/start/)
 - [Skaffold](https://skaffold.dev/)
 - [kustomize](https://kubectl.docs.kubernetes.io/installation/kustomize/binaries/) (an old version ships with kubectl)

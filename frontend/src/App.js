@@ -51,7 +51,7 @@ function App() {
             overflow: "auto",
             width: "100%",
             height: "100%",
-            minHeight: "100hv",
+            minHeight: "100vh",
             backgroundImage:
               " linear-gradient(54deg, #FF750D 60%, #F5F6F7 100%)",
             display: "flex",
@@ -77,9 +77,9 @@ function App() {
               <PrivateRoute path="/explore">
                 <ExplorePage />
               </PrivateRoute>
-              <PrivateRoute path="/models/:modelId/page-edit">
+              <Route path="/models/:modelId/page">
                 <ModelPageEditor />
-              </PrivateRoute>
+              </Route>
               <PrivateRoute path="/models/:modelId/logs">
                 <ModelLogs />
               </PrivateRoute>

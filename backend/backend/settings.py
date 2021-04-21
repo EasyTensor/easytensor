@@ -220,7 +220,8 @@ REST_FRAMEWORK = {
         "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
+        # allow for public URLS like public models.
+        "rest_framework.permissions.AllowAny",
     ],
 }
 

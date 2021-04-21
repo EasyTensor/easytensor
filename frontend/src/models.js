@@ -278,7 +278,7 @@ function Model({ model, onDelete }) {
             }}
           >
             <div style={{ marginLeft: "0.5em" }}>
-              <CleanLink to={"/models/" + id + "/page-edit"}>
+              <CleanLink to={"/models/" + id + "/page"}>
                 <Button variant="contained" color="primary">
                   Page
                 </Button>

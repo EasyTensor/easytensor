@@ -109,8 +109,8 @@ function ModelLogs() {
           </div>
           <div style={{ width: "100%", padding: "1em" }}>
             {podList.length > 0 &&
-            selectedPod != "undefined" &&
-            podContainers[selectedPod] != "undefined" ? (
+            selectedPod != undefined &&
+            podContainers[selectedPod] != undefined ? (
               <div style={{ textAlign: "center" }}>
                 <Tabs
                   value={selectedTab}

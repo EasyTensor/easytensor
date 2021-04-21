@@ -4,7 +4,8 @@ from django import views
 
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
-from rest_framework.decorators import action, permission_classes
+from rest_framework.decorators import action, permission_classes, authentication_classes
+from rest_framework.permissions import AllowAny
 from uploads.models import (
     ModelUpload,
     Model,
@@ -121,8 +122,6 @@ class ModelViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         models = Model.objects.all()
 
-        # pprint(request.query_params.get("public"))
-        # pprint(type(request.query_params.get("public")))
         is_public = request.query_params.get("public")
         tags = request.query_params.get("tags")
         owner = request.query_params.get("owner")
@@ -157,7 +156,6 @@ class ModelViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
-    @permission_classes([JWTCookieAuthentication])
     def retrieve(self, request, pk, *args, **kwargs):
         model = get_object_or_404(Model, pk=pk)
 

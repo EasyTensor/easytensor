@@ -24,4 +24,8 @@ function remove_jwt_cookie() {
   cookies.remove("jwt-auth", { path: "/" });
 }
 
-export { is_authenticated, get_jwt_cookie, remove_jwt_cookie };
+function get_user() {
+  return cookies.get("user", { path: "/" });
+}
+
+export { is_authenticated, get_jwt_cookie, remove_jwt_cookie, get_user };
