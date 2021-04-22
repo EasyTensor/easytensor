@@ -54,7 +54,7 @@ images:
     newTag: 0.2.8.1
   - name: easytensor/migrations
     newName: gcr.io/easytensor-291022/easytensor/migrations
-    newTag: 0.2.8.1
+    newTag: 0.2.8
   - name: easytensor/controller
     newName: gcr.io/easytensor-291022/easytensor/controller
     newTag: 0.2.8
