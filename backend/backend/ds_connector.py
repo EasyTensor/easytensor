@@ -12,11 +12,10 @@ def get_client():
             username=settings.DOCUMENT_STORE_USERNAME,
             password=settings.DOCUMENT_STORE_PASSWORD,
         )
-
     # ugly solution because MongoDB Atlas only seems to work when specifying
     # the full URL.
     return MongoClient(
-        "mongodb+srv://{}:<{}>@{}/?retryWrites=true&w=majority".format(
+        "mongodb+srv://{}:{}@{}/?retryWrites=true&w=majority".format(
             settings.DOCUMENT_STORE_USERNAME,
             settings.DOCUMENT_STORE_PASSWORD,
             settings.DOCUMENT_STORE_HOST,
