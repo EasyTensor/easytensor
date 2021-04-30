@@ -326,6 +326,16 @@ spec:
         app.kubernetes.io/instance: ingress-nginx
         app.kubernetes.io/component: controller
     spec:
+      # custom node affinity on non-preemptible nodes
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: preemptible
+                    operator: In
+                    values:
+                      - "false"
       dnsPolicy: ClusterFirst
       containers:
         - name: controller
